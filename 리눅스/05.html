@@ -1,0 +1,1348 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Anaconda 환경과 데이터셋 구조화 · 교과 1 · 리눅스</title>
+<link rel="preconnect" href="https://cdn.jsdelivr.net">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fontsource/jetbrains-mono@5.0.20/index.min.css">
+<style>
+/* ============ 토큰 ============ */
+:root{
+  --paper:#FAFAFB; --card:#FFFFFF;
+  --ink:#161B22; --ink2:#495364; --ink3:#828D9E;
+  --rule:#E4E8ED; --rule2:#F0F2F5;
+  --spec:#14539A;          /* 청사진 잉크 — 구조 · 링크 */
+  --spec-soft:#EAF1FA;
+  --warn:#A85408;          /* 신호 앰버 — 경고 · 보안 */
+  --warn-soft:#FDF3E7;
+  --ok:#0B6E5F;            /* 검수 통과 — 체크포인트 */
+  --ok-soft:#E7F3F0;
+  --term:#0E141B; --term-ink:#DCE6F0; --term-rule:#232C38;
+  --mono:"JetBrains Mono",ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+  --sans:"Pretendard Variable",Pretendard,-apple-system,BlinkMacSystemFont,
+         "Segoe UI","Malgun Gothic","Apple SD Gothic Neo","Noto Sans KR",sans-serif;
+  --rail:264px;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth;scroll-padding-top:84px}
+@media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}*{animation:none!important;transition:none!important}}
+body{
+  margin:0;background:var(--paper);color:var(--ink);font-family:var(--sans);
+  font-size:16px;line-height:1.78;-webkit-font-smoothing:antialiased;
+  word-break:keep-all;overflow-wrap:anywhere;
+}
+
+/* ============ 상단 바 ============ */
+.topbar{
+  position:sticky;top:0;z-index:40;background:rgba(250,250,251,.92);
+  backdrop-filter:blur(10px);border-bottom:1px solid var(--rule);
+}
+.topbar .in{max-width:1400px;margin:0 auto;padding:0 24px;height:56px;
+  display:flex;align-items:center;gap:18px}
+.brand{font-family:var(--mono);font-size:11px;letter-spacing:.1em;color:var(--ink3);
+  text-transform:uppercase;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.brand b{color:var(--spec);font-weight:700}
+.navbtns{margin-left:auto;display:flex;gap:8px;flex-shrink:0}
+.navbtns a{font-family:var(--mono);font-size:11px;letter-spacing:.06em;
+  text-decoration:none;color:var(--ink2);border:1px solid var(--rule);
+  border-radius:6px;padding:6px 11px;background:var(--card);transition:.15s}
+.navbtns a:hover{border-color:var(--spec);color:var(--spec)}
+.navbtns a.home{background:var(--spec);color:#fff;border-color:var(--spec)}
+.navbtns a.home:hover{filter:brightness(1.12)}
+
+/* ============ 레이아웃 ============ */
+.wrap{max-width:1400px;margin:0 auto;padding:0 24px;display:grid;
+  grid-template-columns:var(--rail) minmax(0,1fr);gap:44px;align-items:start}
+.rail{position:sticky;top:56px;max-height:calc(100vh - 56px);overflow-y:auto;
+  padding:28px 0 60px;scrollbar-width:thin}
+.rail::-webkit-scrollbar{width:6px}
+.rail::-webkit-scrollbar-thumb{background:var(--rule);border-radius:3px}
+main{padding:36px 0 120px;min-width:0;max-width:920px}
+
+/* ============ 시그니처: 일차 스파인 ============ */
+.spine-h{font-family:var(--mono);font-size:10px;letter-spacing:.14em;
+  color:var(--ink3);text-transform:uppercase;margin:0 0 12px 2px}
+.spine{list-style:none;margin:0 0 30px;padding:0;position:relative}
+.spine::before{content:"";position:absolute;left:19px;top:14px;bottom:14px;
+  width:1px;background:var(--rule)}
+.spine li{position:relative}
+.spine a{display:grid;grid-template-columns:38px 40px minmax(0,1fr);align-items:center;gap:6px;
+  padding:5px 8px 5px 0;text-decoration:none;color:var(--ink2);border-radius:6px}
+.spine a:hover{background:var(--rule2)}
+.spine .dot{position:relative;z-index:1;justify-self:center;width:9px;height:9px;
+  border-radius:50%;background:var(--card);border:1.5px solid var(--rule)}
+.spine .lbl{font-family:var(--mono);font-size:11.5px;letter-spacing:.04em}
+.spine .ttl{font-size:12.5px;line-height:1.35;color:var(--ink3);
+  overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.spine a[aria-current]{background:var(--spec-soft)}
+.spine a[aria-current] .dot{background:var(--spec);border-color:var(--spec);
+  box-shadow:0 0 0 3px rgba(20,83,154,.14)}
+.spine a[aria-current] .lbl{color:var(--spec);font-weight:700}
+.spine a[aria-current] .ttl{color:var(--ink)}
+.spine .done .dot{background:var(--rule);border-color:var(--rule)}
+
+/* ============ 문서 내 목차 ============ */
+.toc-h{font-family:var(--mono);font-size:10px;letter-spacing:.14em;color:var(--ink3);
+  text-transform:uppercase;margin:0 0 10px 2px;padding-top:22px;border-top:1px solid var(--rule)}
+.toc{list-style:none;margin:0;padding:0}
+.toc li{margin:0}
+.toc a{display:block;padding:5px 10px;font-size:13.5px;line-height:1.45;
+  text-decoration:none;color:var(--ink2);border-left:2px solid transparent;border-radius:0 5px 5px 0}
+.toc a:hover{background:var(--rule2);color:var(--ink)}
+.toc .lv1>a{font-weight:700;color:var(--ink);margin-top:12px;font-size:13px;
+  font-family:var(--mono);letter-spacing:.02em}
+.toc .lv2>a{padding-left:16px}
+.toc a.active{border-left-color:var(--spec);background:var(--spec-soft);color:var(--spec);font-weight:600}
+
+/* ============ 문서 헤더 ============ */
+.dochead{margin:0 0 40px;padding-bottom:26px;border-bottom:2px solid var(--ink)}
+.eyebrow{font-family:var(--mono);font-size:11px;letter-spacing:.14em;color:var(--spec);
+  text-transform:uppercase;margin-bottom:12px}
+.dochead h1{margin:0;padding:0;background:none;color:var(--ink);border-radius:0;
+  font-size:clamp(26px,3.3vw,38px);line-height:1.24;font-weight:800;letter-spacing:-.025em}
+.dochead .sub{margin:12px 0 0;color:var(--ink2);font-size:15px}
+/* 진도 트랙 — 60시간 중 현재 위치 */
+.track{margin-top:22px}
+.track .bar{height:5px;background:var(--rule);border-radius:3px;overflow:hidden;display:flex}
+.track .bar i{display:block;height:100%}
+.track .bar .past{background:var(--rule)}
+.track .bar .now{background:var(--spec)}
+.track .cap{display:flex;justify-content:space-between;margin-top:8px;max-width:640px;
+  font-family:var(--mono);font-size:10.5px;color:var(--ink3);letter-spacing:.04em}
+.track .bar{max-width:640px}
+
+/* ============ 본문 타이포 ============ */
+main h1{font-size:22px;font-weight:800;letter-spacing:-.01em;margin:64px 0 20px;
+  padding:14px 18px;background:var(--ink);color:#fff;border-radius:8px}
+main h1:first-of-type{margin-top:8px}
+main h2{font-size:19.5px;font-weight:750;margin:48px 0 14px;padding-bottom:9px;
+  border-bottom:1px solid var(--rule);letter-spacing:-.01em;scroll-margin-top:80px}
+main h3{font-size:16.5px;font-weight:700;margin:34px 0 10px;color:var(--ink);
+  scroll-margin-top:80px}
+main h4{font-size:15px;font-weight:700;margin:24px 0 8px;color:var(--ink2)}
+main p{margin:0 0 15px}
+main ul,main ol{margin:0 0 16px;padding-left:22px}
+main li{margin:5px 0}
+main li>ul,main li>ol{margin:6px 0}
+main hr{border:0;border-top:1px solid var(--rule);margin:46px 0}
+main strong{font-weight:700}
+main a{color:var(--spec);text-underline-offset:3px}
+
+/* 체크포인트 · 경고 헤딩 */
+main h3.cp,main h4.cp{background:var(--ok-soft);color:var(--ok);border-left:3px solid var(--ok);
+  padding:9px 14px;border-radius:0 7px 7px 0;font-size:15px}
+main h3.warn,main h4.warn,main h2.warn{background:var(--warn-soft);color:var(--warn);
+  border-left:3px solid var(--warn);border-bottom:0;padding:9px 14px;border-radius:0 7px 7px 0;font-size:15px}
+
+/* ============ 코드 ============ */
+main :not(pre)>code{font-family:var(--mono);font-size:.855em;background:var(--spec-soft);
+  color:#0F3F76;padding:1.5px 5px;border-radius:4px;word-break:break-all}
+main pre{background:var(--term);color:var(--term-ink);border-radius:10px;
+  padding:16px 18px;overflow-x:auto;margin:0 0 18px;font-size:13.5px;line-height:1.7;
+  border:1px solid var(--term-rule)}
+main pre code{font-family:var(--mono);background:none;color:inherit;padding:0;font-size:inherit}
+main pre::-webkit-scrollbar{height:8px}
+main pre::-webkit-scrollbar-thumb{background:#2C3846;border-radius:4px}
+
+/* ============ 표 ============ */
+.tw{overflow-x:auto;margin:0 0 20px;border:1px solid var(--rule);border-radius:9px;background:var(--card)}
+main table{border-collapse:collapse;width:100%;font-size:14px;min-width:min(100%,420px)}
+main th,main td{padding:9px 13px;border-bottom:1px solid var(--rule2);
+  text-align:left;vertical-align:top;line-height:1.6}
+main th{background:#F5F7F9;font-weight:700;font-size:12.5px;letter-spacing:.02em;
+  color:var(--ink2);white-space:nowrap;border-bottom:1px solid var(--rule)}
+main tbody tr:last-child td{border-bottom:0}
+main tbody tr:hover{background:#FBFCFD}
+main td code{white-space:nowrap}
+
+/* ============ 인용 ============ */
+main blockquote{margin:0 0 18px;padding:13px 18px;background:var(--card);
+  border:1px solid var(--rule);border-left:3px solid var(--spec);border-radius:0 8px 8px 0;
+  color:var(--ink2);font-size:14.5px}
+main blockquote p:last-child{margin-bottom:0}
+
+/* ============ 하단 이동 ============ */
+.pager{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:70px;
+  padding-top:26px;border-top:1px solid var(--rule)}
+.pager a{display:block;padding:15px 18px;border:1px solid var(--rule);border-radius:10px;
+  text-decoration:none;background:var(--card);transition:.15s}
+.pager a:hover{border-color:var(--spec);box-shadow:0 2px 10px rgba(20,83,154,.07)}
+.pager .k{font-family:var(--mono);font-size:10px;letter-spacing:.12em;color:var(--ink3);
+  text-transform:uppercase;display:block;margin-bottom:5px}
+.pager .v{font-size:14.5px;font-weight:650;color:var(--ink);line-height:1.4}
+.pager .next{text-align:right}
+.pager .empty{border-style:dashed;opacity:.4;pointer-events:none}
+
+/* ============ 색인 페이지 ============ */
+.hero{padding:56px 0 40px;border-bottom:2px solid var(--ink);margin-bottom:44px}
+.hero h1{margin:14px 0 0;padding:0;background:none;color:var(--ink);border-radius:0;
+  font-size:clamp(30px,4.4vw,48px);line-height:1.18;font-weight:800;letter-spacing:-.03em}
+.hero .eyebrow{margin-bottom:0}
+.hero .lede{margin:20px 0 0;font-size:16.5px;line-height:1.68;color:var(--ink2);max-width:60ch}
+.stats{display:flex;flex-wrap:wrap;gap:36px;margin-top:34px}
+.stat .n{font-family:var(--mono);font-size:27px;font-weight:700;color:var(--spec);
+  letter-spacing:-.02em;line-height:1}
+.stat .l{font-family:var(--mono);font-size:10.5px;letter-spacing:.12em;color:var(--ink3);
+  text-transform:uppercase;margin-top:7px}
+.cards{display:grid;gap:12px;margin-bottom:60px}
+.card{display:grid;grid-template-columns:74px 1fr auto;align-items:center;gap:20px;
+  padding:17px 22px;background:var(--card);border:1px solid var(--rule);border-radius:11px;
+  text-decoration:none;color:inherit;transition:.15s}
+.card:hover{border-color:var(--spec);transform:translateX(3px);
+  box-shadow:0 3px 14px rgba(20,83,154,.08)}
+.card .key{font-family:var(--mono);font-size:15px;font-weight:700;color:var(--spec);
+  letter-spacing:.02em}
+.card .key small{display:block;font-size:9.5px;color:var(--ink3);font-weight:400;
+  letter-spacing:.1em;margin-top:3px}
+.card .t{font-size:16px;font-weight:700;line-height:1.35}
+.card .d{font-size:13.5px;color:#78818E;margin-top:4px;line-height:1.55}
+.card .h{font-family:var(--mono);font-size:11px;color:var(--ink3);white-space:nowrap;
+  letter-spacing:.04em}
+.idx-sec{font-family:var(--mono);font-size:10.5px;letter-spacing:.14em;color:var(--ink3);
+  text-transform:uppercase;margin:34px 0 12px}
+.idx-sec:first-child{margin-top:0}
+.note{background:var(--warn-soft);border:1px solid #F0DFC6;border-left:3px solid var(--warn);
+  border-radius:0 10px 10px 0;padding:18px 22px;margin-bottom:56px;font-size:14.5px;color:#6B3A08}
+.note b{color:var(--warn)}
+.note ul{margin:9px 0 0;padding-left:20px}
+
+/* ============ 반응형 ============ */
+@media (max-width:1080px){
+  .wrap{grid-template-columns:1fr;gap:0}
+  .rail{position:static;max-height:none;overflow:visible;padding:22px 0 0;
+    border-bottom:1px solid var(--rule);margin-bottom:8px}
+  .spine{display:flex;flex-wrap:wrap;gap:5px;margin-bottom:20px}
+  .spine::before{display:none}
+  .spine a{grid-template-columns:auto;padding:6px 11px;border:1px solid var(--rule);border-radius:7px}
+  .spine .dot,.spine .ttl{display:none}
+  .toc-h{padding-top:16px}
+  .toc{columns:2;column-gap:20px;max-height:230px;overflow-y:auto;
+    border:1px solid var(--rule);border-radius:9px;padding:8px;background:var(--card)}
+  .toc .lv1>a{margin-top:0}
+  main{padding:22px 0 80px}
+}
+@media (max-width:620px){
+  body{font-size:15.5px}
+  .wrap,.topbar .in{padding:0 15px}
+  .toc{columns:1;max-height:200px}
+  .pager{grid-template-columns:1fr}
+  .pager .next{text-align:left}
+  .card{grid-template-columns:56px 1fr;gap:14px}
+  .card .h{grid-column:2;margin-top:5px}
+  main h1{font-size:19px;padding:12px 14px}
+  main pre{font-size:12.5px;padding:13px 14px}
+}
+
+/* ============ 인쇄 ============ */
+@media print{
+  :root{--paper:#fff}
+  .topbar,.rail,.pager,.track{display:none!important}
+  .wrap{display:block;max-width:none;padding:0}
+  main{padding:0}
+  body{font-size:10.5pt;line-height:1.62}
+  main h1{background:none;color:#000;border:1.5pt solid #000;padding:7pt 10pt;
+    font-size:15pt;margin:22pt 0 11pt;page-break-after:avoid}
+  main h2,main h3,main h4{page-break-after:avoid}
+  main h2{font-size:13pt;margin:16pt 0 7pt}
+  main h3{font-size:11.5pt}
+  main pre{background:#F6F7F9;color:#111;border:.5pt solid #CBD2DA;
+    font-size:8.6pt;page-break-inside:avoid;white-space:pre-wrap;word-break:break-all}
+  main pre code{color:#111}
+  main :not(pre)>code{background:#EFF2F5;color:#111}
+  main table{font-size:9pt;page-break-inside:avoid}
+  .tw{overflow:visible;border-color:#CBD2DA}
+  main blockquote{page-break-inside:avoid}
+  a{color:#000;text-decoration:none}
+  .dochead{page-break-after:avoid}
+  @page{margin:15mm 14mm}
+}
+</style>
+</head>
+<body>
+<header class="topbar"><div class="in">
+  <div class="brand">KDT · AI 캠퍼스 [비솔] Vision AI &amp; 산업분야 Vertical AI 융합 전문가 양성 · <b>교과 1 · 리눅스</b></div>
+  <nav class="navbtns">
+    <a class="home" href="index.html">전체 목차</a>
+    <a href="#" onclick="window.print();return false;">인쇄 / PDF</a>
+  </nav>
+</div></header>
+
+<div class="wrap">
+  <aside class="rail">
+    <p class="spine-h">교과 1 · 60H 전체</p>
+    <ul class="spine"><li><a class="done" href="00.html"><span class="dot"></span><span class="lbl">PLAN</span><span class="ttl">강의 기획서</span></a></li>
+<li><a class="done" href="01.html"><span class="dot"></span><span class="lbl">D1</span><span class="ttl">리눅스 시작과 파일 시스템</span></a></li>
+<li><a class="done" href="02.html"><span class="dot"></span><span class="lbl">D2</span><span class="ttl">권한 · 아카이브 · 텍스트 스트림</span></a></li>
+<li><a class="done" href="03.html"><span class="dot"></span><span class="lbl">D3</span><span class="ttl">편집기와 텍스트 처리</span></a></li>
+<li><a class="done" href="04.html"><span class="dot"></span><span class="lbl">D4</span><span class="ttl">셸 스크립트 · 프로세스 · 자동화</span></a></li>
+<li><a class="" href="05.html" aria-current="page"><span class="dot"></span><span class="lbl">D5</span><span class="ttl">Anaconda 환경과 데이터셋 구조화</span></a></li>
+<li><a class="" href="06.html"><span class="dot"></span><span class="lbl">D6</span><span class="ttl">Git 기초</span></a></li>
+<li><a class="" href="07.html"><span class="dot"></span><span class="lbl">D7</span><span class="ttl">GitHub 협업과 데이터 보안</span></a></li>
+<li><a class="" href="08.html"><span class="dot"></span><span class="lbl">D8</span><span class="ttl">부분 파이널 프로젝트</span></a></li>
+<li><a class="" href="99.html"><span class="dot"></span><span class="lbl">APX</span><span class="ttl">부록 · 치트시트 &amp; 트러블슈팅</span></a></li></ul>
+    <p class="toc-h">이 문서 안에서</p>
+    <ul class="toc"><li class="lv2"><a href="#학습-목표">학습 목표</a></li>
+<li class="lv2"><a href="#0교시-전일-복습-퀴즈-10분">0교시 · 전일 복습 퀴즈 (10분)</a></li>
+<li class="lv1"><a href="#part-1-이론-4h">PART 1. 이론 (4H)</a></li>
+<li class="lv2"><a href="#1교시-시스템-패키지-관리-50분">1교시 · 시스템 패키지 관리 (50분)</a></li>
+<li class="lv2"><a href="#2교시-가상환경-왜-필요한가-50분">2교시 · 가상환경 — 왜 필요한가 (50분)</a></li>
+<li class="lv2"><a href="#3교시-대용량-데이터셋-디렉토리-설계-50분">3교시 · 대용량 데이터셋 디렉토리 설계 (50분)</a></li>
+<li class="lv2"><a href="#4교시-전반-오늘의-실습-설계-브리핑-30분">4교시 (전반) · 오늘의 실습 설계 브리핑 (30분)</a></li>
+<li class="lv1"><a href="#part-2-실습-4h">PART 2. 실습 (4H)</a></li>
+<li class="lv2"><a href="#실습-5-1-anaconda-설치와-환경-구성-70분">실습 5-1 · Anaconda 설치와 환경 구성 (70분)</a></li>
+<li class="lv2"><a href="#실습-5-2-표준-데이터셋-구조-구축-60분">실습 5-2 · 표준 데이터셋 구조 구축 (60분)</a></li>
+<li class="lv2"><a href="#실습-5-3-split_datasetsh-작성-60분-핵심-산출물">실습 5-3 · split_dataset.sh 작성 (60분) ★핵심 산출물</a></li>
+<li class="lv2"><a href="#실습-5-4-종합-챌린지-30분">실습 5-4 · 종합 챌린지 (30분)</a></li>
+<li class="lv2"><a href="#마무리-10분">마무리 (10분)</a></li>
+<li class="lv2"><a href="#과제">과제</a></li>
+<li class="lv2"><a href="#강사-운영-노트">강사 운영 노트</a></li></ul>
+  </aside>
+
+  <main>
+    <div class="dochead">
+      <div class="eyebrow">D5 &nbsp;/&nbsp; 교과 1 · 리눅스 &nbsp;/&nbsp; 8시간</div>
+      <h1>5일차 · Anaconda 가상환경과 대용량 데이터셋 구조화 (8H)</h1>
+      <p class="sub">환경 격리 · environment.yml · split_dataset.sh</p>
+      <div class="track"><div class="bar"><i class="past" style="width:53.33%"></i><i class="now" style="width:13.33%"></i></div><div class="cap"><span>32H 누적</span><span>이 문서 8H</span><span>전체 60H</span></div></div>
+    </div>
+    <blockquote>
+<p>이론 4H · 실습 4H
+<strong>오늘의 한 문장:</strong> "내 PC에서 되는 환경을 남의 PC·클라우드·Jetson에서 똑같이 재현한다."</p>
+</blockquote>
+<hr />
+<h2 id="학습-목표">학습 목표</h2>
+<div class="tw"><table>
+<thead>
+<tr>
+<th>코드</th>
+<th>목표</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>D5-1</td>
+<td>apt로 시스템 패키지를 관리한다</td>
+</tr>
+<tr>
+<td>D5-2</td>
+<td>파이썬 환경 격리가 필요한 이유를 설명한다</td>
+</tr>
+<tr>
+<td>D5-3</td>
+<td>conda 환경을 생성·전환·삭제·복제한다</td>
+</tr>
+<tr>
+<td>D5-4</td>
+<td>environment.yml로 환경을 내보내고 타 PC에서 재현한다</td>
+</tr>
+<tr>
+<td>D5-5</td>
+<td>conda와 pip 혼용 규칙을 지킨다</td>
+</tr>
+<tr>
+<td>D5-6</td>
+<td>대용량 데이터셋 디렉토리 설계 원칙을 적용한다</td>
+</tr>
+<tr>
+<td>D5-7</td>
+<td>7:1.5:1.5 분할 스크립트를 작성한다</td>
+</tr>
+<tr>
+<td>D5-8</td>
+<td>data.yaml·DATASET.md 등 메타 문서를 작성한다</td>
+</tr>
+</tbody>
+</table></div>
+<hr />
+<h2 id="0교시-전일-복습-퀴즈-10분">0교시 · 전일 복습 퀴즈 (10분)</h2>
+<ol>
+<li><code>set -euo pipefail</code> 의 각 옵션 의미는?</li>
+<li>tmux를 쓰는 이유를 한 문장으로 쓰시오.</li>
+<li>종료 코드 0, 1, 2의 관례적 의미는?</li>
+<li>cron에서만 스크립트가 실패하는 대표 원인은?</li>
+</ol>
+<hr />
+<h1 id="part-1-이론-4h">PART 1. 이론 (4H)</h1>
+<h2 id="1교시-시스템-패키지-관리-50분">1교시 · 시스템 패키지 관리 (50분)</h2>
+<h3 id="11-apt">1.1 apt</h3>
+<pre><code class="language-bash">sudo apt update                    # 패키지 목록 갱신 (설치 전 항상)
+sudo apt upgrade                   # 설치된 패키지 업그레이드
+sudo apt install 패키지명
+sudo apt install -y build-essential git curl wget htop tree
+sudo apt remove 패키지명
+sudo apt autoremove                # 불필요 의존성 정리
+apt list --installed | grep python
+apt show 패키지명
+</code></pre>
+<h3 id="12-이-과정에서-필요한-시스템-패키지">1.2 이 과정에서 필요한 시스템 패키지</h3>
+<pre><code class="language-bash">sudo apt install -y \
+  build-essential \        # 컴파일러 (일부 파이썬 패키지 빌드에 필요)
+  git curl wget \
+  vim nano tmux htop tree \
+  python3-dev \
+  libgl1 libglib2.0-0 \    # OpenCV 실행에 필수 ★
+  ffmpeg                   # 비디오 처리 (교과 3·10·15)
+</code></pre>
+<blockquote>
+<p><strong><code>libgl1</code> 을 모르면 반드시 겪는 오류</strong>
+<code>ImportError: libGL.so.1: cannot open shared object file</code>
+<code>pip install opencv-python</code> 은 됐는데 <code>import cv2</code> 에서 죽습니다. 교과 3 첫날 30명 중 절반이 만나는 오류입니다. <strong>시스템 라이브러리와 파이썬 패키지는 별개</strong>라는 것이 핵심 개념입니다.</p>
+</blockquote>
+<h3 id="13-파이썬-패키지-관리의-3층-구조">1.3 파이썬 패키지 관리의 3층 구조</h3>
+<pre><code>┌────────────────────────────────────────┐
+│ ③ 프로젝트 패키지 (torch, opencv, ...)    │ ← pip / conda
+├────────────────────────────────────────┤
+│ ② 파이썬 인터프리터 (3.10, 3.11 ...)      │ ← conda / pyenv
+├────────────────────────────────────────┤
+│ ① 시스템 라이브러리 (libGL, ffmpeg ...)    │ ← apt
+└────────────────────────────────────────┘
+</code></pre>
+<p>에러를 만났을 때 <strong>어느 층의 문제인지 판단</strong>하는 것이 디버깅의 시작입니다.</p>
+<hr />
+<h2 id="2교시-가상환경-왜-필요한가-50분">2교시 · 가상환경 — 왜 필요한가 (50분)</h2>
+<h3 id="21-격리하지-않으면-생기는-일">2.1 격리하지 않으면 생기는 일</h3>
+<p><strong>시나리오</strong>
+- 교과 5 딥러닝: PyTorch 2.1 + CUDA 11.8
+- 교과 11 생성모델: diffusers가 PyTorch 2.4 요구
+- 교과 13 Raspberry Pi: TensorFlow Lite (경량 버전)
+- 교과 14 Jetson: TensorRT 호환 특정 버전</p>
+<p>이걸 전부 시스템 파이썬 하나에 설치하면?
+→ <code>pip install</code> 할 때마다 이전 패키지가 덮어씌워지고, <strong>어제 되던 코드가 오늘 안 됩니다.</strong></p>
+<h3 id="22-격리-도구-비교">2.2 격리 도구 비교</h3>
+<div class="tw"><table>
+<thead>
+<tr>
+<th></th>
+<th>venv</th>
+<th>conda</th>
+<th>Docker</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>파이썬 버전 변경</td>
+<td>불가</td>
+<td><strong>가능</strong></td>
+<td>가능</td>
+</tr>
+<tr>
+<td>비파이썬 의존성 (CUDA, ffmpeg)</td>
+<td>불가</td>
+<td><strong>가능</strong></td>
+<td>가능</td>
+</tr>
+<tr>
+<td>설치 크기</td>
+<td>작음</td>
+<td>큼</td>
+<td>매우 큼</td>
+</tr>
+<tr>
+<td>학습 난이도</td>
+<td>쉬움</td>
+<td>보통</td>
+<td>어려움</td>
+</tr>
+<tr>
+<td>본 과정</td>
+<td>보조</td>
+<td><strong>주력</strong></td>
+<td>교과 13/14 참고</td>
+</tr>
+</tbody>
+</table></div>
+<blockquote>
+<p>안내서에 「Anaconda 3(Python 3.10 이상)」이 명시되어 있으므로 <strong>conda를 주력</strong>으로 사용합니다.</p>
+</blockquote>
+<h3 id="23-conda-명령-체계">2.3 conda 명령 체계</h3>
+<pre><code class="language-bash"># 환경 관리
+conda create -n 환경명 python=3.10
+conda create -n 환경명 python=3.10 numpy pandas -y
+conda env list                       # 또는 conda info --envs
+conda activate 환경명
+conda deactivate
+conda env remove -n 환경명
+conda create -n 새환경 --clone 기존환경
+
+# 패키지 관리
+conda install 패키지명
+conda install -c conda-forge 패키지명    # 채널 지정
+conda list
+conda list | grep torch
+conda update 패키지명
+conda remove 패키지명
+
+# 환경 내보내기 / 재현 ★★
+conda env export &gt; environment.yml
+conda env export --no-builds &gt; environment.yml     # 크로스 플랫폼 권장
+conda env export --from-history &gt; environment.yml  # 명시 설치만 (가장 깔끔)
+conda env create -f environment.yml
+conda env update -f environment.yml --prune
+
+# 정리
+conda clean --all                    # 캐시 삭제 (디스크 확보)
+</code></pre>
+<h3 id="24-conda와-pip-혼용-규칙">2.4 conda와 pip 혼용 규칙 ★</h3>
+<p><strong>황금 규칙</strong>
+1. <strong>conda를 먼저</strong>, pip를 나중에
+2. pip로 설치한 뒤 conda로 다시 설치하지 않는다
+3. 한 환경에서 순서를 지키고, 섞였으면 환경을 지우고 다시 만든다
+4. <strong><code>sudo pip install</code> 절대 금지</strong></p>
+<pre><code class="language-bash">conda activate vision-ai
+# 1) conda 먼저
+conda install numpy pandas matplotlib -y
+# 2) conda에 없는 것만 pip
+pip install ultralytics
+</code></pre>
+<p><strong>왜?</strong> conda와 pip는 서로의 설치 기록을 모릅니다. 같은 패키지를 각각 설치하면 파일이 충돌해 <code>ImportError</code>가 나고, 원인 추적이 매우 어렵습니다.</p>
+<h3 id="25-재현성-평가와-직결">2.5 재현성 — 평가와 직결</h3>
+<p>안내서 평가항목 「코드 품질 — 재사용성」과 「프로젝트 완성도」에 직결됩니다.</p>
+<p><strong>최종 프로젝트 제출물에 반드시 포함해야 할 것</strong></p>
+<pre><code>environment.yml       # conda 환경 정의
+requirements.txt      # pip 목록 (보조)
+README.md             # 설치·실행 절차
+</code></pre>
+<p>심사자가 <code>conda env create -f environment.yml</code> 한 줄로 여러분의 환경을 재현하지 못하면, 그 프로젝트는 "동작하지 않는 프로젝트"로 평가됩니다.</p>
+<hr />
+<h2 id="3교시-대용량-데이터셋-디렉토리-설계-50분">3교시 · 대용량 데이터셋 디렉토리 설계 (50분)</h2>
+<h3 id="31-이-과정에서-다룰-데이터-규모">3.1 이 과정에서 다룰 데이터 규모</h3>
+<div class="tw"><table>
+<thead>
+<tr>
+<th>교과</th>
+<th>데이터</th>
+<th>규모</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>교과 8</td>
+<td>조각김치 + 이물 (4848×2704 JPG)</td>
+<td>약 1,000장 + 라벨 TXT</td>
+</tr>
+<tr>
+<td>교과 14</td>
+<td>컨베이어 촬영</td>
+<td>최소 500장 · 분류 5종 이상</td>
+</tr>
+<tr>
+<td>교과 15</td>
+<td>모션캡처 Keypoint</td>
+<td>동작 10종 이상 × 다수 Take</td>
+</tr>
+<tr>
+<td>교과 11</td>
+<td>합성데이터 생성 결과</td>
+<td>수천 장</td>
+</tr>
+</tbody>
+</table></div>
+<p>4848×2704 JPG 1장이 약 3~5MB → 1,000장이면 <strong>3~5GB</strong>. 학생 PC SSD는 512GB. 여기에 증강본·분할본·체크포인트가 쌓이면 금방 찹니다.</p>
+<h3 id="32-설계-5원칙">3.2 설계 5원칙</h3>
+<h4 id="원칙-1-원본-불변-immutable-raw">원칙 1. 원본 불변 (Immutable Raw)</h4>
+<pre><code>raw/           읽기 전용. 절대 수정·삭제 안 함
+processed/     전처리 결과 (언제든 raw에서 재생성 가능)
+</code></pre>
+<blockquote>
+<p>raw를 덮어쓰면 그 데이터셋은 재현 불가능해집니다. 평가항목 「데이터 품질」 감점 1순위.</p>
+</blockquote>
+<h4 id="원칙-2-분할은-링크로-space-efficient-split">원칙 2. 분할은 링크로 (Space-efficient Split)</h4>
+<pre><code>images/train/img_001.jpg -&gt; ../../raw/img_001.jpg
+</code></pre>
+<p>2일차에서 배운 심볼릭 링크. 용량 2배 증가를 막습니다.</p>
+<h4 id="원칙-3-메타데이터-동봉-self-describing">원칙 3. 메타데이터 동봉 (Self-describing)</h4>
+<pre><code>meta/
+├── classes.txt          클래스 정의
+├── data.yaml            학습 프레임워크 설정
+├── DATASET.md           출처·수집조건·라이선스·주의사항
+├── split_seed.txt       분할 재현용 시드
+└── checksums.md5        무결성 검증
+</code></pre>
+<blockquote>
+<p>6개월 뒤 이 데이터를 다시 볼 때, 문서가 없으면 아무도 못 씁니다.</p>
+</blockquote>
+<h4 id="원칙-4-명명-규칙-통일-naming-convention">원칙 4. 명명 규칙 통일 (Naming Convention)</h4>
+<pre><code>{prefix}_{date}_{device}_{sequence}.{ext}
+
+conv_20260826_cam01_000123.jpg      # 교과 14 컨베이어
+motion_20260901_take03_frame0450.jpg  # 교과 15 모션
+</code></pre>
+<p>규칙:
+- <strong>소문자 + 언더스코어만</strong> (공백·한글·대문자 금지)
+- 순번은 <strong>0 패딩</strong> (<code>001</code> not <code>1</code>) → 정렬이 맞음
+- 이미지와 라벨은 <strong>확장자만 다르고 이름 동일</strong></p>
+<h4 id="원칙-5-버전-관리-분리-vcs-separation">원칙 5. 버전 관리 분리 (VCS Separation)</h4>
+<div class="tw"><table>
+<thead>
+<tr>
+<th>대상</th>
+<th>Git</th>
+<th>이유</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>코드, 설정, meta 문서</td>
+<td>✅ 포함</td>
+<td>작고 변경 추적 필요</td>
+</tr>
+<tr>
+<td>이미지, 동영상</td>
+<td>❌ 제외</td>
+<td>용량, <strong>㈜비솔 데이터는 업로드 금지</strong></td>
+</tr>
+<tr>
+<td>모델 가중치 <code>.pt</code></td>
+<td>❌ 제외 (LFS 검토)</td>
+<td>수백 MB</td>
+</tr>
+<tr>
+<td>로그, 캐시</td>
+<td>❌ 제외</td>
+<td>재생성 가능</td>
+</tr>
+</tbody>
+</table></div>
+<blockquote>
+<p>⚠️ <strong>안내서 6.2절·7장 규정</strong>: ㈜비솔 제공 데이터는 원내 폐쇄망 전용이며 <strong>외부 클라우드 및 GitHub 업로드 금지</strong>, 개인별 보안서약서 대상입니다. <code>.gitignore</code> 설계가 규정 준수 수단입니다(7일차에 pre-commit 훅으로 강제).</p>
+</blockquote>
+<h3 id="33-표준-레이아웃-본-과정-공식">3.3 표준 레이아웃 (본 과정 공식)</h3>
+<pre><code>dataset/&lt;name&gt;/
+├── raw/                          원본 (444/555 권한)
+│   ├── images/
+│   └── labels/
+├── processed/                    전처리 결과
+├── images/                       학습용 (심볼릭 링크)
+│   ├── train/  val/  test/
+├── labels/
+│   ├── train/  val/  test/
+├── meta/
+│   ├── classes.txt
+│   ├── data.yaml
+│   ├── DATASET.md
+│   ├── split_seed.txt
+│   ├── class_distribution.txt
+│   └── qc_report.txt
+├── backup/
+└── .gitignore
+</code></pre>
+<h3 id="34-datayaml-yolo-표준">3.4 data.yaml (YOLO 표준)</h3>
+<pre><code class="language-yaml"># meta/data.yaml
+path: /home/kdt/kdt-linux/dataset/kimchi
+train: images/train
+val: images/val
+test: images/test
+
+nc: 5
+names:
+  0: leaf
+  1: plastic_stone_metal
+  2: branch
+  3: disease_browning
+  4: green_onion_pepper
+</code></pre>
+<blockquote>
+<p>교과 8에서 YOLO 학습을 시작할 때 첫 번째로 만들 파일입니다.</p>
+</blockquote>
+<h3 id="35-분할-원칙">3.5 분할 원칙</h3>
+<div class="tw"><table>
+<thead>
+<tr>
+<th>항목</th>
+<th>규칙</th>
+<th>근거</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>비율</td>
+<td><strong>7 : 1.5 : 1.5</strong></td>
+<td>안내서 교과 14 명시</td>
+</tr>
+<tr>
+<td>방식</td>
+<td>무작위 + <strong>고정 시드</strong></td>
+<td>재현성</td>
+</tr>
+<tr>
+<td>층화(stratify)</td>
+<td>클래스 비율 유지 권장</td>
+<td>소수 클래스 보호</td>
+</tr>
+<tr>
+<td>누수 방지</td>
+<td>같은 원본에서 나온 증강본은 같은 split에</td>
+<td><strong>데이터 누수 방지 ★</strong></td>
+</tr>
+</tbody>
+</table></div>
+<blockquote>
+<p><strong>데이터 누수(Data Leakage)</strong>: 같은 이미지를 회전시킨 증강본이 train에, 원본이 test에 들어가면 test 성능이 과대평가됩니다. mAP 0.9가 나왔는데 현장에서 0.4인 전형적 원인입니다.</p>
+</blockquote>
+<hr />
+<h2 id="4교시-전반-오늘의-실습-설계-브리핑-30분">4교시 (전반) · 오늘의 실습 설계 브리핑 (30분)</h2>
+<p>오늘 만들 3개의 산출물과 그 용도를 먼저 설명합니다.</p>
+<div class="tw"><table>
+<thead>
+<tr>
+<th>산출물</th>
+<th>용도</th>
+<th>재사용 교과</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>environment.yml</code></td>
+<td>환경 재현</td>
+<td>교과 2~15 전체</td>
+</tr>
+<tr>
+<td><code>split_dataset.sh</code></td>
+<td>데이터셋 분할</td>
+<td>교과 8·14·15</td>
+</tr>
+<tr>
+<td><code>DATASET.md</code> + <code>data.yaml</code></td>
+<td>데이터 문서화</td>
+<td>교과 8·14 제출물</td>
+</tr>
+</tbody>
+</table></div>
+<hr />
+<h1 id="part-2-실습-4h">PART 2. 실습 (4H)</h1>
+<h2 id="실습-5-1-anaconda-설치와-환경-구성-70분">실습 5-1 · Anaconda 설치와 환경 구성 (70분)</h2>
+<h3 id="step-1-설치-확인-설치">Step 1. 설치 확인 / 설치</h3>
+<pre><code class="language-bash">conda --version           # 이미 설치되어 있으면 버전 출력
+</code></pre>
+<p>미설치 시 (강사가 배포한 오프라인 인스톨러 사용 권장):</p>
+<pre><code class="language-bash">cd /tmp
+# 강사 배포 경로 또는 다운로드
+bash Anaconda3-2024.10-1-Linux-x86_64.sh
+# 라이선스 → yes / 경로 → 기본(~/anaconda3) / conda init → yes
+
+source ~/.bashrc
+conda --version
+</code></pre>
+<h3 id="step-2-초기-설정">Step 2. 초기 설정</h3>
+<pre><code class="language-bash">conda config --set auto_activate_base false    # base 자동 활성화 끄기 ★
+conda config --add channels conda-forge
+conda config --show channels
+conda config --set channel_priority flexible
+
+exec bash                  # 셸 재시작
+</code></pre>
+<blockquote>
+<p><code>auto_activate_base false</code> 를 권장하는 이유: 프롬프트에 항상 <code>(base)</code>가 붙으면 훈련생이 <strong>어느 환경에 있는지 인지하지 못합니다.</strong> 명시적으로 activate 하는 습관이 중요합니다.</p>
+</blockquote>
+<h3 id="step-3-환경-생성">Step 3. 환경 생성</h3>
+<pre><code class="language-bash">conda create -n vision-ai python=3.10 -y
+conda env list
+conda activate vision-ai
+</code></pre>
+<p><strong>프롬프트 확인</strong> — 앞에 <code>(vision-ai)</code> 가 붙어야 합니다.</p>
+<pre><code class="language-bash">which python              # ~/anaconda3/envs/vision-ai/bin/python
+python --version          # Python 3.10.x
+which pip
+</code></pre>
+<h3 id="step-4-격리-체험-실험">Step 4. 격리 체험 실험 ★</h3>
+<pre><code class="language-bash"># vision-ai 환경에서
+conda activate vision-ai
+pip install requests
+python -c &quot;import requests; print('OK', requests.__version__)&quot;
+
+# 다른 환경 생성 후 확인
+conda create -n test-env python=3.10 -y
+conda activate test-env
+python -c &quot;import requests&quot; 
+# → ModuleNotFoundError  ← 격리가 되고 있다는 증거
+
+conda activate vision-ai
+python -c &quot;import requests; print('OK')&quot;
+
+conda env remove -n test-env -y
+</code></pre>
+<p><strong>노트에 기록</strong>: 환경 격리란 ______ 이다.</p>
+<h3 id="step-5-패키지-설치-순서-지키기">Step 5. 패키지 설치 (순서 지키기)</h3>
+<pre><code class="language-bash">conda activate vision-ai
+
+# 1) conda 먼저
+conda install -y numpy pandas matplotlib seaborn scikit-learn jupyter
+
+# 2) OpenCV (시스템 라이브러리 선행 필요)
+sudo apt install -y libgl1 libglib2.0-0
+pip install opencv-python
+
+# 3) 확인
+python -c &quot;import cv2; print('OpenCV', cv2.__version__)&quot;
+python -c &quot;import numpy, pandas, sklearn; print('OK')&quot;
+
+conda list | head -20
+conda list | wc -l
+</code></pre>
+<blockquote>
+<p>⚠️ <strong>주의</strong>: 학생 PC에는 GPU가 없으므로(안내서 6.2절) PyTorch는 CPU 버전으로 설치합니다. GPU 학습은 교과 5부터 AWS 인스턴스에서 수행합니다.
+<code>bash
+pip install torch torchvision --index-url https://download.pytorch.org/whl/cpu
+python -c "import torch; print(torch.__version__, torch.cuda.is_available())"</code></p>
+</blockquote>
+<h3 id="step-6-environmentyml-내보내기">Step 6. environment.yml 내보내기 ★</h3>
+<pre><code class="language-bash">cd ~/kdt-linux
+mkdir -p env
+
+# 방식 1: 전체 (플랫폼 종속)
+conda env export &gt; env/environment_full.yml
+
+# 방식 2: 빌드 정보 제외 (권장)
+conda env export --no-builds &gt; env/environment.yml
+
+# 방식 3: 명시 설치만 (가장 깔끔)
+conda env export --from-history &gt; env/environment_min.yml
+
+wc -l env/*.yml
+cat env/environment_min.yml
+</code></pre>
+<p>세 파일의 차이를 눈으로 비교합니다.</p>
+<pre><code class="language-bash">head -20 env/environment.yml
+</code></pre>
+<h3 id="step-7-재현-테스트-짝-실습">Step 7. 재현 테스트 (짝 실습) ★★</h3>
+<p><strong>2인 1조로 진행합니다.</strong></p>
+<pre><code class="language-bash"># A: environment_min.yml 을 B에게 전달 (USB/공유폴더/메신저)
+# B: 전달받은 파일로 환경 재현
+conda env create -f environment_min.yml -n reproduce-test
+conda activate reproduce-test
+python -c &quot;import cv2, numpy, pandas; print('재현 성공')&quot;
+conda list | wc -l
+</code></pre>
+<p><strong>토론 과제</strong>: 재현이 실패했다면 원인은? (플랫폼 차이, pip 패키지 누락, 채널 문제 등)</p>
+<pre><code class="language-bash">conda deactivate
+conda env remove -n reproduce-test -y
+</code></pre>
+<h3 id="step-8-vs-code-연동">Step 8. VS Code 연동</h3>
+<pre><code class="language-bash">code ~/kdt-linux     # VS Code 실행 (WSL이면 자동으로 원격 연결)
+</code></pre>
+<p>VS Code에서:
+1. <code>Ctrl+Shift+P</code> → <code>Python: Select Interpreter</code>
+2. <code>vision-ai</code> 환경 선택
+3. 새 터미널(<code>Ctrl+``</code>) 열면 자동으로 <code>(vision-ai)</code> 활성화 확인
+4. <code>.py</code> 파일 생성 후 실행 테스트</p>
+<h3 id="체크포인트-5-1" class="cp">✅ 체크포인트 5-1</h3>
+<ul>
+<li>[ ] <code>vision-ai</code> 환경 생성 및 activate</li>
+<li>[ ] 격리 실험으로 환경 분리를 확인</li>
+<li>[ ] <code>import cv2</code> 성공 (libGL 이슈 해결)</li>
+<li>[ ] <code>environment.yml</code> 3종 생성 및 차이 설명</li>
+<li>[ ] 짝의 파일로 환경 재현 성공</li>
+<li>[ ] VS Code 인터프리터 연결</li>
+</ul>
+<hr />
+<h2 id="실습-5-2-표준-데이터셋-구조-구축-60분">실습 5-2 · 표준 데이터셋 구조 구축 (60분)</h2>
+<h3 id="step-1-구조-재편성">Step 1. 구조 재편성</h3>
+<pre><code class="language-bash">cd ~/kdt-linux/dataset/kimchi
+
+# 기존 raw 를 표준 구조로 재편
+chmod -R 755 raw &amp;&amp; chmod 644 raw/*
+mkdir -p raw/images raw/labels processed
+mv raw/*.jpg raw/images/ 2&gt;/dev/null || true
+mv raw/*.txt raw/labels/ 2&gt;/dev/null || true
+
+mkdir -p {images,labels}/{train,val,test} meta backup
+tree -L 2
+</code></pre>
+<h3 id="step-2-메타-문서-작성">Step 2. 메타 문서 작성</h3>
+<p><strong>data.yaml</strong></p>
+<pre><code class="language-bash">cat &gt; meta/data.yaml &lt;&lt; EOF
+# Kimchi Foreign Object Detection Dataset
+path: $HOME/kdt-linux/dataset/kimchi
+train: images/train
+val: images/val
+test: images/test
+
+nc: 5
+names:
+  0: leaf
+  1: plastic_stone_metal
+  2: branch
+  3: disease_browning
+  4: green_onion_pepper
+EOF
+cat meta/data.yaml
+</code></pre>
+<p><strong>DATASET.md</strong></p>
+<pre><code class="language-bash">cat &gt; meta/DATASET.md &lt;&lt; EOF
+# Kimchi Foreign Object Dataset
+
+## 개요
+| 항목 | 내용 |
+|---|---|
+| 도메인 | (식품)제조 — 조각김치 이물 검출 |
+| 연계 교과 | 교과 8 [중간] Vision 기반 객체검출 모듈 |
+| 원본 규격 | JPG 4848×2704 |
+| 규모 | 이미지 $(ls raw/images/*.jpg 2&gt;/dev/null | wc -l)장 / 라벨 $(ls raw/labels/*.txt 2&gt;/dev/null | wc -l)개 |
+| 라벨 포맷 | YOLO — class x_center y_center width height (0~1 정규화) |
+| 클래스 수 | 5 (원본 6종 중 rubber_glove 제외) |
+| 분할 | train : val : test = 7 : 1.5 : 1.5 |
+
+## 클래스 정의
+| ID | 이름 | 설명 |
+|---|---|---|
+| 0 | leaf | 나뭇잎류 |
+| 1 | plastic_stone_metal | 플라스틱·돌·금속 등 |
+| 2 | branch | 나뭇가지류 |
+| 3 | disease_browning | 병해·갈변 |
+| 4 | green_onion_pepper | 파·고추 |
+
+## 클래스 재매핑 이력
+원본 6종 중 class 3(rubber_glove)은 사용하지 않아 제거하고 4→3, 5→4로 재매핑함.
+작업 스크립트: scripts/remap_classes.sh (3일차 sed 실습)
+
+## 수집 조건
+- 촬영 장비: Daheng ME2S-2440-16U3C
+- 렌즈: HN-0826-20M-C1/1X (8mm)
+- 조명: 터널타입 돔 LED
+- 컨베이어: W900×L1500×H850mm
+
+## 사용 제한 ⚠️
+- **원내 폐쇄망 전용**
+- 외부 클라우드 업로드 금지
+- GitHub 등 원격 저장소 업로드 금지
+- 결과 화면·시연 영상·포트폴리오 활용은 가능
+- 개인별 보안서약서 징구 후 사용
+
+## 주의사항
+- raw/ 는 읽기 전용. 모든 전처리는 processed/ 에서 수행
+- 분할은 심볼릭 링크 방식 (용량 절약)
+- 분할 시드: meta/split_seed.txt 참조
+
+## 갱신 이력
+| 일자 | 내용 |
+|---|---|
+| $(date +%Y-%m-%d) | 최초 구성 (더미 데이터) |
+EOF
+
+head -30 meta/DATASET.md
+</code></pre>
+<h3 id="step-3-gitignore-준비-67일차-예고">Step 3. .gitignore 준비 (6·7일차 예고)</h3>
+<pre><code class="language-bash">cd ~/kdt-linux
+cat &gt; .gitignore &lt;&lt; 'EOF'
+# ===== 데이터 (보안 규정: 외부 반출 금지) =====
+*.jpg
+*.jpeg
+*.png
+*.bmp
+*.mp4
+*.avi
+dataset/*/raw/
+dataset/*/processed/
+dataset/*/images/
+dataset/*/labels/
+
+# ===== 모델 가중치 =====
+*.pt
+*.pth
+*.onnx
+*.engine
+*.tflite
+runs/
+weights/
+
+# ===== 파이썬 =====
+__pycache__/
+*.py[cod]
+.ipynb_checkpoints/
+.venv/
+venv/
+
+# ===== 로그·캐시 =====
+logs/*.log
+*.tmp
+*.bak
+.sedbak/
+
+# ===== 아카이브 =====
+*.tar.gz
+*.zip
+backup/
+
+# ===== OS =====
+.DS_Store
+Thumbs.db
+
+# ===== 예외: 메타 문서는 반드시 포함 =====
+!dataset/*/meta/
+!dataset/*/meta/**
+!.gitkeep
+EOF
+cat .gitignore
+</code></pre>
+<h3 id="체크포인트-5-2" class="cp">✅ 체크포인트 5-2</h3>
+<ul>
+<li>[ ] <code>raw/images</code>, <code>raw/labels</code> 구조로 재편</li>
+<li>[ ] <code>data.yaml</code>, <code>DATASET.md</code> 작성</li>
+<li>[ ] <code>.gitignore</code> 에 이미지·모델·데이터 제외 규칙 포함</li>
+<li>[ ] <code>.gitignore</code> 에 보안 규정 관련 주석 포함</li>
+</ul>
+<hr />
+<h2 id="실습-5-3-split_datasetsh-작성-60분-핵심-산출물">실습 5-3 · <code>split_dataset.sh</code> 작성 (60분) ★핵심 산출물</h2>
+<h3 id="요구사항">요구사항</h3>
+<div class="tw"><table>
+<thead>
+<tr>
+<th>#</th>
+<th>기능</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>F1</td>
+<td>인자로 데이터셋 경로 받기</td>
+</tr>
+<tr>
+<td>F2</td>
+<td>비율 지정 가능 (기본 70:15:15)</td>
+</tr>
+<tr>
+<td>F3</td>
+<td>고정 시드로 재현 가능한 무작위 분할</td>
+</tr>
+<tr>
+<td>F4</td>
+<td>심볼릭 링크 방식 / <code>--copy</code> 옵션 시 복사</td>
+</tr>
+<tr>
+<td>F5</td>
+<td>라벨 없는 이미지 제외</td>
+</tr>
+<tr>
+<td>F6</td>
+<td>기존 분할 초기화 (<code>--clean</code>)</td>
+</tr>
+<tr>
+<td>F7</td>
+<td>결과 통계 출력 및 시드 기록</td>
+</tr>
+</tbody>
+</table></div>
+<h3 id="스크립트">스크립트</h3>
+<pre><code class="language-bash">cd ~/kdt-linux/scripts
+vim split_dataset.sh
+</code></pre>
+<pre><code class="language-bash">#!/bin/bash
+#===============================================================
+# 파일명 : split_dataset.sh
+# 목적   : YOLO 데이터셋을 train/val/test 로 분할 (심볼릭 링크)
+# 사용법 : ./split_dataset.sh &lt;dataset_dir&gt; [옵션]
+# 작성일 : 2026-08-30
+#===============================================================
+set -uo pipefail
+
+readonly SCRIPT_NAME=$(basename &quot;$0&quot;)
+TRAIN_R=70; VAL_R=15; TEST_R=15
+SEED=42
+MODE=&quot;link&quot;
+CLEAN=0
+
+usage () {
+    cat &lt;&lt; EOF
+사용법: $SCRIPT_NAME &lt;dataset_dir&gt; [옵션]
+
+옵션:
+  --ratio T:V:S   분할 비율 (기본 70:15:15)
+  --seed N        난수 시드 (기본 42)
+  --copy          링크 대신 복사
+  --clean         기존 분할 삭제 후 재분할
+  -h, --help      도움말
+EOF
+    exit 2
+}
+
+log ()  { echo &quot;[$(date '+%H:%M:%S')] $*&quot;; }
+err ()  { echo &quot;[ERROR] $*&quot; &gt;&amp;2; exit 1; }
+
+parse_args () {
+    [ $# -eq 0 ] &amp;&amp; usage
+    DS=&quot;$1&quot;; shift
+    while [ $# -gt 0 ]; do
+        case &quot;$1&quot; in
+            --ratio) shift
+                TRAIN_R=$(echo &quot;$1&quot; | cut -d: -f1)
+                VAL_R=$(echo   &quot;$1&quot; | cut -d: -f2)
+                TEST_R=$(echo  &quot;$1&quot; | cut -d: -f3) ;;
+            --seed)  shift; SEED=&quot;$1&quot; ;;
+            --copy)  MODE=&quot;copy&quot; ;;
+            --clean) CLEAN=1 ;;
+            -h|--help) usage ;;
+            *) err &quot;알 수 없는 옵션: $1&quot; ;;
+        esac
+        shift
+    done
+}
+
+validate () {
+    [ -d &quot;$DS&quot; ] || err &quot;경로 없음: $DS&quot;
+    [ -d &quot;$DS/raw/images&quot; ] || err &quot;raw/images 없음&quot;
+    [ -d &quot;$DS/raw/labels&quot; ] || err &quot;raw/labels 없음&quot;
+    local sum=$((TRAIN_R + VAL_R + TEST_R))
+    [ &quot;$sum&quot; -eq 100 ] || err &quot;비율 합이 100이 아님: $sum&quot;
+}
+
+clean_splits () {
+    log &quot;기존 분할 삭제&quot;
+    rm -rf &quot;$DS&quot;/images/{train,val,test} &quot;$DS&quot;/labels/{train,val,test}
+}
+
+build_list () {
+    # 라벨이 존재하는 이미지만 대상으로
+    : &gt; /tmp/_valid.$$
+    for img in &quot;$DS&quot;/raw/images/*.jpg; do
+        [ -e &quot;$img&quot; ] || continue
+        local base
+        base=$(basename &quot;$img&quot; .jpg)
+        if [ -s &quot;$DS/raw/labels/$base.txt&quot; ]; then
+            echo &quot;$base&quot; &gt;&gt; /tmp/_valid.$$
+        fi
+    done
+    TOTAL=$(wc -l &lt; /tmp/_valid.$$)
+    log &quot;유효 샘플(이미지+라벨 쌍): $TOTAL 개&quot;
+    [ &quot;$TOTAL&quot; -gt 0 ] || err &quot;유효 샘플 없음&quot;
+
+    # 고정 시드 셔플 (재현 가능)
+    awk -v seed=&quot;$SEED&quot; 'BEGIN{srand(seed)} {print rand()&quot;\t&quot;$0}' /tmp/_valid.$$ \
+      | sort -k1,1n | cut -f2 &gt; /tmp/_shuf.$$
+}
+
+do_split () {
+    N_TRAIN=$(( TOTAL * TRAIN_R / 100 ))
+    N_VAL=$((   TOTAL * VAL_R   / 100 ))
+    N_TEST=$((  TOTAL - N_TRAIN - N_VAL ))
+    log &quot;분할: train=$N_TRAIN val=$N_VAL test=$N_TEST&quot;
+
+    mkdir -p &quot;$DS&quot;/images/{train,val,test} &quot;$DS&quot;/labels/{train,val,test}
+
+    head -n &quot;$N_TRAIN&quot;                            /tmp/_shuf.$$ &gt; /tmp/_train.$$
+    sed -n &quot;$((N_TRAIN+1)),$((N_TRAIN+N_VAL))p&quot;   /tmp/_shuf.$$ &gt; /tmp/_val.$$
+    sed -n &quot;$((N_TRAIN+N_VAL+1)),\$p&quot;             /tmp/_shuf.$$ &gt; /tmp/_test.$$
+
+    for split in train val test; do
+        local list=&quot;/tmp/_${split}.$$&quot;
+        while read -r base; do
+            local src_i=&quot;$DS/raw/images/$base.jpg&quot;
+            local src_l=&quot;$DS/raw/labels/$base.txt&quot;
+            if [ &quot;$MODE&quot; = &quot;link&quot; ]; then
+                ln -sf &quot;$(readlink -f &quot;$src_i&quot;)&quot; &quot;$DS/images/$split/$base.jpg&quot;
+                ln -sf &quot;$(readlink -f &quot;$src_l&quot;)&quot; &quot;$DS/labels/$split/$base.txt&quot;
+            else
+                cp &quot;$src_i&quot; &quot;$DS/images/$split/&quot;
+                cp &quot;$src_l&quot; &quot;$DS/labels/$split/&quot;
+            fi
+        done &lt; &quot;$list&quot;
+    done
+}
+
+record_seed () {
+    cat &gt; &quot;$DS/meta/split_seed.txt&quot; &lt;&lt; EOF
+seed=$SEED
+ratio=${TRAIN_R}:${VAL_R}:${TEST_R}
+mode=$MODE
+total=$TOTAL
+train=$N_TRAIN
+val=$N_VAL
+test=$N_TEST
+generated=$(date '+%F %T')
+command=$SCRIPT_NAME $DS --ratio ${TRAIN_R}:${VAL_R}:${TEST_R} --seed $SEED
+EOF
+}
+
+report () {
+    echo &quot;&quot;
+    echo &quot;==============================================&quot;
+    printf &quot;  %-8s %8s %8s\n&quot; &quot;SPLIT&quot; &quot;IMAGES&quot; &quot;LABELS&quot;
+    for s in train val test; do
+        printf &quot;  %-8s %8d %8d\n&quot; &quot;$s&quot; \
+            &quot;$(ls &quot;$DS/images/$s&quot; 2&gt;/dev/null | wc -l)&quot; \
+            &quot;$(ls &quot;$DS/labels/$s&quot; 2&gt;/dev/null | wc -l)&quot;
+    done
+    echo &quot;  ----------------------------------------&quot;
+    echo &quot;  깨진 링크: $(find &quot;$DS/images&quot; &quot;$DS/labels&quot; -xtype l 2&gt;/dev/null | wc -l)&quot;
+    echo &quot;  시드 기록: $DS/meta/split_seed.txt&quot;
+    echo &quot;==============================================&quot;
+
+    echo &quot;&quot;
+    echo &quot;  [split별 클래스 분포]&quot;
+    for s in train val test; do
+        echo -n &quot;  $s: &quot;
+        cat &quot;$DS/labels/$s&quot;/*.txt 2&gt;/dev/null \
+          | cut -d' ' -f1 | sort | uniq -c \
+          | awk '{printf &quot;c%s=%s &quot;, $2, $1}'
+        echo &quot;&quot;
+    done
+}
+
+main () {
+    parse_args &quot;$@&quot;
+    validate
+    [ &quot;$CLEAN&quot; -eq 1 ] &amp;&amp; clean_splits
+    build_list
+    do_split
+    record_seed
+    report
+    rm -f /tmp/_valid.$$ /tmp/_shuf.$$ /tmp/_train.$$ /tmp/_val.$$ /tmp/_test.$$
+}
+
+main &quot;$@&quot;
+</code></pre>
+<h3 id="실행-및-검증">실행 및 검증</h3>
+<pre><code class="language-bash">chmod +x split_dataset.sh
+
+./split_dataset.sh --help
+./split_dataset.sh ~/kdt-linux/dataset/kimchi --clean
+cat ~/kdt-linux/dataset/kimchi/meta/split_seed.txt
+
+# 재현성 검증 — 같은 시드로 다시 실행하면 동일 결과여야 함 ★
+ls ~/kdt-linux/dataset/kimchi/images/train | sort | md5sum
+./split_dataset.sh ~/kdt-linux/dataset/kimchi --clean --seed 42
+ls ~/kdt-linux/dataset/kimchi/images/train | sort | md5sum
+# → 두 md5 가 같아야 정상
+
+# 시드를 바꾸면 달라져야 함
+./split_dataset.sh ~/kdt-linux/dataset/kimchi --clean --seed 777
+ls ~/kdt-linux/dataset/kimchi/images/train | sort | md5sum
+
+# 비율 변경
+./split_dataset.sh ~/kdt-linux/dataset/kimchi --clean --ratio 80:10:10
+
+# 교과 14 기준 복원
+./split_dataset.sh ~/kdt-linux/dataset/kimchi --clean --ratio 70:15:15 --seed 42
+</code></pre>
+<h3 id="통합-실행">통합 실행</h3>
+<pre><code class="language-bash">cd ~/kdt-linux/scripts
+./dataset_check.sh ~/kdt-linux/dataset/kimchi &amp;&amp; \
+./split_dataset.sh ~/kdt-linux/dataset/kimchi --clean
+</code></pre>
+<h3 id="체크포인트-5-3" class="cp">✅ 체크포인트 5-3</h3>
+<ul>
+<li>[ ] 분할 비율이 70:15:15 로 맞다</li>
+<li>[ ] <strong>같은 시드로 재실행 시 동일 결과</strong> (md5 일치)</li>
+<li>[ ] 깨진 링크 0개</li>
+<li>[ ] <code>split_seed.txt</code> 기록됨</li>
+<li>[ ] split별 클래스 분포가 크게 치우치지 않음</li>
+</ul>
+<hr />
+<h2 id="실습-5-4-종합-챌린지-30분">실습 5-4 · 종합 챌린지 (30분)</h2>
+<p><strong>미션</strong>: <code>conveyor</code> 데이터셋에 대해 전체 파이프라인을 적용하고, 제출 가능한 상태로 만드시오.</p>
+<h3 id="요구사항_1">요구사항</h3>
+<ol>
+<li><code>raw/images</code>, <code>raw/labels</code> 표준 구조로 재편</li>
+<li><code>dataset_check.sh --min 500</code> 으로 검증 → PASS</li>
+<li><code>split_dataset.sh --ratio 70:15:15 --seed 42</code> 로 분할</li>
+<li><code>meta/data.yaml</code>, <code>meta/DATASET.md</code> 작성 (교과 14 장비 사양 반영)</li>
+<li><code>environment.yml</code> 을 데이터셋 폴더에 함께 배치</li>
+<li>전체를 <code>conveyor_submission_$(date +%Y%m%d).tar.gz</code> 로 아카이브 (<strong>이미지 제외</strong>)</li>
+<li>아카이브 내용 확인</li>
+</ol>
+<h3 id="심화-전공자">★ 심화 (전공자)</h3>
+<ul>
+<li><code>split_dataset.sh</code> 에 <strong>층화 분할(stratified)</strong> 옵션 추가: 클래스별 비율을 train/val/test에서 동일하게 유지</li>
+<li><code>--stratify</code> 옵션 구현 후 분포 비교</li>
+</ul>
+<h3 id="최종-체크포인트" class="cp">✅ 최종 체크포인트</h3>
+<ul>
+<li>[ ] 두 데이터셋 모두 검증 PASS</li>
+<li>[ ] 아카이브에 이미지가 포함되지 않음 (<code>tar -tzvf</code> 확인)</li>
+<li>[ ] <code>environment.yml</code> 로 환경 재현 가능</li>
+</ul>
+<hr />
+<h2 id="마무리-10분">마무리 (10분)</h2>
+<pre><code class="language-bash">cd ~/kdt-linux
+cat &gt; DAY5.md &lt;&lt; 'EOF'
+# Day 5 — Anaconda 환경 · 데이터셋 구조화
+## 산출물
+- env/environment.yml (3종: full / no-builds / from-history)
+- scripts/split_dataset.sh (시드 고정 재현 가능 분할)
+- dataset/*/meta/data.yaml, DATASET.md
+- .gitignore (보안 규정 반영)
+## 핵심
+- 3층 구조: apt(시스템) &gt; conda(파이썬) &gt; pip(패키지)
+- conda 먼저, pip 나중. sudo pip 금지
+- 원본 불변 / 링크 분할 / 메타 동봉 / 명명 규칙 / VCS 분리
+- 시드 고정 = 재현성 = 평가 점수
+EOF
+</code></pre>
+<hr />
+<h2 id="과제">과제</h2>
+<ol>
+<li><code>environment.yml</code> 을 다른 훈련생과 교환해 재현 → 실패 시 원인 리포트 작성</li>
+<li><code>conda create -n edge-ai python=3.9</code> 로 두 번째 환경 생성 (교과 13 Raspberry Pi 대비)</li>
+<li><code>data.yaml</code> 의 <code>path</code> 를 절대경로 대신 상대경로로 쓰면 어떤 문제가 생기는지 조사</li>
+<li>데이터 누수(Data Leakage) 사례 1개를 조사해 3줄로 정리</li>
+</ol>
+<hr />
+<h2 id="강사-운영-노트">강사 운영 노트</h2>
+<div class="tw"><table>
+<thead>
+<tr>
+<th>시점</th>
+<th>주의사항</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Anaconda 설치</td>
+<td>60대가 동시에 다운로드하면 회선이 마비됩니다. <strong>오프라인 인스톨러를 USB/네트워크 드라이브로 사전 배포</strong>하십시오.</td>
+</tr>
+<tr>
+<td><code>libGL</code> 오류</td>
+<td>반드시 의도적으로 겪게 하십시오. "pip는 됐는데 import가 안 되는" 경험이 3층 구조 이해의 핵심입니다.</td>
+</tr>
+<tr>
+<td>재현 테스트</td>
+<td>짝 실습이 오늘의 하이라이트입니다. 실패 사례가 나오면 <strong>전체 공유</strong>해서 원인을 함께 분석하십시오.</td>
+</tr>
+<tr>
+<td>split 스크립트</td>
+<td>130줄이 부담되면 <code>build_list()</code> 와 <code>do_split()</code> 만 직접 작성하게 하고 나머지는 배포.</td>
+</tr>
+<tr>
+<td>재현성 검증</td>
+<td><code>md5sum</code> 비교 실습은 반드시 시키십시오. "시드 고정"의 의미를 눈으로 확인하는 유일한 방법입니다.</td>
+</tr>
+<tr>
+<td>GPU 없음</td>
+<td>학생 PC에 GPU가 없다는 점을 미리 고지하고, <code>torch.cuda.is_available()</code> 이 <code>False</code>인 것이 정상임을 설명하십시오. 교과 5부터 클라우드로 전환됩니다.</td>
+</tr>
+</tbody>
+</table></div>
+    <nav class="pager"><a href="04.html"><span class="k">← 이전 · D4</span><span class="v">셸 스크립트 · 프로세스 · 자동화</span></a><a class="next" href="06.html"><span class="k">다음 · D6 →</span><span class="v">Git 기초</span></a></nav>
+  </main>
+</div>
+<script>
+(function(){
+  var links=[].slice.call(document.querySelectorAll('.toc a'));
+  if(!links.length)return;
+  var map={},targets=[];
+  links.forEach(function(a){
+    var el=document.getElementById(decodeURIComponent(a.getAttribute('href').slice(1)));
+    if(el){map[el.id]=a;targets.push(el);}
+  });
+  var cur=null;
+  var io=new IntersectionObserver(function(es){
+    es.forEach(function(e){
+      if(e.isIntersecting){
+        if(cur)cur.classList.remove('active');
+        cur=map[e.target.id];
+        if(cur){cur.classList.add('active');
+          var r=document.querySelector('.rail');
+          if(r&&r.scrollHeight>r.clientHeight){
+            var t=cur.offsetTop-r.clientHeight/2;
+            if(Math.abs(r.scrollTop-t)>90)r.scrollTop=t;
+          }
+        }
+      }
+    });
+  },{rootMargin:'-76px 0px -72% 0px',threshold:0});
+  targets.forEach(function(t){io.observe(t);});
+})();
+</script>
+</body>
+</html>

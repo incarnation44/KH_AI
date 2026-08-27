@@ -1,0 +1,83 @@
+#!/usr/bin/env sh
+# ===============================================================
+# pre-commit hook
+# 목적: ㈜비솔 제공 데이터 및 대용량/민감 파일의 커밋을 원천 차단
+# ===============================================================
+
+BLOCKED=0
+MAX_SIZE=10485760
+
+STAGED=$(git diff --cached --name-only --diff-filter=ACM)
+if [ -z "$STAGED" ]; then
+    exit 0
+fi
+
+block () {
+    echo "  [BLOCKED] $1"
+    echo "    Reason: $2"
+    BLOCKED=1
+}
+
+echo "=============================================="
+echo " pre-commit security and compliance check"
+echo "=============================================="
+
+for file in $STAGED; do
+    if [ ! -f "$file" ]; then
+        continue
+    fi
+
+    # 1. 이미지 및 영상 차단
+    case "$file" in
+        *.jpg|*.jpeg|*.png|*.bmp|*.gif|*.tif|*.tiff|*.webp|*.mp4|*.avi|*.mov|*.mkv)
+            block "$file" "Image and video files cannot be committed (Data Security Policy)."
+            continue
+            ;;
+    esac
+
+    # 2. 모델 가중치 차단
+    case "$file" in
+        *.pt|*.pth|*.onnx|*.engine|*.tflite|*.h5|*.pb|*.caffemodel)
+            block "$file" "Model weights must be stored in Releases or external storage."
+            continue
+            ;;
+    esac
+
+    # 3. 자격증명 차단
+    case "$file" in
+        *.pem|*.key|*.p12|.env|*credentials*|*secret*|*token*)
+            block "$file" "Credentials and secrets cannot be committed."
+            continue
+            ;;
+    esac
+
+    # 4. 데이터셋 raw/ 경로 차단
+    case "$file" in
+        */raw/*|dataset/*/raw/*|*/processed/*|dataset/*/processed/*)
+            block "$file" "Raw dataset files cannot be committed to repository."
+            continue
+            ;;
+    esac
+
+    # 5. 10MB 초과 대용량 파일 차단
+    size=$(wc -c < "$file" 2>/dev/null || echo 0)
+    if [ "$size" -gt "$MAX_SIZE" ]; then
+        block "$file" "File size exceeds 10MB limit."
+        continue
+    fi
+done
+
+echo "=============================================="
+if [ "$BLOCKED" -eq 1 ]; then
+    echo " [ERROR] Commit blocked by security hook."
+    echo ""
+    echo " Resolution:"
+    echo "   1) git restore --staged <file>"
+    echo "   2) Ensure file is added to .gitignore"
+    echo "=============================================="
+    exit 1
+fi
+
+echo " [PASS] Security check passed."
+echo "=============================================="
+exit 0

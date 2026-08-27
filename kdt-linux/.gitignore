@@ -1,0 +1,94 @@
+# ===============================================================
+# .gitignore — KDT Vision AI Dataset Ops (visionops)
+# 데이터 보안 규정: ㈜비솔 제공 데이터 및 대용량 가중치 외부 반출 금지
+# ===============================================================
+
+# ===== 1. 이미지 및 미디어 데이터 (보안 규정) =====
+*.jpg
+*.jpeg
+*.png
+*.bmp
+*.gif
+*.tif
+*.tiff
+*.webp
+*.mp4
+*.avi
+*.mov
+*.mkv
+
+# ===== 2. 원본/가공 데이터셋 디렉토리 =====
+dataset/*/raw/
+dataset/*/processed/
+dataset/*/images/
+dataset/*/labels/
+raw/
+processed/
+images/
+labels/
+
+# ===== 3. 모델 가중치 및 체크포인트 =====
+*.pt
+*.pth
+*.onnx
+*.engine
+*.tflite
+*.h5
+*.pb
+*.caffemodel
+weights/
+runs/
+checkpoints/
+
+# ===== 4. 파이썬 가상환경 및 캐시 =====
+__pycache__/
+*.py[cod]
+*$py.class
+.ipynb_checkpoints/
+.venv/
+venv/
+*.egg-info/
+dist/
+build/
+
+
+# ===== 5. 로그 및 임시 백업 파일 =====
+logs/*.log
+*.tmp
+*.bak
+*.swp
+*~
+.sedbak/
+
+# ===== 6. 아카이브 파일 =====
+*.tar.gz
+*.tar.xz
+*.tar
+*.zip
+*.7z
+backup/
+dataset/*/backup/
+
+# ===== 7. 보안 및 자격증명 (절대 커밋 금지) =====
+*.pem
+*.key
+*.p12
+.env
+.env.*
+secrets/
+credentials.json
+aws_credentials
+
+# ===== 8. OS 및 IDE 메타 =====
+.DS_Store
+Thumbs.db
+desktop.ini
+.vscode/
+.idea/
+
+# ===== [예외] 메타데이터 및 설정 문서는 반드시 포함 =====
+!dataset/*/meta/
+!dataset/*/meta/**
+!.gitkeep
+!meta/
+!meta/**

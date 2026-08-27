@@ -1,0 +1,1206 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>부분 파이널 프로젝트 · 교과 1 · 리눅스</title>
+<link rel="preconnect" href="https://cdn.jsdelivr.net">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fontsource/jetbrains-mono@5.0.20/index.min.css">
+<style>
+/* ============ 토큰 ============ */
+:root{
+  --paper:#FAFAFB; --card:#FFFFFF;
+  --ink:#161B22; --ink2:#495364; --ink3:#828D9E;
+  --rule:#E4E8ED; --rule2:#F0F2F5;
+  --spec:#14539A;          /* 청사진 잉크 — 구조 · 링크 */
+  --spec-soft:#EAF1FA;
+  --warn:#A85408;          /* 신호 앰버 — 경고 · 보안 */
+  --warn-soft:#FDF3E7;
+  --ok:#0B6E5F;            /* 검수 통과 — 체크포인트 */
+  --ok-soft:#E7F3F0;
+  --term:#0E141B; --term-ink:#DCE6F0; --term-rule:#232C38;
+  --mono:"JetBrains Mono",ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+  --sans:"Pretendard Variable",Pretendard,-apple-system,BlinkMacSystemFont,
+         "Segoe UI","Malgun Gothic","Apple SD Gothic Neo","Noto Sans KR",sans-serif;
+  --rail:264px;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth;scroll-padding-top:84px}
+@media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}*{animation:none!important;transition:none!important}}
+body{
+  margin:0;background:var(--paper);color:var(--ink);font-family:var(--sans);
+  font-size:16px;line-height:1.78;-webkit-font-smoothing:antialiased;
+  word-break:keep-all;overflow-wrap:anywhere;
+}
+
+/* ============ 상단 바 ============ */
+.topbar{
+  position:sticky;top:0;z-index:40;background:rgba(250,250,251,.92);
+  backdrop-filter:blur(10px);border-bottom:1px solid var(--rule);
+}
+.topbar .in{max-width:1400px;margin:0 auto;padding:0 24px;height:56px;
+  display:flex;align-items:center;gap:18px}
+.brand{font-family:var(--mono);font-size:11px;letter-spacing:.1em;color:var(--ink3);
+  text-transform:uppercase;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.brand b{color:var(--spec);font-weight:700}
+.navbtns{margin-left:auto;display:flex;gap:8px;flex-shrink:0}
+.navbtns a{font-family:var(--mono);font-size:11px;letter-spacing:.06em;
+  text-decoration:none;color:var(--ink2);border:1px solid var(--rule);
+  border-radius:6px;padding:6px 11px;background:var(--card);transition:.15s}
+.navbtns a:hover{border-color:var(--spec);color:var(--spec)}
+.navbtns a.home{background:var(--spec);color:#fff;border-color:var(--spec)}
+.navbtns a.home:hover{filter:brightness(1.12)}
+
+/* ============ 레이아웃 ============ */
+.wrap{max-width:1400px;margin:0 auto;padding:0 24px;display:grid;
+  grid-template-columns:var(--rail) minmax(0,1fr);gap:44px;align-items:start}
+.rail{position:sticky;top:56px;max-height:calc(100vh - 56px);overflow-y:auto;
+  padding:28px 0 60px;scrollbar-width:thin}
+.rail::-webkit-scrollbar{width:6px}
+.rail::-webkit-scrollbar-thumb{background:var(--rule);border-radius:3px}
+main{padding:36px 0 120px;min-width:0;max-width:920px}
+
+/* ============ 시그니처: 일차 스파인 ============ */
+.spine-h{font-family:var(--mono);font-size:10px;letter-spacing:.14em;
+  color:var(--ink3);text-transform:uppercase;margin:0 0 12px 2px}
+.spine{list-style:none;margin:0 0 30px;padding:0;position:relative}
+.spine::before{content:"";position:absolute;left:19px;top:14px;bottom:14px;
+  width:1px;background:var(--rule)}
+.spine li{position:relative}
+.spine a{display:grid;grid-template-columns:38px 40px minmax(0,1fr);align-items:center;gap:6px;
+  padding:5px 8px 5px 0;text-decoration:none;color:var(--ink2);border-radius:6px}
+.spine a:hover{background:var(--rule2)}
+.spine .dot{position:relative;z-index:1;justify-self:center;width:9px;height:9px;
+  border-radius:50%;background:var(--card);border:1.5px solid var(--rule)}
+.spine .lbl{font-family:var(--mono);font-size:11.5px;letter-spacing:.04em}
+.spine .ttl{font-size:12.5px;line-height:1.35;color:var(--ink3);
+  overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.spine a[aria-current]{background:var(--spec-soft)}
+.spine a[aria-current] .dot{background:var(--spec);border-color:var(--spec);
+  box-shadow:0 0 0 3px rgba(20,83,154,.14)}
+.spine a[aria-current] .lbl{color:var(--spec);font-weight:700}
+.spine a[aria-current] .ttl{color:var(--ink)}
+.spine .done .dot{background:var(--rule);border-color:var(--rule)}
+
+/* ============ 문서 내 목차 ============ */
+.toc-h{font-family:var(--mono);font-size:10px;letter-spacing:.14em;color:var(--ink3);
+  text-transform:uppercase;margin:0 0 10px 2px;padding-top:22px;border-top:1px solid var(--rule)}
+.toc{list-style:none;margin:0;padding:0}
+.toc li{margin:0}
+.toc a{display:block;padding:5px 10px;font-size:13.5px;line-height:1.45;
+  text-decoration:none;color:var(--ink2);border-left:2px solid transparent;border-radius:0 5px 5px 0}
+.toc a:hover{background:var(--rule2);color:var(--ink)}
+.toc .lv1>a{font-weight:700;color:var(--ink);margin-top:12px;font-size:13px;
+  font-family:var(--mono);letter-spacing:.02em}
+.toc .lv2>a{padding-left:16px}
+.toc a.active{border-left-color:var(--spec);background:var(--spec-soft);color:var(--spec);font-weight:600}
+
+/* ============ 문서 헤더 ============ */
+.dochead{margin:0 0 40px;padding-bottom:26px;border-bottom:2px solid var(--ink)}
+.eyebrow{font-family:var(--mono);font-size:11px;letter-spacing:.14em;color:var(--spec);
+  text-transform:uppercase;margin-bottom:12px}
+.dochead h1{margin:0;padding:0;background:none;color:var(--ink);border-radius:0;
+  font-size:clamp(26px,3.3vw,38px);line-height:1.24;font-weight:800;letter-spacing:-.025em}
+.dochead .sub{margin:12px 0 0;color:var(--ink2);font-size:15px}
+/* 진도 트랙 — 60시간 중 현재 위치 */
+.track{margin-top:22px}
+.track .bar{height:5px;background:var(--rule);border-radius:3px;overflow:hidden;display:flex}
+.track .bar i{display:block;height:100%}
+.track .bar .past{background:var(--rule)}
+.track .bar .now{background:var(--spec)}
+.track .cap{display:flex;justify-content:space-between;margin-top:8px;max-width:640px;
+  font-family:var(--mono);font-size:10.5px;color:var(--ink3);letter-spacing:.04em}
+.track .bar{max-width:640px}
+
+/* ============ 본문 타이포 ============ */
+main h1{font-size:22px;font-weight:800;letter-spacing:-.01em;margin:64px 0 20px;
+  padding:14px 18px;background:var(--ink);color:#fff;border-radius:8px}
+main h1:first-of-type{margin-top:8px}
+main h2{font-size:19.5px;font-weight:750;margin:48px 0 14px;padding-bottom:9px;
+  border-bottom:1px solid var(--rule);letter-spacing:-.01em;scroll-margin-top:80px}
+main h3{font-size:16.5px;font-weight:700;margin:34px 0 10px;color:var(--ink);
+  scroll-margin-top:80px}
+main h4{font-size:15px;font-weight:700;margin:24px 0 8px;color:var(--ink2)}
+main p{margin:0 0 15px}
+main ul,main ol{margin:0 0 16px;padding-left:22px}
+main li{margin:5px 0}
+main li>ul,main li>ol{margin:6px 0}
+main hr{border:0;border-top:1px solid var(--rule);margin:46px 0}
+main strong{font-weight:700}
+main a{color:var(--spec);text-underline-offset:3px}
+
+/* 체크포인트 · 경고 헤딩 */
+main h3.cp,main h4.cp{background:var(--ok-soft);color:var(--ok);border-left:3px solid var(--ok);
+  padding:9px 14px;border-radius:0 7px 7px 0;font-size:15px}
+main h3.warn,main h4.warn,main h2.warn{background:var(--warn-soft);color:var(--warn);
+  border-left:3px solid var(--warn);border-bottom:0;padding:9px 14px;border-radius:0 7px 7px 0;font-size:15px}
+
+/* ============ 코드 ============ */
+main :not(pre)>code{font-family:var(--mono);font-size:.855em;background:var(--spec-soft);
+  color:#0F3F76;padding:1.5px 5px;border-radius:4px;word-break:break-all}
+main pre{background:var(--term);color:var(--term-ink);border-radius:10px;
+  padding:16px 18px;overflow-x:auto;margin:0 0 18px;font-size:13.5px;line-height:1.7;
+  border:1px solid var(--term-rule)}
+main pre code{font-family:var(--mono);background:none;color:inherit;padding:0;font-size:inherit}
+main pre::-webkit-scrollbar{height:8px}
+main pre::-webkit-scrollbar-thumb{background:#2C3846;border-radius:4px}
+
+/* ============ 표 ============ */
+.tw{overflow-x:auto;margin:0 0 20px;border:1px solid var(--rule);border-radius:9px;background:var(--card)}
+main table{border-collapse:collapse;width:100%;font-size:14px;min-width:min(100%,420px)}
+main th,main td{padding:9px 13px;border-bottom:1px solid var(--rule2);
+  text-align:left;vertical-align:top;line-height:1.6}
+main th{background:#F5F7F9;font-weight:700;font-size:12.5px;letter-spacing:.02em;
+  color:var(--ink2);white-space:nowrap;border-bottom:1px solid var(--rule)}
+main tbody tr:last-child td{border-bottom:0}
+main tbody tr:hover{background:#FBFCFD}
+main td code{white-space:nowrap}
+
+/* ============ 인용 ============ */
+main blockquote{margin:0 0 18px;padding:13px 18px;background:var(--card);
+  border:1px solid var(--rule);border-left:3px solid var(--spec);border-radius:0 8px 8px 0;
+  color:var(--ink2);font-size:14.5px}
+main blockquote p:last-child{margin-bottom:0}
+
+/* ============ 하단 이동 ============ */
+.pager{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:70px;
+  padding-top:26px;border-top:1px solid var(--rule)}
+.pager a{display:block;padding:15px 18px;border:1px solid var(--rule);border-radius:10px;
+  text-decoration:none;background:var(--card);transition:.15s}
+.pager a:hover{border-color:var(--spec);box-shadow:0 2px 10px rgba(20,83,154,.07)}
+.pager .k{font-family:var(--mono);font-size:10px;letter-spacing:.12em;color:var(--ink3);
+  text-transform:uppercase;display:block;margin-bottom:5px}
+.pager .v{font-size:14.5px;font-weight:650;color:var(--ink);line-height:1.4}
+.pager .next{text-align:right}
+.pager .empty{border-style:dashed;opacity:.4;pointer-events:none}
+
+/* ============ 색인 페이지 ============ */
+.hero{padding:56px 0 40px;border-bottom:2px solid var(--ink);margin-bottom:44px}
+.hero h1{margin:14px 0 0;padding:0;background:none;color:var(--ink);border-radius:0;
+  font-size:clamp(30px,4.4vw,48px);line-height:1.18;font-weight:800;letter-spacing:-.03em}
+.hero .eyebrow{margin-bottom:0}
+.hero .lede{margin:20px 0 0;font-size:16.5px;line-height:1.68;color:var(--ink2);max-width:60ch}
+.stats{display:flex;flex-wrap:wrap;gap:36px;margin-top:34px}
+.stat .n{font-family:var(--mono);font-size:27px;font-weight:700;color:var(--spec);
+  letter-spacing:-.02em;line-height:1}
+.stat .l{font-family:var(--mono);font-size:10.5px;letter-spacing:.12em;color:var(--ink3);
+  text-transform:uppercase;margin-top:7px}
+.cards{display:grid;gap:12px;margin-bottom:60px}
+.card{display:grid;grid-template-columns:74px 1fr auto;align-items:center;gap:20px;
+  padding:17px 22px;background:var(--card);border:1px solid var(--rule);border-radius:11px;
+  text-decoration:none;color:inherit;transition:.15s}
+.card:hover{border-color:var(--spec);transform:translateX(3px);
+  box-shadow:0 3px 14px rgba(20,83,154,.08)}
+.card .key{font-family:var(--mono);font-size:15px;font-weight:700;color:var(--spec);
+  letter-spacing:.02em}
+.card .key small{display:block;font-size:9.5px;color:var(--ink3);font-weight:400;
+  letter-spacing:.1em;margin-top:3px}
+.card .t{font-size:16px;font-weight:700;line-height:1.35}
+.card .d{font-size:13.5px;color:#78818E;margin-top:4px;line-height:1.55}
+.card .h{font-family:var(--mono);font-size:11px;color:var(--ink3);white-space:nowrap;
+  letter-spacing:.04em}
+.idx-sec{font-family:var(--mono);font-size:10.5px;letter-spacing:.14em;color:var(--ink3);
+  text-transform:uppercase;margin:34px 0 12px}
+.idx-sec:first-child{margin-top:0}
+.note{background:var(--warn-soft);border:1px solid #F0DFC6;border-left:3px solid var(--warn);
+  border-radius:0 10px 10px 0;padding:18px 22px;margin-bottom:56px;font-size:14.5px;color:#6B3A08}
+.note b{color:var(--warn)}
+.note ul{margin:9px 0 0;padding-left:20px}
+
+/* ============ 반응형 ============ */
+@media (max-width:1080px){
+  .wrap{grid-template-columns:1fr;gap:0}
+  .rail{position:static;max-height:none;overflow:visible;padding:22px 0 0;
+    border-bottom:1px solid var(--rule);margin-bottom:8px}
+  .spine{display:flex;flex-wrap:wrap;gap:5px;margin-bottom:20px}
+  .spine::before{display:none}
+  .spine a{grid-template-columns:auto;padding:6px 11px;border:1px solid var(--rule);border-radius:7px}
+  .spine .dot,.spine .ttl{display:none}
+  .toc-h{padding-top:16px}
+  .toc{columns:2;column-gap:20px;max-height:230px;overflow-y:auto;
+    border:1px solid var(--rule);border-radius:9px;padding:8px;background:var(--card)}
+  .toc .lv1>a{margin-top:0}
+  main{padding:22px 0 80px}
+}
+@media (max-width:620px){
+  body{font-size:15.5px}
+  .wrap,.topbar .in{padding:0 15px}
+  .toc{columns:1;max-height:200px}
+  .pager{grid-template-columns:1fr}
+  .pager .next{text-align:left}
+  .card{grid-template-columns:56px 1fr;gap:14px}
+  .card .h{grid-column:2;margin-top:5px}
+  main h1{font-size:19px;padding:12px 14px}
+  main pre{font-size:12.5px;padding:13px 14px}
+}
+
+/* ============ 인쇄 ============ */
+@media print{
+  :root{--paper:#fff}
+  .topbar,.rail,.pager,.track{display:none!important}
+  .wrap{display:block;max-width:none;padding:0}
+  main{padding:0}
+  body{font-size:10.5pt;line-height:1.62}
+  main h1{background:none;color:#000;border:1.5pt solid #000;padding:7pt 10pt;
+    font-size:15pt;margin:22pt 0 11pt;page-break-after:avoid}
+  main h2,main h3,main h4{page-break-after:avoid}
+  main h2{font-size:13pt;margin:16pt 0 7pt}
+  main h3{font-size:11.5pt}
+  main pre{background:#F6F7F9;color:#111;border:.5pt solid #CBD2DA;
+    font-size:8.6pt;page-break-inside:avoid;white-space:pre-wrap;word-break:break-all}
+  main pre code{color:#111}
+  main :not(pre)>code{background:#EFF2F5;color:#111}
+  main table{font-size:9pt;page-break-inside:avoid}
+  .tw{overflow:visible;border-color:#CBD2DA}
+  main blockquote{page-break-inside:avoid}
+  a{color:#000;text-decoration:none}
+  .dochead{page-break-after:avoid}
+  @page{margin:15mm 14mm}
+}
+</style>
+</head>
+<body>
+<header class="topbar"><div class="in">
+  <div class="brand">KDT · AI 캠퍼스 [비솔] Vision AI &amp; 산업분야 Vertical AI 융합 전문가 양성 · <b>교과 1 · 리눅스</b></div>
+  <nav class="navbtns">
+    <a class="home" href="index.html">전체 목차</a>
+    <a href="#" onclick="window.print();return false;">인쇄 / PDF</a>
+  </nav>
+</div></header>
+
+<div class="wrap">
+  <aside class="rail">
+    <p class="spine-h">교과 1 · 60H 전체</p>
+    <ul class="spine"><li><a class="done" href="00.html"><span class="dot"></span><span class="lbl">PLAN</span><span class="ttl">강의 기획서</span></a></li>
+<li><a class="done" href="01.html"><span class="dot"></span><span class="lbl">D1</span><span class="ttl">리눅스 시작과 파일 시스템</span></a></li>
+<li><a class="done" href="02.html"><span class="dot"></span><span class="lbl">D2</span><span class="ttl">권한 · 아카이브 · 텍스트 스트림</span></a></li>
+<li><a class="done" href="03.html"><span class="dot"></span><span class="lbl">D3</span><span class="ttl">편집기와 텍스트 처리</span></a></li>
+<li><a class="done" href="04.html"><span class="dot"></span><span class="lbl">D4</span><span class="ttl">셸 스크립트 · 프로세스 · 자동화</span></a></li>
+<li><a class="done" href="05.html"><span class="dot"></span><span class="lbl">D5</span><span class="ttl">Anaconda 환경과 데이터셋 구조화</span></a></li>
+<li><a class="done" href="06.html"><span class="dot"></span><span class="lbl">D6</span><span class="ttl">Git 기초</span></a></li>
+<li><a class="done" href="07.html"><span class="dot"></span><span class="lbl">D7</span><span class="ttl">GitHub 협업과 데이터 보안</span></a></li>
+<li><a class="" href="08.html" aria-current="page"><span class="dot"></span><span class="lbl">D8</span><span class="ttl">부분 파이널 프로젝트</span></a></li>
+<li><a class="" href="99.html"><span class="dot"></span><span class="lbl">APX</span><span class="ttl">부록 · 치트시트 &amp; 트러블슈팅</span></a></li></ul>
+    <p class="toc-h">이 문서 안에서</p>
+    <ul class="toc"><li class="lv2"><a href="#1-프로젝트-개요">1. 프로젝트 개요</a></li>
+<li class="lv2"><a href="#2-요구사항">2. 요구사항</a></li>
+<li class="lv2"><a href="#3-진행-일정-4h">3. 진행 일정 (4H)</a></li>
+<li class="lv2"><a href="#4-권장-구조">4. 권장 구조</a></li>
+<li class="lv2"><a href="#5-구현-가이드">5. 구현 가이드</a></li>
+<li class="lv2"><a href="#6-제출물">6. 제출물</a></li>
+<li class="lv2"><a href="#7-평가-루브릭-25점">7. 평가 루브릭 (25점)</a></li>
+<li class="lv2"><a href="#8-상호-검증-350400">8. 상호 검증 (3:50–4:00)</a></li>
+<li class="lv2"><a href="#9-발표-선택-시간-여유-시">9. 발표 (선택 · 시간 여유 시)</a></li>
+<li class="lv2"><a href="#10-이후-교과-연계">10. 이후 교과 연계</a></li>
+<li class="lv2"><a href="#11-강사-운영-노트">11. 강사 운영 노트</a></li>
+<li class="lv2"><a href="#12-교과-1-종료-체크리스트">12. 교과 1 종료 체크리스트</a></li></ul>
+  </aside>
+
+  <main>
+    <div class="dochead">
+      <div class="eyebrow">D8 &nbsp;/&nbsp; 교과 1 · 리눅스 &nbsp;/&nbsp; 4시간</div>
+      <h1>8일차 · 부분 파이널 프로젝트 — `visionops` (4H)</h1>
+      <p class="sub">visionops CLI 툴킷 구현 · 평가 루브릭 25점</p>
+      <div class="track"><div class="bar"><i class="past" style="width:93.33%"></i><i class="now" style="width:6.67%"></i></div><div class="cap"><span>56H 누적</span><span>이 문서 4H</span><span>전체 60H</span></div></div>
+    </div>
+    <blockquote>
+<p>실습 4H (이론 0H)
+<strong>오늘의 한 문장:</strong> "지금까지 만든 것을 하나의 도구로 묶어, 포트폴리오에 올릴 수 있는 저장소를 완성한다."</p>
+</blockquote>
+<hr />
+<h2 id="1-프로젝트-개요">1. 프로젝트 개요</h2>
+<h3 id="11-무엇을-만드는가">1.1 무엇을 만드는가</h3>
+<p><strong><code>visionops</code></strong> — Vision AI 프로젝트의 데이터셋 준비 전 과정을 자동화하는 CLI 툴킷</p>
+<pre><code class="language-bash">visionops init    &lt;dataset_name&gt;       # 표준 구조 생성
+visionops check   &lt;dataset_dir&gt;        # 정합성 검증
+visionops split   &lt;dataset_dir&gt;        # train/val/test 분할
+visionops report  &lt;dataset_dir&gt;        # 통계 리포트 생성
+visionops backup  &lt;dataset_dir&gt;        # 메타 백업
+visionops run     &lt;dataset_dir&gt;        # 전체 파이프라인
+</code></pre>
+<h3 id="12-왜-이걸-만드는가">1.2 왜 이걸 만드는가</h3>
+<div class="tw"><table>
+<thead>
+<tr>
+<th>관점</th>
+<th>이유</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>교과 연계</strong></td>
+<td>교과 8·14·15 프로젝트에서 그대로 재사용</td>
+</tr>
+<tr>
+<td><strong>평가 연계</strong></td>
+<td>최종 평가 6개 항목 중 4개 항목의 사전 훈련</td>
+</tr>
+<tr>
+<td><strong>포트폴리오</strong></td>
+<td>취업 시 제시 가능한 실무형 산출물</td>
+</tr>
+<tr>
+<td><strong>역량 점검</strong></td>
+<td>안내서 교과 7 취지 — <em>"훈련생이 본인의 역량 수준과 보완이 필요한 영역을 스스로 점검"</em></td>
+</tr>
+</tbody>
+</table></div>
+<h3 id="13-과정-전체-평가와의-매핑">1.3 과정 전체 평가와의 매핑</h3>
+<div class="tw"><table>
+<thead>
+<tr>
+<th>최종 평가 항목 (안내서 5.3)</th>
+<th>배점</th>
+<th>본 프로젝트에서 훈련되는 것</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>프로젝트 완성도</td>
+<td>30</td>
+<td>요구 기능 구현 + 실행 검증</td>
+</tr>
+<tr>
+<td>프로젝트 창의성</td>
+<td>10</td>
+<td>선택 기능(★) 구현</td>
+</tr>
+<tr>
+<td>AI 모델 성능</td>
+<td>20</td>
+<td>(해당 없음 — 교과 8 이후)</td>
+</tr>
+<tr>
+<td><strong>코드 품질</strong></td>
+<td>10</td>
+<td>함수화·문서화·커밋 히스토리</td>
+</tr>
+<tr>
+<td><strong>데이터 품질</strong></td>
+<td>10</td>
+<td>검증 로직·리포트</td>
+</tr>
+<tr>
+<td><strong>프로젝트 수행 역량</strong></td>
+<td>20</td>
+<td>일정·문서화·발표</td>
+</tr>
+</tbody>
+</table></div>
+<hr />
+<h2 id="2-요구사항">2. 요구사항</h2>
+<h3 id="21-필수-요구사항-must">2.1 필수 요구사항 (Must)</h3>
+<div class="tw"><table>
+<thead>
+<tr>
+<th>#</th>
+<th>요구사항</th>
+<th>근거</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>M1</td>
+<td>단일 진입점 <code>visionops</code> 명령으로 6개 서브커맨드 제공</td>
+<td>사용성</td>
+</tr>
+<tr>
+<td>M2</td>
+<td><code>--help</code> 로 전체/서브커맨드별 도움말 출력</td>
+<td>CLI 표준</td>
+</tr>
+<tr>
+<td>M3</td>
+<td>종료 코드 구분 (0=성공, 1=실패, 2=사용법 오류)</td>
+<td>CI 연동</td>
+</tr>
+<tr>
+<td>M4</td>
+<td><code>check</code>: 이미지-라벨 정합성, 라벨 포맷, 클래스 ID, 클래스 균형 검증</td>
+<td>데이터 품질</td>
+</tr>
+<tr>
+<td>M5</td>
+<td><code>split</code>: 시드 고정 재현 가능, 비율 지정, 링크/복사 선택</td>
+<td>재현성</td>
+</tr>
+<tr>
+<td>M6</td>
+<td><code>report</code>: 클래스 분포·bbox 통계·이상 데이터 요약</td>
+<td>데이터 품질</td>
+</tr>
+<tr>
+<td>M7</td>
+<td>모든 실행이 <code>logs/</code> 에 기록됨</td>
+<td>추적성</td>
+</tr>
+<tr>
+<td>M8</td>
+<td><code>README.md</code> 만 보고 다른 사람이 설치·실행 가능</td>
+<td>문서화</td>
+</tr>
+<tr>
+<td>M9</td>
+<td><code>environment.yml</code> 로 환경 재현 가능</td>
+<td>재현성</td>
+</tr>
+<tr>
+<td>M10</td>
+<td><code>pre-commit</code> 훅으로 데이터 유출 차단</td>
+<td><strong>보안 규정</strong></td>
+</tr>
+<tr>
+<td>M11</td>
+<td>GitHub Private 저장소에 push, CI 통과</td>
+<td>협업</td>
+</tr>
+<tr>
+<td>M12</td>
+<td>커밋 10개 이상, Conventional Commits 형식</td>
+<td>코드 품질</td>
+</tr>
+</tbody>
+</table></div>
+<h3 id="22-선택-요구사항-창의성-배점">2.2 선택 요구사항 (★ 창의성 배점)</h3>
+<div class="tw"><table>
+<thead>
+<tr>
+<th>#</th>
+<th>기능</th>
+<th>난이도</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>S1</td>
+<td><code>--json</code> 옵션으로 구조화 출력 (CI 파싱용)</td>
+<td>★</td>
+</tr>
+<tr>
+<td>S2</td>
+<td>층화 분할(stratified split) 구현</td>
+<td>★★</td>
+</tr>
+<tr>
+<td>S3</td>
+<td>컬러 출력 + 진행률 표시</td>
+<td>★</td>
+</tr>
+<tr>
+<td>S4</td>
+<td>설정 파일(<code>.visionopsrc</code>) 지원</td>
+<td>★★</td>
+</tr>
+<tr>
+<td>S5</td>
+<td><code>check</code> 결과를 HTML 리포트로 생성</td>
+<td>★★</td>
+</tr>
+<tr>
+<td>S6</td>
+<td>Python 버전으로 재구현 (<code>visionops.py</code>)</td>
+<td>★★★</td>
+</tr>
+<tr>
+<td>S7</td>
+<td>데이터셋 무결성 체크섬(md5) 관리</td>
+<td>★★</td>
+</tr>
+<tr>
+<td>S8</td>
+<td><code>visionops watch</code> — 폴더 감시 후 자동 검증</td>
+<td>★★★</td>
+</tr>
+<tr>
+<td>S9</td>
+<td>다국어(한/영) 메시지 지원</td>
+<td>★★</td>
+</tr>
+<tr>
+<td>S10</td>
+<td>Keypoint(CSV/JSON) 데이터셋 지원 (교과 15 대비)</td>
+<td>★★★</td>
+</tr>
+</tbody>
+</table></div>
+<blockquote>
+<p><strong>선택 기능은 최소 1개 이상 구현</strong>하십시오. 안내서 교과 14·15 평가에서 <em>"팀별 차별화 기능은 선택이나 구현 시 평가에 가산"</em> 되는 구조와 동일합니다.</p>
+</blockquote>
+<hr />
+<h2 id="3-진행-일정-4h">3. 진행 일정 (4H)</h2>
+<div class="tw"><table>
+<thead>
+<tr>
+<th>시간</th>
+<th>단계</th>
+<th>산출물</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>0:00–0:20</td>
+<td>요구사항 분석 · 설계</td>
+<td><code>DESIGN.md</code>, Issue 등록</td>
+</tr>
+<tr>
+<td>0:20–0:40</td>
+<td>저장소 초기화 · 구조 잡기</td>
+<td>폴더 구조, 첫 커밋</td>
+</tr>
+<tr>
+<td>0:40–1:40</td>
+<td>핵심 구현 ① — <code>init</code>, <code>check</code></td>
+<td>브랜치 2개, PR 2건</td>
+</tr>
+<tr>
+<td>1:40–2:00</td>
+<td>중간 점검 (강사 순회)</td>
+<td>—</td>
+</tr>
+<tr>
+<td>2:00–2:50</td>
+<td>핵심 구현 ② — <code>split</code>, <code>report</code>, <code>backup</code></td>
+<td>브랜치, PR</td>
+</tr>
+<tr>
+<td>2:50–3:10</td>
+<td>통합 — <code>run</code>, 로깅</td>
+<td>통합 테스트</td>
+</tr>
+<tr>
+<td>3:10–3:30</td>
+<td>선택 기능 구현 (★)</td>
+<td>—</td>
+</tr>
+<tr>
+<td>3:30–3:50</td>
+<td>문서화 · CI · 최종 push · 태그</td>
+<td>README, CI 통과</td>
+</tr>
+<tr>
+<td>3:50–4:00</td>
+<td>상호 검증 (짝의 저장소 clone → 실행)</td>
+<td>검증 리포트</td>
+</tr>
+</tbody>
+</table></div>
+<hr />
+<h2 id="4-권장-구조">4. 권장 구조</h2>
+<pre><code>visionops/
+├── visionops                  # 메인 진입 스크립트 (실행 권한)
+├── lib/
+│   ├── common.sh              # 공통 함수 (로깅·색상·유틸)
+│   ├── cmd_init.sh            # init 서브커맨드
+│   ├── cmd_check.sh           # check
+│   ├── cmd_split.sh           # split
+│   ├── cmd_report.sh          # report
+│   ├── cmd_backup.sh          # backup
+│   └── cmd_run.sh             # run (파이프라인)
+├── hooks/
+│   ├── pre-commit
+│   ├── commit-msg
+│   └── install_hooks.sh
+├── env/
+│   └── environment.yml
+├── docs/
+│   ├── DESIGN.md              # 설계 문서
+│   └── USAGE.md               # 상세 사용법
+├── tests/
+│   └── test_basic.sh          # 기본 동작 테스트
+├── .github/workflows/ci.yml
+├── .gitignore
+├── README.md
+└── LICENSE
+</code></pre>
+<hr />
+<h2 id="5-구현-가이드">5. 구현 가이드</h2>
+<h3 id="51-메인-진입점-골격">5.1 메인 진입점 골격</h3>
+<pre><code class="language-bash">#!/bin/bash
+#===============================================================
+# visionops — Vision AI 데이터셋 운영 툴킷
+# 사용법: visionops &lt;command&gt; [args] [options]
+#===============================================================
+set -uo pipefail
+
+readonly VERSION=&quot;1.0.0&quot;
+readonly SCRIPT_DIR=&quot;$(cd &quot;$(dirname &quot;${BASH_SOURCE[0]}&quot;)&quot; &amp;&amp; pwd)&quot;
+readonly LIB_DIR=&quot;$SCRIPT_DIR/lib&quot;
+
+source &quot;$LIB_DIR/common.sh&quot;
+
+usage () {
+    cat &lt;&lt; EOF
+visionops v$VERSION — Vision AI 데이터셋 운영 툴킷
+
+사용법:
+  visionops &lt;command&gt; [args] [options]
+
+명령:
+  init &lt;name&gt;          표준 데이터셋 구조 생성
+  check &lt;dir&gt;          데이터셋 정합성 검증
+  split &lt;dir&gt;          train/val/test 분할
+  report &lt;dir&gt;         통계 리포트 생성
+  backup &lt;dir&gt;         메타정보 백업
+  run &lt;dir&gt;            전체 파이프라인 실행
+
+전역 옵션:
+  -h, --help           도움말
+  -v, --version        버전
+  -q, --quiet          최소 출력
+  --log-dir &lt;path&gt;     로그 경로 (기본: ./logs)
+
+각 명령의 상세 도움말:
+  visionops &lt;command&gt; --help
+
+예시:
+  visionops init kimchi
+  visionops check dataset/kimchi --min 500
+  visionops split dataset/kimchi --ratio 70:15:15 --seed 42
+  visionops run dataset/kimchi
+EOF
+}
+
+main () {
+    [ $# -eq 0 ] &amp;&amp; { usage; exit 2; }
+
+    case &quot;$1&quot; in
+        -h|--help)     usage; exit 0 ;;
+        -v|--version)  echo &quot;visionops v$VERSION&quot;; exit 0 ;;
+        init)   shift; source &quot;$LIB_DIR/cmd_init.sh&quot;;   cmd_init &quot;$@&quot; ;;
+        check)  shift; source &quot;$LIB_DIR/cmd_check.sh&quot;;  cmd_check &quot;$@&quot; ;;
+        split)  shift; source &quot;$LIB_DIR/cmd_split.sh&quot;;  cmd_split &quot;$@&quot; ;;
+        report) shift; source &quot;$LIB_DIR/cmd_report.sh&quot;; cmd_report &quot;$@&quot; ;;
+        backup) shift; source &quot;$LIB_DIR/cmd_backup.sh&quot;; cmd_backup &quot;$@&quot; ;;
+        run)    shift; source &quot;$LIB_DIR/cmd_run.sh&quot;;    cmd_run &quot;$@&quot; ;;
+        *) echo &quot;알 수 없는 명령: $1&quot; &gt;&amp;2; usage; exit 2 ;;
+    esac
+}
+
+main &quot;$@&quot;
+</code></pre>
+<h3 id="52-공통-라이브러리">5.2 공통 라이브러리</h3>
+<pre><code class="language-bash"># lib/common.sh
+#===============================================================
+# 공통 함수 — 로깅, 색상, 유틸리티
+#===============================================================
+
+readonly C_RED='\033[0;31m'
+readonly C_GRN='\033[0;32m'
+readonly C_YEL='\033[0;33m'
+readonly C_BLU='\033[0;34m'
+readonly C_NC='\033[0m'
+
+LOG_DIR=&quot;${LOG_DIR:-./logs}&quot;
+QUIET=&quot;${QUIET:-0}&quot;
+
+_ts () { date '+%Y-%m-%d %H:%M:%S'; }
+
+_write_log () {
+    mkdir -p &quot;$LOG_DIR&quot;
+    echo &quot;[$(_ts)] $*&quot; &gt;&gt; &quot;$LOG_DIR/visionops.log&quot;
+}
+
+log ()  { [ &quot;$QUIET&quot; -eq 1 ] || echo &quot;  $*&quot;;                    _write_log &quot;INFO  $*&quot;; }
+ok ()   { [ &quot;$QUIET&quot; -eq 1 ] || echo -e &quot;  ${C_GRN}[OK]${C_NC}   $*&quot;;  _write_log &quot;OK    $*&quot;; }
+warn () { echo -e &quot;  ${C_YEL}[WARN]${C_NC} $*&quot; &gt;&amp;2;             _write_log &quot;WARN  $*&quot;; }
+fail () { echo -e &quot;  ${C_RED}[FAIL]${C_NC} $*&quot; &gt;&amp;2;             _write_log &quot;FAIL  $*&quot;; }
+die ()  { fail &quot;$*&quot;; exit 1; }
+
+section () {
+    [ &quot;$QUIET&quot; -eq 1 ] &amp;&amp; return
+    echo &quot;&quot;
+    echo -e &quot;${C_BLU}[$1]${C_NC} $2&quot;
+}
+
+banner () {
+    [ &quot;$QUIET&quot; -eq 1 ] &amp;&amp; return
+    echo &quot;══════════════════════════════════════════════&quot;
+    echo &quot;  $1&quot;
+    echo &quot;  $(_ts)&quot;
+    echo &quot;══════════════════════════════════════════════&quot;
+}
+
+require_dir () { [ -d &quot;$1&quot; ] || die &quot;디렉토리 없음: $1&quot;; }
+require_cmd () { command -v &quot;$1&quot; &gt;/dev/null 2&gt;&amp;1 || die &quot;명령 없음: $1&quot;; }
+
+count_files () { find &quot;$1&quot; -maxdepth 1 -name &quot;$2&quot; 2&gt;/dev/null | wc -l; }
+</code></pre>
+<h3 id="53-서브커맨드-예시-cmd_initsh">5.3 서브커맨드 예시 — <code>cmd_init.sh</code></h3>
+<pre><code class="language-bash"># lib/cmd_init.sh
+cmd_init_usage () {
+    cat &lt;&lt; EOF
+사용법: visionops init &lt;name&gt; [옵션]
+
+인자:
+  name              데이터셋 이름
+
+옵션:
+  --root &lt;path&gt;     생성 위치 (기본: ./dataset)
+  --classes &lt;n&gt;     클래스 수 (기본: 5)
+  -h, --help
+EOF
+}
+
+cmd_init () {
+    local NAME=&quot;&quot; ROOT=&quot;./dataset&quot; NCLS=5
+
+    [ $# -eq 0 ] &amp;&amp; { cmd_init_usage; exit 2; }
+    NAME=&quot;$1&quot;; shift
+    while [ $# -gt 0 ]; do
+        case &quot;$1&quot; in
+            --root)    shift; ROOT=&quot;$1&quot; ;;
+            --classes) shift; NCLS=&quot;$1&quot; ;;
+            -h|--help) cmd_init_usage; exit 0 ;;
+            *) die &quot;알 수 없는 옵션: $1&quot; ;;
+        esac
+        shift
+    done
+
+    local DS=&quot;$ROOT/$NAME&quot;
+    banner &quot;visionops init :: $NAME&quot;
+
+    [ -d &quot;$DS&quot; ] &amp;&amp; die &quot;이미 존재: $DS&quot;
+
+    section 1 &quot;디렉토리 생성&quot;
+    mkdir -p &quot;$DS&quot;/raw/{images,labels}
+    mkdir -p &quot;$DS&quot;/{images,labels}/{train,val,test}
+    mkdir -p &quot;$DS&quot;/{processed,meta,backup}
+    ok &quot;구조 생성 완료&quot;
+
+    section 2 &quot;메타 파일 생성&quot;
+    : &gt; &quot;$DS/meta/classes.txt&quot;
+    for i in $(seq 0 $((NCLS-1))); do
+        echo &quot;$i class_$i&quot; &gt;&gt; &quot;$DS/meta/classes.txt&quot;
+    done
+    ok &quot;classes.txt (${NCLS}종)&quot;
+
+    cat &gt; &quot;$DS/meta/data.yaml&quot; &lt;&lt; EOF
+path: $(readlink -f &quot;$DS&quot;)
+train: images/train
+val: images/val
+test: images/test
+nc: $NCLS
+names:
+$(awk '{printf &quot;  %s: %s\n&quot;, $1, $2}' &quot;$DS/meta/classes.txt&quot;)
+EOF
+    ok &quot;data.yaml&quot;
+
+    cat &gt; &quot;$DS/meta/DATASET.md&quot; &lt;&lt; EOF
+# $NAME Dataset
+
+| 항목 | 내용 |
+|---|---|
+| 생성일 | $(date +%Y-%m-%d) |
+| 클래스 수 | $NCLS |
+| 라벨 포맷 | YOLO (class x_center y_center width height, 0~1) |
+| 분할 | train : val : test = 7 : 1.5 : 1.5 |
+
+## 수집 조건
+(작성 필요)
+
+## 사용 제한
+(㈜비솔 제공 데이터인 경우: 원내 폐쇄망 전용, 외부 업로드 금지)
+
+## 주의사항
+- raw/ 는 읽기 전용
+- 전처리는 processed/ 에서 수행
+EOF
+    ok &quot;DATASET.md&quot;
+
+    section 3 &quot;완료&quot;
+    log &quot;생성 위치: $DS&quot;
+    log &quot;다음 단계: raw/images, raw/labels 에 데이터를 배치한 후&quot;
+    log &quot;           visionops check $DS&quot;
+    return 0
+}
+</code></pre>
+<blockquote>
+<p>나머지 서브커맨드는 4일차 <code>dataset_check.sh</code>, 5일차 <code>split_dataset.sh</code>, 2·3일차 리포트 로직을 <strong>함수로 이식</strong>하면 됩니다. 새로 짜는 것이 아니라 <strong>리팩터링</strong>입니다.</p>
+</blockquote>
+<h3 id="54-테스트-스크립트">5.4 테스트 스크립트</h3>
+<pre><code class="language-bash"># tests/test_basic.sh
+#!/bin/bash
+set -uo pipefail
+cd &quot;$(dirname &quot;$0&quot;)/..&quot;
+
+PASS=0; FAIL=0
+t () {
+    local name=&quot;$1&quot;; shift
+    if &quot;$@&quot; &gt; /dev/null 2&gt;&amp;1; then
+        echo &quot;  [PASS] $name&quot;; PASS=$((PASS+1))
+    else
+        echo &quot;  [FAIL] $name&quot;; FAIL=$((FAIL+1))
+    fi
+}
+t_exit () {
+    local name=&quot;$1&quot; expect=&quot;$2&quot;; shift 2
+    &quot;$@&quot; &gt; /dev/null 2&gt;&amp;1
+    local rc=$?
+    if [ &quot;$rc&quot; -eq &quot;$expect&quot; ]; then
+        echo &quot;  [PASS] $name (exit=$rc)&quot;; PASS=$((PASS+1))
+    else
+        echo &quot;  [FAIL] $name (expect=$expect got=$rc)&quot;; FAIL=$((FAIL+1))
+    fi
+}
+
+echo &quot;== visionops 기본 테스트 ==&quot;
+t       &quot;help 출력&quot;        ./visionops --help
+t       &quot;version 출력&quot;     ./visionops --version
+t_exit  &quot;인자 없음 → 2&quot;     2  ./visionops
+t_exit  &quot;잘못된 명령 → 2&quot;   2  ./visionops nosuchcmd
+t       &quot;init 실행&quot;        ./visionops init _testds --root /tmp/_vo
+t       &quot;check 실행&quot;       ./visionops check /tmp/_vo/_testds --min 0
+rm -rf /tmp/_vo
+
+echo &quot;&quot;
+echo &quot;  통과 $PASS / 실패 $FAIL&quot;
+[ &quot;$FAIL&quot; -eq 0 ]
+</code></pre>
+<hr />
+<h2 id="6-제출물">6. 제출물</h2>
+<h3 id="61-github-저장소-private">6.1 GitHub 저장소 (Private)</h3>
+<pre><code>저장소명: visionops
+가시성: Private
+협업자: 강사 계정 초대 (평가용)
+</code></pre>
+<h3 id="62-필수-포함-파일">6.2 필수 포함 파일</h3>
+<ul>
+<li>[ ] <code>visionops</code> (실행 가능)</li>
+<li>[ ] <code>lib/*.sh</code> (6개 이상)</li>
+<li>[ ] <code>hooks/pre-commit</code>, <code>hooks/commit-msg</code>, <code>hooks/install_hooks.sh</code></li>
+<li>[ ] <code>env/environment.yml</code></li>
+<li>[ ] <code>README.md</code></li>
+<li>[ ] <code>docs/DESIGN.md</code></li>
+<li>[ ] <code>tests/test_basic.sh</code></li>
+<li>[ ] <code>.gitignore</code></li>
+<li>[ ] <code>.github/workflows/ci.yml</code></li>
+<li>[ ] 태그 <code>v1.0</code></li>
+</ul>
+<h3 id="63-실행-증빙">6.3 실행 증빙</h3>
+<p><code>docs/DEMO.md</code> 에 다음을 포함:</p>
+<pre><code class="language-markdown">## 실행 데모
+
+### init
+</code></pre>
+<p>$ ./visionops init kimchi
+══════════════════════════════════════════════
+  visionops init :: kimchi
+...</p>
+<pre><code>
+### check
+(실제 출력 붙여넣기)
+
+### split
+(실제 출력 붙여넣기)
+
+### 재현성 검증
+</code></pre>
+<p>$ ./visionops split dataset/kimchi --seed 42 --clean &amp;&amp; ls dataset/kimchi/images/train | sort | md5sum
+a1b2c3...
+$ ./visionops split dataset/kimchi --seed 42 --clean &amp;&amp; ls dataset/kimchi/images/train | sort | md5sum
+a1b2c3...    ← 동일</p>
+<pre><code>
+### 보안 훅 동작
+(이미지 커밋 차단 화면 붙여넣기)
+</code></pre>
+<hr />
+<h2 id="7-평가-루브릭-25점">7. 평가 루브릭 (25점)</h2>
+<div class="tw"><table>
+<thead>
+<tr>
+<th>항목</th>
+<th>배점</th>
+<th>평가 기준</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>기능 완성도</strong></td>
+<td>8</td>
+<td>6개 서브커맨드 동작(각 1점), <code>--help</code>/종료코드(2점)</td>
+</tr>
+<tr>
+<td><strong>코드 품질</strong></td>
+<td>5</td>
+<td>함수 분리, 변수명, 하드코딩 없음, <code>bash -n</code>·<code>shellcheck</code> 통과</td>
+</tr>
+<tr>
+<td><strong>버전관리</strong></td>
+<td>4</td>
+<td>커밋 10개 이상, Conventional Commits, 브랜치·PR 사용, 태그</td>
+</tr>
+<tr>
+<td><strong>문서화</strong></td>
+<td>4</td>
+<td>README만으로 설치·실행 가능, DESIGN.md, DEMO.md</td>
+</tr>
+<tr>
+<td><strong>보안·CI</strong></td>
+<td>2</td>
+<td>pre-commit 훅 동작, CI 통과, 저장소에 이미지 0개</td>
+</tr>
+<tr>
+<td><strong>창의성 (★)</strong></td>
+<td>2</td>
+<td>선택 기능 1개 이상 구현</td>
+</tr>
+</tbody>
+</table></div>
+<h3 id="세부-채점표">세부 채점표</h3>
+<p><strong>기능 완성도 (8점)</strong></p>
+<div class="tw"><table>
+<thead>
+<tr>
+<th>확인</th>
+<th>배점</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>visionops init</code> 이 표준 구조 + 메타파일 생성</td>
+<td>1</td>
+</tr>
+<tr>
+<td><code>visionops check</code> 가 4종 이상 검증 수행</td>
+<td>1</td>
+</tr>
+<tr>
+<td><code>visionops split</code> 이 시드 고정 재현</td>
+<td>1</td>
+</tr>
+<tr>
+<td><code>visionops report</code> 가 통계 출력</td>
+<td>1</td>
+</tr>
+<tr>
+<td><code>visionops backup</code> 이 아카이브 생성</td>
+<td>1</td>
+</tr>
+<tr>
+<td><code>visionops run</code> 이 파이프라인 실행 + 실패 시 중단</td>
+<td>1</td>
+</tr>
+<tr>
+<td><code>--help</code> 가 전역 및 서브커맨드별 제공</td>
+<td>1</td>
+</tr>
+<tr>
+<td>종료 코드 0/1/2 구분</td>
+<td>1</td>
+</tr>
+</tbody>
+</table></div>
+<p><strong>감점 요인</strong></p>
+<div class="tw"><table>
+<thead>
+<tr>
+<th>항목</th>
+<th>감점</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>저장소에 이미지·모델 파일 포함</td>
+<td><strong>-5 (보안 규정 위반)</strong></td>
+</tr>
+<tr>
+<td><code>bash -n</code> 문법 오류</td>
+<td>-2</td>
+</tr>
+<tr>
+<td>README 없이 실행 불가</td>
+<td>-3</td>
+</tr>
+<tr>
+<td>커밋 메시지가 전부 "수정"류</td>
+<td>-2</td>
+</tr>
+<tr>
+<td>하드코딩된 절대경로</td>
+<td>-1</td>
+</tr>
+</tbody>
+</table></div>
+<hr />
+<h2 id="8-상호-검증-350400">8. 상호 검증 (3:50–4:00)</h2>
+<p><strong>짝의 저장소를 clone해서 다음을 확인하고 Issue로 등록하십시오.</strong></p>
+<pre><code class="language-bash">cd /tmp
+git clone &lt;짝의 저장소 URL&gt; peer-check
+cd peer-check
+
+# 체크리스트
+./visionops --help                 # 도움말이 이해되는가
+./visionops --version
+./visionops                        # exit code 확인
+echo &quot;exit=$?&quot;
+find . -name &quot;*.jpg&quot; -o -name &quot;*.pt&quot; | wc -l    # 0 이어야 함
+bash -n visionops &amp;&amp; echo &quot;문법 OK&quot;
+bash tests/test_basic.sh
+cat README.md                      # 설치 절차대로 따라 되는가
+</code></pre>
+<p><strong>Issue 템플릿</strong></p>
+<pre><code>제목: [REVIEW] &lt;검증자 이름&gt; 상호 검증 결과
+
+## 잘 된 점
+-
+
+## 개선 제안
+- [must]
+- [nit]
+
+## 실행 결과
+(붙여넣기)
+</code></pre>
+<hr />
+<h2 id="9-발표-선택-시간-여유-시">9. 발표 (선택 · 시간 여유 시)</h2>
+<p>각 5분:
+1. 무엇을 만들었는가 (30초)
+2. 실행 데모 (2분)
+3. 가장 어려웠던 부분과 해결 방법 (1분 30초)
+4. 선택 기능 소개 (1분)</p>
+<blockquote>
+<p>안내서 평가항목 「프로젝트 수행 역량 — 발표 및 문서화」의 예행연습입니다. 교과 14·15 최종 발표회에서 ㈜비솔 현직 개발자 심사단 앞에서 하게 될 발표의 축소판입니다.</p>
+</blockquote>
+<hr />
+<h2 id="10-이후-교과-연계">10. 이후 교과 연계</h2>
+<div class="tw"><table>
+<thead>
+<tr>
+<th>교과</th>
+<th><code>visionops</code> 활용 방법</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>교과 7 (라벨링 툴)</td>
+<td><code>init</code> 으로 구조 생성 → 툴로 라벨 작성 → <code>check</code> 로 검증</td>
+</tr>
+<tr>
+<td>교과 8 (객체검출)</td>
+<td>㈜비솔 제공 1,000장 데이터에 <code>check</code> → <code>split</code> → 학습</td>
+</tr>
+<tr>
+<td>교과 9 (머신비전)</td>
+<td>공개 이미지 데이터셋 관리</td>
+</tr>
+<tr>
+<td>교과 11 (합성데이터)</td>
+<td>생성 결과를 <code>check</code> 로 품질 검수</td>
+</tr>
+<tr>
+<td>교과 13 (Edge AI)</td>
+<td>Raspberry Pi에서 그대로 실행 (Bash 기반이라 이식성 높음)</td>
+</tr>
+<tr>
+<td><strong>교과 14 (제조 검사)</strong></td>
+<td>컨베이어 촬영 500장 → <code>check --min 500</code> → <code>split 70:15:15</code></td>
+</tr>
+<tr>
+<td><strong>교과 15 (동작 인식)</strong></td>
+<td>Keypoint 데이터셋 지원 확장(S10) 후 활용</td>
+</tr>
+</tbody>
+</table></div>
+<blockquote>
+<p><strong>팀 프로젝트 진입 시</strong>: 팀원 중 가장 완성도 높은 <code>visionops</code> 를 팀 표준 도구로 채택하고, 나머지 팀원이 PR로 기능을 추가하는 방식을 권장합니다. 이것이 실제 개발 조직의 일하는 방식입니다.</p>
+</blockquote>
+<hr />
+<h2 id="11-강사-운영-노트">11. 강사 운영 노트</h2>
+<div class="tw"><table>
+<thead>
+<tr>
+<th>시점</th>
+<th>주의사항</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>시작</td>
+<td><strong>"새로 짜는 게 아니라 지금까지 만든 걸 묶는 것"</strong> 을 반드시 강조하십시오. 4시간에 처음부터 만들라고 하면 좌절합니다.</td>
+</tr>
+<tr>
+<td>0:20</td>
+<td>설계 단계를 건너뛰고 바로 코딩하려는 훈련생이 많습니다. <code>DESIGN.md</code> 작성을 강제하십시오.</td>
+</tr>
+<tr>
+<td>1:40</td>
+<td>중간 점검에서 진도가 절반 미만인 훈련생은 <strong>선택 기능을 포기하고 필수 완성</strong>에 집중시키십시오.</td>
+</tr>
+<tr>
+<td>진도 편차</td>
+<td>우수자에게는 S6(Python 재구현) 또는 S10(Keypoint 지원)을 부여하고, 부진자에게는 <code>lib/</code> 골격을 배포해 채워 넣게 하십시오.</td>
+</tr>
+<tr>
+<td>보안</td>
+<td>제출 전 <strong>반드시</strong> <code>git ls-files \| grep -E '\.(jpg\|pt)$'</code> 로 확인시키십시오. 위반 시 -5점입니다.</td>
+</tr>
+<tr>
+<td>상호 검증</td>
+<td>시간이 부족해도 10분은 반드시 확보하십시오. "내 코드가 남의 PC에서 안 돌아간다"는 경험이 재현성 학습의 완성입니다.</td>
+</tr>
+<tr>
+<td>미완성자</td>
+<td>4시간 내 미완성은 정상입니다. <strong>주말 과제로 이관</strong>하고 다음 교과 시작 전까지 제출받되, 1:1 코드 리뷰를 제공하십시오(안내서 「수업 중 지원」 규정).</td>
+</tr>
+</tbody>
+</table></div>
+<hr />
+<h2 id="12-교과-1-종료-체크리스트">12. 교과 1 종료 체크리스트</h2>
+<p>훈련생이 다음을 모두 갖춘 상태로 교과 2로 넘어가야 합니다.</p>
+<p><strong>환경</strong>
+- [ ] Ubuntu 22.04 작업 환경 구축
+- [ ] <code>vision-ai</code> conda 환경 + <code>environment.yml</code>
+- [ ] VS Code ↔ 인터프리터 연결
+- [ ] SSH 원격 접속 가능
+- [ ] <code>~/.vimrc</code> 개인 설정</p>
+<p><strong>역량</strong>
+- [ ] 터미널만으로 파일·디렉토리 조작
+- [ ] 권한 이해 및 설정
+- [ ] 파이프로 텍스트 처리
+- [ ] 셸 스크립트 작성·디버깅
+- [ ] tmux로 장시간 작업 운영
+- [ ] Git 커밋·브랜치·충돌 해결
+- [ ] GitHub PR·리뷰</p>
+<p><strong>산출물</strong>
+- [ ] <code>visionops</code> GitHub 저장소 (Private, CI 통과)
+- [ ] 표준 구조 데이터셋 2종 (kimchi, conveyor)
+- [ ] 커밋 히스토리 15개 이상
+- [ ] <code>DAY1~8.md</code> 학습 기록</p>
+<p><strong>보안</strong>
+- [ ] 데이터 보안 규정(안내서 6.2절·7장) 숙지
+- [ ] pre-commit 훅 설치 및 동작 확인
+- [ ] 개인별 보안서약서 제출 (운영 담당 안내)</p>
+    <nav class="pager"><a href="07.html"><span class="k">← 이전 · D7</span><span class="v">GitHub 협업과 데이터 보안</span></a><a class="next" href="99.html"><span class="k">다음 · APX →</span><span class="v">부록 · 치트시트 &amp; 트러블슈팅</span></a></nav>
+  </main>
+</div>
+<script>
+(function(){
+  var links=[].slice.call(document.querySelectorAll('.toc a'));
+  if(!links.length)return;
+  var map={},targets=[];
+  links.forEach(function(a){
+    var el=document.getElementById(decodeURIComponent(a.getAttribute('href').slice(1)));
+    if(el){map[el.id]=a;targets.push(el);}
+  });
+  var cur=null;
+  var io=new IntersectionObserver(function(es){
+    es.forEach(function(e){
+      if(e.isIntersecting){
+        if(cur)cur.classList.remove('active');
+        cur=map[e.target.id];
+        if(cur){cur.classList.add('active');
+          var r=document.querySelector('.rail');
+          if(r&&r.scrollHeight>r.clientHeight){
+            var t=cur.offsetTop-r.clientHeight/2;
+            if(Math.abs(r.scrollTop-t)>90)r.scrollTop=t;
+          }
+        }
+      }
+    });
+  },{rootMargin:'-76px 0px -72% 0px',threshold:0});
+  targets.forEach(function(t){io.observe(t);});
+})();
+</script>
+</body>
+</html>

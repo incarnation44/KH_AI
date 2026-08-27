@@ -1,0 +1,13 @@
+# KDT Vision AI Core Dependencies (CPU optimized)
+numpy>=1.24.0
+pandas>=2.0.0
+matplotlib>=3.7.0
+seaborn>=0.12.0
+scikit-learn>=1.2.0
+jupyter>=1.0.0
+pyyaml>=6.0
+opencv-python>=4.8.0
+ultralytics>=8.0.0
+--extra-index-url https://download.pytorch.org/whl/cpu
+torch>=2.1.0+cpu
+torchvision>=0.16.0+cpu

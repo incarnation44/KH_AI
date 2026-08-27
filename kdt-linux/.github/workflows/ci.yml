@@ -1,0 +1,69 @@
+name: CI
+
+on:
+  push:
+    branches: [ main, master ]
+  pull_request:
+
+jobs:
+  shell-lint:
+    name: Shell Script Syntax Check
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Bash syntax validation
+        run: |
+          fail=0
+          for f in visionops scripts/*.sh lib/*.sh hooks/* tests/*.sh; do
+            [ -f "$f" ] || continue
+            if bash -n "$f"; then
+              echo "OK   $f"
+            else
+              echo "FAIL $f"
+              fail=1
+            fi
+          done
+          exit $fail
+
+  security-scan:
+    name: Data Leakage & Security Scan
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: 이미지·동영상 및 가중치 파일 유출 검사
+        run: |
+          echo "== 금지된 파일 형식 검사 =="
+          leaks=$(git ls-files | grep -Ei '\.(jpg|jpeg|png|bmp|gif|mp4|avi|mov|pt|pth|onnx|engine|tflite|h5)$' || true)
+          if [ -n "$leaks" ]; then
+            echo "::error::저장소에 금지된 데이터/가중치 파일이 포함되어 있습니다 (㈜비솔 보안 규정 위반)"
+            echo "$leaks"
+            exit 1
+          fi
+          echo "✔ 데이터 유출 없음"
+
+      - name: 10MB 초과 대용량 파일 검사
+        run: |
+          big=$(git ls-files | while read -r f; do
+            [ -f "$f" ] || continue
+            s=$(stat -c%s "$f" 2>/dev/null || echo 0)
+            [ "$s" -gt 10485760 ] && echo "$f ($((s/1024/1024))MB)"
+          done)
+          if [ -n "$big" ]; then
+            echo "::error::10MB 초과 대용량 파일 발견"
+            echo "$big"
+            exit 1
+          fi
+          echo "✔ 대용량 파일 없음"
+
+  unit-tests:
+    name: Basic Functional Tests
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Run unit test suite
+        run: |
+          chmod +x visionops scripts/*.sh hooks/* tests/*.sh
+          bash tests/test_basic.sh

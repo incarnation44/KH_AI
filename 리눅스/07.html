@@ -1,0 +1,1448 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>GitHub 협업과 데이터 보안 · 교과 1 · 리눅스</title>
+<link rel="preconnect" href="https://cdn.jsdelivr.net">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fontsource/jetbrains-mono@5.0.20/index.min.css">
+<style>
+/* ============ 토큰 ============ */
+:root{
+  --paper:#FAFAFB; --card:#FFFFFF;
+  --ink:#161B22; --ink2:#495364; --ink3:#828D9E;
+  --rule:#E4E8ED; --rule2:#F0F2F5;
+  --spec:#14539A;          /* 청사진 잉크 — 구조 · 링크 */
+  --spec-soft:#EAF1FA;
+  --warn:#A85408;          /* 신호 앰버 — 경고 · 보안 */
+  --warn-soft:#FDF3E7;
+  --ok:#0B6E5F;            /* 검수 통과 — 체크포인트 */
+  --ok-soft:#E7F3F0;
+  --term:#0E141B; --term-ink:#DCE6F0; --term-rule:#232C38;
+  --mono:"JetBrains Mono",ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+  --sans:"Pretendard Variable",Pretendard,-apple-system,BlinkMacSystemFont,
+         "Segoe UI","Malgun Gothic","Apple SD Gothic Neo","Noto Sans KR",sans-serif;
+  --rail:264px;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth;scroll-padding-top:84px}
+@media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}*{animation:none!important;transition:none!important}}
+body{
+  margin:0;background:var(--paper);color:var(--ink);font-family:var(--sans);
+  font-size:16px;line-height:1.78;-webkit-font-smoothing:antialiased;
+  word-break:keep-all;overflow-wrap:anywhere;
+}
+
+/* ============ 상단 바 ============ */
+.topbar{
+  position:sticky;top:0;z-index:40;background:rgba(250,250,251,.92);
+  backdrop-filter:blur(10px);border-bottom:1px solid var(--rule);
+}
+.topbar .in{max-width:1400px;margin:0 auto;padding:0 24px;height:56px;
+  display:flex;align-items:center;gap:18px}
+.brand{font-family:var(--mono);font-size:11px;letter-spacing:.1em;color:var(--ink3);
+  text-transform:uppercase;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.brand b{color:var(--spec);font-weight:700}
+.navbtns{margin-left:auto;display:flex;gap:8px;flex-shrink:0}
+.navbtns a{font-family:var(--mono);font-size:11px;letter-spacing:.06em;
+  text-decoration:none;color:var(--ink2);border:1px solid var(--rule);
+  border-radius:6px;padding:6px 11px;background:var(--card);transition:.15s}
+.navbtns a:hover{border-color:var(--spec);color:var(--spec)}
+.navbtns a.home{background:var(--spec);color:#fff;border-color:var(--spec)}
+.navbtns a.home:hover{filter:brightness(1.12)}
+
+/* ============ 레이아웃 ============ */
+.wrap{max-width:1400px;margin:0 auto;padding:0 24px;display:grid;
+  grid-template-columns:var(--rail) minmax(0,1fr);gap:44px;align-items:start}
+.rail{position:sticky;top:56px;max-height:calc(100vh - 56px);overflow-y:auto;
+  padding:28px 0 60px;scrollbar-width:thin}
+.rail::-webkit-scrollbar{width:6px}
+.rail::-webkit-scrollbar-thumb{background:var(--rule);border-radius:3px}
+main{padding:36px 0 120px;min-width:0;max-width:920px}
+
+/* ============ 시그니처: 일차 스파인 ============ */
+.spine-h{font-family:var(--mono);font-size:10px;letter-spacing:.14em;
+  color:var(--ink3);text-transform:uppercase;margin:0 0 12px 2px}
+.spine{list-style:none;margin:0 0 30px;padding:0;position:relative}
+.spine::before{content:"";position:absolute;left:19px;top:14px;bottom:14px;
+  width:1px;background:var(--rule)}
+.spine li{position:relative}
+.spine a{display:grid;grid-template-columns:38px 40px minmax(0,1fr);align-items:center;gap:6px;
+  padding:5px 8px 5px 0;text-decoration:none;color:var(--ink2);border-radius:6px}
+.spine a:hover{background:var(--rule2)}
+.spine .dot{position:relative;z-index:1;justify-self:center;width:9px;height:9px;
+  border-radius:50%;background:var(--card);border:1.5px solid var(--rule)}
+.spine .lbl{font-family:var(--mono);font-size:11.5px;letter-spacing:.04em}
+.spine .ttl{font-size:12.5px;line-height:1.35;color:var(--ink3);
+  overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.spine a[aria-current]{background:var(--spec-soft)}
+.spine a[aria-current] .dot{background:var(--spec);border-color:var(--spec);
+  box-shadow:0 0 0 3px rgba(20,83,154,.14)}
+.spine a[aria-current] .lbl{color:var(--spec);font-weight:700}
+.spine a[aria-current] .ttl{color:var(--ink)}
+.spine .done .dot{background:var(--rule);border-color:var(--rule)}
+
+/* ============ 문서 내 목차 ============ */
+.toc-h{font-family:var(--mono);font-size:10px;letter-spacing:.14em;color:var(--ink3);
+  text-transform:uppercase;margin:0 0 10px 2px;padding-top:22px;border-top:1px solid var(--rule)}
+.toc{list-style:none;margin:0;padding:0}
+.toc li{margin:0}
+.toc a{display:block;padding:5px 10px;font-size:13.5px;line-height:1.45;
+  text-decoration:none;color:var(--ink2);border-left:2px solid transparent;border-radius:0 5px 5px 0}
+.toc a:hover{background:var(--rule2);color:var(--ink)}
+.toc .lv1>a{font-weight:700;color:var(--ink);margin-top:12px;font-size:13px;
+  font-family:var(--mono);letter-spacing:.02em}
+.toc .lv2>a{padding-left:16px}
+.toc a.active{border-left-color:var(--spec);background:var(--spec-soft);color:var(--spec);font-weight:600}
+
+/* ============ 문서 헤더 ============ */
+.dochead{margin:0 0 40px;padding-bottom:26px;border-bottom:2px solid var(--ink)}
+.eyebrow{font-family:var(--mono);font-size:11px;letter-spacing:.14em;color:var(--spec);
+  text-transform:uppercase;margin-bottom:12px}
+.dochead h1{margin:0;padding:0;background:none;color:var(--ink);border-radius:0;
+  font-size:clamp(26px,3.3vw,38px);line-height:1.24;font-weight:800;letter-spacing:-.025em}
+.dochead .sub{margin:12px 0 0;color:var(--ink2);font-size:15px}
+/* 진도 트랙 — 60시간 중 현재 위치 */
+.track{margin-top:22px}
+.track .bar{height:5px;background:var(--rule);border-radius:3px;overflow:hidden;display:flex}
+.track .bar i{display:block;height:100%}
+.track .bar .past{background:var(--rule)}
+.track .bar .now{background:var(--spec)}
+.track .cap{display:flex;justify-content:space-between;margin-top:8px;max-width:640px;
+  font-family:var(--mono);font-size:10.5px;color:var(--ink3);letter-spacing:.04em}
+.track .bar{max-width:640px}
+
+/* ============ 본문 타이포 ============ */
+main h1{font-size:22px;font-weight:800;letter-spacing:-.01em;margin:64px 0 20px;
+  padding:14px 18px;background:var(--ink);color:#fff;border-radius:8px}
+main h1:first-of-type{margin-top:8px}
+main h2{font-size:19.5px;font-weight:750;margin:48px 0 14px;padding-bottom:9px;
+  border-bottom:1px solid var(--rule);letter-spacing:-.01em;scroll-margin-top:80px}
+main h3{font-size:16.5px;font-weight:700;margin:34px 0 10px;color:var(--ink);
+  scroll-margin-top:80px}
+main h4{font-size:15px;font-weight:700;margin:24px 0 8px;color:var(--ink2)}
+main p{margin:0 0 15px}
+main ul,main ol{margin:0 0 16px;padding-left:22px}
+main li{margin:5px 0}
+main li>ul,main li>ol{margin:6px 0}
+main hr{border:0;border-top:1px solid var(--rule);margin:46px 0}
+main strong{font-weight:700}
+main a{color:var(--spec);text-underline-offset:3px}
+
+/* 체크포인트 · 경고 헤딩 */
+main h3.cp,main h4.cp{background:var(--ok-soft);color:var(--ok);border-left:3px solid var(--ok);
+  padding:9px 14px;border-radius:0 7px 7px 0;font-size:15px}
+main h3.warn,main h4.warn,main h2.warn{background:var(--warn-soft);color:var(--warn);
+  border-left:3px solid var(--warn);border-bottom:0;padding:9px 14px;border-radius:0 7px 7px 0;font-size:15px}
+
+/* ============ 코드 ============ */
+main :not(pre)>code{font-family:var(--mono);font-size:.855em;background:var(--spec-soft);
+  color:#0F3F76;padding:1.5px 5px;border-radius:4px;word-break:break-all}
+main pre{background:var(--term);color:var(--term-ink);border-radius:10px;
+  padding:16px 18px;overflow-x:auto;margin:0 0 18px;font-size:13.5px;line-height:1.7;
+  border:1px solid var(--term-rule)}
+main pre code{font-family:var(--mono);background:none;color:inherit;padding:0;font-size:inherit}
+main pre::-webkit-scrollbar{height:8px}
+main pre::-webkit-scrollbar-thumb{background:#2C3846;border-radius:4px}
+
+/* ============ 표 ============ */
+.tw{overflow-x:auto;margin:0 0 20px;border:1px solid var(--rule);border-radius:9px;background:var(--card)}
+main table{border-collapse:collapse;width:100%;font-size:14px;min-width:min(100%,420px)}
+main th,main td{padding:9px 13px;border-bottom:1px solid var(--rule2);
+  text-align:left;vertical-align:top;line-height:1.6}
+main th{background:#F5F7F9;font-weight:700;font-size:12.5px;letter-spacing:.02em;
+  color:var(--ink2);white-space:nowrap;border-bottom:1px solid var(--rule)}
+main tbody tr:last-child td{border-bottom:0}
+main tbody tr:hover{background:#FBFCFD}
+main td code{white-space:nowrap}
+
+/* ============ 인용 ============ */
+main blockquote{margin:0 0 18px;padding:13px 18px;background:var(--card);
+  border:1px solid var(--rule);border-left:3px solid var(--spec);border-radius:0 8px 8px 0;
+  color:var(--ink2);font-size:14.5px}
+main blockquote p:last-child{margin-bottom:0}
+
+/* ============ 하단 이동 ============ */
+.pager{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:70px;
+  padding-top:26px;border-top:1px solid var(--rule)}
+.pager a{display:block;padding:15px 18px;border:1px solid var(--rule);border-radius:10px;
+  text-decoration:none;background:var(--card);transition:.15s}
+.pager a:hover{border-color:var(--spec);box-shadow:0 2px 10px rgba(20,83,154,.07)}
+.pager .k{font-family:var(--mono);font-size:10px;letter-spacing:.12em;color:var(--ink3);
+  text-transform:uppercase;display:block;margin-bottom:5px}
+.pager .v{font-size:14.5px;font-weight:650;color:var(--ink);line-height:1.4}
+.pager .next{text-align:right}
+.pager .empty{border-style:dashed;opacity:.4;pointer-events:none}
+
+/* ============ 색인 페이지 ============ */
+.hero{padding:56px 0 40px;border-bottom:2px solid var(--ink);margin-bottom:44px}
+.hero h1{margin:14px 0 0;padding:0;background:none;color:var(--ink);border-radius:0;
+  font-size:clamp(30px,4.4vw,48px);line-height:1.18;font-weight:800;letter-spacing:-.03em}
+.hero .eyebrow{margin-bottom:0}
+.hero .lede{margin:20px 0 0;font-size:16.5px;line-height:1.68;color:var(--ink2);max-width:60ch}
+.stats{display:flex;flex-wrap:wrap;gap:36px;margin-top:34px}
+.stat .n{font-family:var(--mono);font-size:27px;font-weight:700;color:var(--spec);
+  letter-spacing:-.02em;line-height:1}
+.stat .l{font-family:var(--mono);font-size:10.5px;letter-spacing:.12em;color:var(--ink3);
+  text-transform:uppercase;margin-top:7px}
+.cards{display:grid;gap:12px;margin-bottom:60px}
+.card{display:grid;grid-template-columns:74px 1fr auto;align-items:center;gap:20px;
+  padding:17px 22px;background:var(--card);border:1px solid var(--rule);border-radius:11px;
+  text-decoration:none;color:inherit;transition:.15s}
+.card:hover{border-color:var(--spec);transform:translateX(3px);
+  box-shadow:0 3px 14px rgba(20,83,154,.08)}
+.card .key{font-family:var(--mono);font-size:15px;font-weight:700;color:var(--spec);
+  letter-spacing:.02em}
+.card .key small{display:block;font-size:9.5px;color:var(--ink3);font-weight:400;
+  letter-spacing:.1em;margin-top:3px}
+.card .t{font-size:16px;font-weight:700;line-height:1.35}
+.card .d{font-size:13.5px;color:#78818E;margin-top:4px;line-height:1.55}
+.card .h{font-family:var(--mono);font-size:11px;color:var(--ink3);white-space:nowrap;
+  letter-spacing:.04em}
+.idx-sec{font-family:var(--mono);font-size:10.5px;letter-spacing:.14em;color:var(--ink3);
+  text-transform:uppercase;margin:34px 0 12px}
+.idx-sec:first-child{margin-top:0}
+.note{background:var(--warn-soft);border:1px solid #F0DFC6;border-left:3px solid var(--warn);
+  border-radius:0 10px 10px 0;padding:18px 22px;margin-bottom:56px;font-size:14.5px;color:#6B3A08}
+.note b{color:var(--warn)}
+.note ul{margin:9px 0 0;padding-left:20px}
+
+/* ============ 반응형 ============ */
+@media (max-width:1080px){
+  .wrap{grid-template-columns:1fr;gap:0}
+  .rail{position:static;max-height:none;overflow:visible;padding:22px 0 0;
+    border-bottom:1px solid var(--rule);margin-bottom:8px}
+  .spine{display:flex;flex-wrap:wrap;gap:5px;margin-bottom:20px}
+  .spine::before{display:none}
+  .spine a{grid-template-columns:auto;padding:6px 11px;border:1px solid var(--rule);border-radius:7px}
+  .spine .dot,.spine .ttl{display:none}
+  .toc-h{padding-top:16px}
+  .toc{columns:2;column-gap:20px;max-height:230px;overflow-y:auto;
+    border:1px solid var(--rule);border-radius:9px;padding:8px;background:var(--card)}
+  .toc .lv1>a{margin-top:0}
+  main{padding:22px 0 80px}
+}
+@media (max-width:620px){
+  body{font-size:15.5px}
+  .wrap,.topbar .in{padding:0 15px}
+  .toc{columns:1;max-height:200px}
+  .pager{grid-template-columns:1fr}
+  .pager .next{text-align:left}
+  .card{grid-template-columns:56px 1fr;gap:14px}
+  .card .h{grid-column:2;margin-top:5px}
+  main h1{font-size:19px;padding:12px 14px}
+  main pre{font-size:12.5px;padding:13px 14px}
+}
+
+/* ============ 인쇄 ============ */
+@media print{
+  :root{--paper:#fff}
+  .topbar,.rail,.pager,.track{display:none!important}
+  .wrap{display:block;max-width:none;padding:0}
+  main{padding:0}
+  body{font-size:10.5pt;line-height:1.62}
+  main h1{background:none;color:#000;border:1.5pt solid #000;padding:7pt 10pt;
+    font-size:15pt;margin:22pt 0 11pt;page-break-after:avoid}
+  main h2,main h3,main h4{page-break-after:avoid}
+  main h2{font-size:13pt;margin:16pt 0 7pt}
+  main h3{font-size:11.5pt}
+  main pre{background:#F6F7F9;color:#111;border:.5pt solid #CBD2DA;
+    font-size:8.6pt;page-break-inside:avoid;white-space:pre-wrap;word-break:break-all}
+  main pre code{color:#111}
+  main :not(pre)>code{background:#EFF2F5;color:#111}
+  main table{font-size:9pt;page-break-inside:avoid}
+  .tw{overflow:visible;border-color:#CBD2DA}
+  main blockquote{page-break-inside:avoid}
+  a{color:#000;text-decoration:none}
+  .dochead{page-break-after:avoid}
+  @page{margin:15mm 14mm}
+}
+</style>
+</head>
+<body>
+<header class="topbar"><div class="in">
+  <div class="brand">KDT · AI 캠퍼스 [비솔] Vision AI &amp; 산업분야 Vertical AI 융합 전문가 양성 · <b>교과 1 · 리눅스</b></div>
+  <nav class="navbtns">
+    <a class="home" href="index.html">전체 목차</a>
+    <a href="#" onclick="window.print();return false;">인쇄 / PDF</a>
+  </nav>
+</div></header>
+
+<div class="wrap">
+  <aside class="rail">
+    <p class="spine-h">교과 1 · 60H 전체</p>
+    <ul class="spine"><li><a class="done" href="00.html"><span class="dot"></span><span class="lbl">PLAN</span><span class="ttl">강의 기획서</span></a></li>
+<li><a class="done" href="01.html"><span class="dot"></span><span class="lbl">D1</span><span class="ttl">리눅스 시작과 파일 시스템</span></a></li>
+<li><a class="done" href="02.html"><span class="dot"></span><span class="lbl">D2</span><span class="ttl">권한 · 아카이브 · 텍스트 스트림</span></a></li>
+<li><a class="done" href="03.html"><span class="dot"></span><span class="lbl">D3</span><span class="ttl">편집기와 텍스트 처리</span></a></li>
+<li><a class="done" href="04.html"><span class="dot"></span><span class="lbl">D4</span><span class="ttl">셸 스크립트 · 프로세스 · 자동화</span></a></li>
+<li><a class="done" href="05.html"><span class="dot"></span><span class="lbl">D5</span><span class="ttl">Anaconda 환경과 데이터셋 구조화</span></a></li>
+<li><a class="done" href="06.html"><span class="dot"></span><span class="lbl">D6</span><span class="ttl">Git 기초</span></a></li>
+<li><a class="" href="07.html" aria-current="page"><span class="dot"></span><span class="lbl">D7</span><span class="ttl">GitHub 협업과 데이터 보안</span></a></li>
+<li><a class="" href="08.html"><span class="dot"></span><span class="lbl">D8</span><span class="ttl">부분 파이널 프로젝트</span></a></li>
+<li><a class="" href="99.html"><span class="dot"></span><span class="lbl">APX</span><span class="ttl">부록 · 치트시트 &amp; 트러블슈팅</span></a></li></ul>
+    <p class="toc-h">이 문서 안에서</p>
+    <ul class="toc"><li class="lv2"><a href="#학습-목표">학습 목표</a></li>
+<li class="lv2"><a href="#0교시-전일-복습-퀴즈-10분">0교시 · 전일 복습 퀴즈 (10분)</a></li>
+<li class="lv1"><a href="#part-1-이론-35h">PART 1. 이론 (3.5H)</a></li>
+<li class="lv2"><a href="#1교시-원격-저장소-50분">1교시 · 원격 저장소 (50분)</a></li>
+<li class="lv2"><a href="#2교시-협업-워크플로우-50분">2교시 · 협업 워크플로우 (50분)</a></li>
+<li class="lv2"><a href="#3교시-데이터-보안과-ci-50분">3교시 · 데이터 보안과 CI (50분) ★★</a></li>
+<li class="lv1"><a href="#part-2-실습-45h">PART 2. 실습 (4.5H)</a></li>
+<li class="lv2"><a href="#실습-7-1-github-연결-50분">실습 7-1 · GitHub 연결 (50분)</a></li>
+<li class="lv2"><a href="#실습-7-2-pre-commit-보안-훅-60분-핵심">실습 7-2 · pre-commit 보안 훅 (60분) ★★핵심</a></li>
+<li class="lv2"><a href="#실습-7-3-pr-협업-사이클-80분-핵심">실습 7-3 · PR 협업 사이클 (80분) ★핵심</a></li>
+<li class="lv2"><a href="#실습-7-4-issue-actions-readme-50분">실습 7-4 · Issue · Actions · README (50분)</a></li>
+<li class="lv2"><a href="#마무리-10분">마무리 (10분)</a></li>
+<li class="lv2"><a href="#과제-8일차-프로젝트-준비">과제 (8일차 프로젝트 준비)</a></li>
+<li class="lv2"><a href="#강사-운영-노트">강사 운영 노트</a></li></ul>
+  </aside>
+
+  <main>
+    <div class="dochead">
+      <div class="eyebrow">D7 &nbsp;/&nbsp; 교과 1 · 리눅스 &nbsp;/&nbsp; 8시간</div>
+      <h1>7일차 · GitHub 원격 연동 · 협업 · 데이터 보안 (8H)</h1>
+      <p class="sub">PR 리뷰 사이클 · pre-commit 훅 3중 방어선</p>
+      <div class="track"><div class="bar"><i class="past" style="width:80.00%"></i><i class="now" style="width:13.33%"></i></div><div class="cap"><span>48H 누적</span><span>이 문서 8H</span><span>전체 60H</span></div></div>
+    </div>
+    <blockquote>
+<p>이론 3.5H · 실습 4.5H
+<strong>오늘의 한 문장:</strong> "PR로 코드 리뷰를 주고받고, 기업 데이터가 GitHub에 올라가지 않도록 기술적으로 차단한다."</p>
+</blockquote>
+<hr />
+<h2 id="학습-목표">학습 목표</h2>
+<div class="tw"><table>
+<thead>
+<tr>
+<th>코드</th>
+<th>목표</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>D7-1</td>
+<td>원격 저장소 개념과 clone/push/pull/fetch를 설명한다</td>
+</tr>
+<tr>
+<td>D7-2</td>
+<td>SSH 키 또는 PAT로 인증을 설정한다</td>
+</tr>
+<tr>
+<td>D7-3</td>
+<td>로컬 저장소를 GitHub에 연결하고 push한다</td>
+</tr>
+<tr>
+<td>D7-4</td>
+<td>브랜치 → PR → 리뷰 → 머지 사이클을 수행한다</td>
+</tr>
+<tr>
+<td>D7-5</td>
+<td>충돌이 있는 PR을 해결한다</td>
+</tr>
+<tr>
+<td>D7-6</td>
+<td>Issue와 Project로 작업을 관리한다</td>
+</tr>
+<tr>
+<td>D7-7</td>
+<td><strong>pre-commit 훅으로 기업 데이터 업로드를 원천 차단한다</strong></td>
+</tr>
+<tr>
+<td>D7-8</td>
+<td>Git LFS와 GitHub Actions의 용도를 이해한다</td>
+</tr>
+<tr>
+<td>D7-9</td>
+<td>포트폴리오용 README를 작성한다</td>
+</tr>
+</tbody>
+</table></div>
+<hr />
+<h2 id="0교시-전일-복습-퀴즈-10분">0교시 · 전일 복습 퀴즈 (10분)</h2>
+<ol>
+<li><code>reset</code> 과 <code>revert</code> 중 공유 저장소에 써야 하는 것은?</li>
+<li><code>git reflog</code> 는 언제 쓰는가?</li>
+<li><code>.gitignore</code> 를 만들기 전에 커밋한 이미지는 어떻게 되는가?</li>
+<li>Conventional Commits의 <code>feat</code> 과 <code>fix</code> 의 차이는?</li>
+</ol>
+<hr />
+<h1 id="part-1-이론-35h">PART 1. 이론 (3.5H)</h1>
+<h2 id="1교시-원격-저장소-50분">1교시 · 원격 저장소 (50분)</h2>
+<h3 id="11-git-github">1.1 Git ≠ GitHub</h3>
+<div class="tw"><table>
+<thead>
+<tr>
+<th>Git</th>
+<th>GitHub</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>버전관리 <strong>도구</strong></td>
+<td>Git 저장소 <strong>호스팅 서비스</strong></td>
+</tr>
+<tr>
+<td>로컬에서 동작</td>
+<td>웹 기반, 협업 기능 제공</td>
+</tr>
+<tr>
+<td>오프라인 가능</td>
+<td>Issue, PR, Actions, Wiki</td>
+</tr>
+</tbody>
+</table></div>
+<p>대안: GitLab, Bitbucket, Gitea(사내 설치형). 안내서에 GitHub가 명시되어 있으므로 GitHub를 사용합니다.</p>
+<h3 id="12-원격-저장소-명령">1.2 원격 저장소 명령</h3>
+<pre><code class="language-bash">git remote -v                                  # 원격 목록
+git remote add origin &lt;URL&gt;                    # 원격 추가
+git remote set-url origin &lt;새URL&gt;
+git remote remove origin
+
+git clone &lt;URL&gt;                                # 복제
+git clone &lt;URL&gt; &lt;폴더명&gt;
+git clone --depth 1 &lt;URL&gt;                      # 최근 1개 커밋만 (빠름)
+
+git push -u origin main                        # 최초 push (-u: 추적 설정)
+git push                                        # 이후
+git push origin &lt;브랜치&gt;
+git push --tags                                 # 태그 전송
+
+git fetch origin                                # 원격 변경 가져오기(머지 안 함)
+git pull                                        # fetch + merge
+git pull --rebase                               # fetch + rebase (이력 깔끔)
+</code></pre>
+<h3 id="13-fetch-vs-pull">1.3 fetch vs pull ★</h3>
+<pre><code>fetch:  원격 변경사항을 로컬에 &quot;가져오기만&quot; → 내가 확인 후 머지 결정
+pull:   가져와서 &quot;바로 머지&quot;
+</code></pre>
+<pre><code class="language-bash">git fetch origin
+git log --oneline HEAD..origin/main       # 원격에만 있는 커밋 확인
+git diff HEAD origin/main                  # 무엇이 다른가
+git merge origin/main                      # 확인 후 머지
+</code></pre>
+<blockquote>
+<p><strong>팀 작업 권장</strong>: <code>pull</code> 대신 <code>fetch</code> → 확인 → <code>merge</code>. 무엇이 들어오는지 모르고 머지하면 충돌 대응이 어렵습니다.</p>
+</blockquote>
+<h3 id="14-인증-방식">1.4 인증 방식</h3>
+<div class="tw"><table>
+<thead>
+<tr>
+<th>방식</th>
+<th>특징</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>HTTPS + PAT</td>
+<td>토큰 발급 필요, 만료 관리, 방화벽 친화적</td>
+</tr>
+<tr>
+<td><strong>SSH 키</strong></td>
+<td>최초 설정 후 편함, 22번 포트 필요</td>
+</tr>
+</tbody>
+</table></div>
+<blockquote>
+<p>사내망에서 22번 포트가 막혀 있으면 SSH가 안 됩니다. 교실 환경에 따라 강사가 사전 확인하십시오. HTTPS+PAT는 443 포트를 쓰므로 대부분 통과합니다.</p>
+</blockquote>
+<p><strong>SSH 키 생성</strong></p>
+<pre><code class="language-bash">ssh-keygen -t ed25519 -C &quot;hong@example.com&quot;
+# 저장 경로: 기본(~/.ssh/id_ed25519), 패스프레이즈: 선택
+
+cat ~/.ssh/id_ed25519.pub                  # 공개키 (GitHub에 등록)
+chmod 600 ~/.ssh/id_ed25519                # 개인키 권한 ★ 2일차 내용
+
+ssh -T git@github.com                       # 연결 테스트
+</code></pre>
+<p><strong>PAT 발급</strong>
+GitHub → Settings → Developer settings → Personal access tokens → Tokens (classic) → Generate
+- scope: <code>repo</code> 체크
+- 발급된 토큰은 <strong>한 번만 표시</strong>됩니다. 안전한 곳에 보관.</p>
+<pre><code class="language-bash">git config --global credential.helper store    # 저장 (평문 ⚠️)
+git config --global credential.helper cache --timeout=3600   # 권장
+</code></pre>
+<hr />
+<h2 id="2교시-협업-워크플로우-50분">2교시 · 협업 워크플로우 (50분)</h2>
+<h3 id="21-github-flow">2.1 GitHub Flow</h3>
+<pre><code>1. main에서 브랜치 생성        git switch -c feature/xxx
+2. 작업 + 커밋                  git commit
+3. 원격에 push                  git push -u origin feature/xxx
+4. Pull Request 생성            (GitHub 웹)
+5. 코드 리뷰 + 수정             (리뷰어 코멘트 → 추가 커밋)
+6. Approve → Merge              (GitHub 웹)
+7. 브랜치 삭제 + 로컬 동기화    git switch main &amp;&amp; git pull &amp;&amp; git branch -d
+</code></pre>
+<h3 id="22-pull-request가-하는-일">2.2 Pull Request가 하는 일</h3>
+<div class="tw"><table>
+<thead>
+<tr>
+<th>기능</th>
+<th>의미</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>변경 내역 시각화</td>
+<td>무엇이 바뀌는지 라인 단위로 보임</td>
+</tr>
+<tr>
+<td>코드 리뷰</td>
+<td>라인별 코멘트, 수정 제안</td>
+</tr>
+<tr>
+<td>자동 검사</td>
+<td>CI (Actions)로 문법·테스트 자동 실행</td>
+</tr>
+<tr>
+<td>이력 보존</td>
+<td>왜 이렇게 바꿨는지 논의가 남음</td>
+</tr>
+<tr>
+<td>머지 게이트</td>
+<td>승인 없이는 main에 못 들어감</td>
+</tr>
+</tbody>
+</table></div>
+<blockquote>
+<p><strong>평가 연계</strong>: 안내서 평가항목 「코드 품질 — 코드 리뷰 체크리스트」, 「수행 역량 — 협업 참여도」가 PR 활동으로 측정됩니다. 리뷰 코멘트를 성실히 주고받은 기록이 점수입니다.</p>
+</blockquote>
+<h3 id="23-좋은-pr">2.3 좋은 PR</h3>
+<pre><code class="language-markdown">## 무엇을
+데이터셋 정합성 검증에 해상도 확인 기능 추가
+
+## 왜
+교과 14 목표 성능 요건이 입력 640×640 이상이므로,
+학습 전에 해상도 미달 이미지를 걸러내야 함
+
+## 어떻게
+- ImageMagick identify 로 샘플 100장 해상도 확인
+- 640 미만 발견 시 WARN 처리 (FAIL 아님)
+- ImageMagick 미설치 환경에서는 검사 생략
+
+## 테스트
+- [x] bash -n 문법 검사 통과
+- [x] kimchi 데이터셋에서 실행 확인
+- [x] ImageMagick 없는 환경에서 정상 스킵 확인
+
+## 관련 이슈
+Closes #12
+</code></pre>
+<p><strong>PR 크기</strong>: 변경 300줄 이내 권장. 크면 리뷰가 형식적이 됩니다.</p>
+<h3 id="24-코드-리뷰-규칙-본-과정-팀-규칙">2.4 코드 리뷰 규칙 (본 과정 팀 규칙)</h3>
+<p><strong>리뷰어</strong>
+- 24시간 내 응답
+- 사람이 아니라 코드를 지적
+- "왜"를 함께 설명
+- 칭찬도 남길 것</p>
+<p><strong>리뷰 코멘트 접두사</strong></p>
+<div class="tw"><table>
+<thead>
+<tr>
+<th>접두사</th>
+<th>의미</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>[must]</code></td>
+<td>반드시 수정</td>
+</tr>
+<tr>
+<td><code>[should]</code></td>
+<td>수정 권장</td>
+</tr>
+<tr>
+<td><code>[nit]</code></td>
+<td>사소한 취향</td>
+</tr>
+<tr>
+<td><code>[q]</code></td>
+<td>질문</td>
+</tr>
+<tr>
+<td><code>[praise]</code></td>
+<td>좋은 부분</td>
+</tr>
+</tbody>
+</table></div>
+<p>예)</p>
+<pre><code>[must] MIN_IMAGES 가 하드코딩되어 있습니다. 인자로 받도록 바꿔주세요.
+[nit] 변수명 tmp1 → valid_pairs 로 하면 더 읽기 좋을 것 같습니다.
+[praise] --fix 옵션에서 백업을 남기는 처리 좋네요.
+</code></pre>
+<h3 id="25-issue와-프로젝트-관리">2.5 Issue와 프로젝트 관리</h3>
+<pre><code class="language-markdown">## 제목
+[BUG] split_dataset.sh 에서 시드 고정이 동작하지 않음
+
+## 재현 절차
+1. ./split_dataset.sh dataset/kimchi --seed 42 --clean
+2. ls images/train | md5sum 기록
+3. 동일 명령 재실행
+4. md5 값이 달라짐
+
+## 기대 동작
+같은 시드면 동일한 분할 결과
+
+## 환경
+Ubuntu 22.04 / bash 5.1 / awk (GNU Awk 5.1.0)
+</code></pre>
+<p>라벨: <code>bug</code> <code>enhancement</code> <code>documentation</code> <code>good first issue</code></p>
+<hr />
+<h2 id="3교시-데이터-보안과-ci-50분">3교시 · 데이터 보안과 CI (50분) ★★</h2>
+<h3 id="31-반드시-지켜야-할-규정">3.1 반드시 지켜야 할 규정</h3>
+<p>안내서 <strong>6.2절 · 7장</strong>:</p>
+<blockquote>
+<p>2026.08 확정 — ㈜비솔 제공 데이터의 사용 범위가 확정되었습니다. <strong>원내 폐쇄망에서만</strong> 실습·프로젝트 개발 용도로 사용하며, <strong>외부 클라우드 및 GitHub 업로드는 금지</strong>됩니다. 결과 화면·시연 영상 및 포트폴리오 활용은 가능하고, 외부 반출은 금지되며 <strong>훈련생 개인별 보안서약서</strong>를 징구합니다.</p>
+</blockquote>
+<div class="tw"><table>
+<thead>
+<tr>
+<th>데이터</th>
+<th>GitHub 업로드</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>㈜비솔 제공 조각김치·이물 이미지 + 라벨 (교과 8)</td>
+<td>❌ <strong>금지</strong></td>
+</tr>
+<tr>
+<td>훈련생 직접 촬영 컨베이어 이미지 (교과 14)</td>
+<td>✅ 가능</td>
+</tr>
+<tr>
+<td>모션캡처 원본 Take (교과 12·15)</td>
+<td>❌ 스튜디오 현장 처리</td>
+</tr>
+<tr>
+<td>코드·스크립트·메타 문서</td>
+<td>✅ 가능</td>
+</tr>
+<tr>
+<td>결과 화면·시연 영상</td>
+<td>✅ 가능</td>
+</tr>
+</tbody>
+</table></div>
+<h3 id="32-왜-gitignore-만으로는-부족한가">3.2 왜 <code>.gitignore</code> 만으로는 부족한가</h3>
+<p>6일차에 확인한 사실:
+1. <code>git add -f</code> 로 강제 추가하면 무시 규칙이 뚫린다
+2. <code>.gitignore</code> 는 이미 추적 중인 파일에 소용없다
+3. 한 번 커밋되면 <code>git rm --cached</code> 해도 <strong>이력에는 남는다</strong>
+4. push 되면 GitHub 서버에 영구 기록된다</p>
+<p><strong>결론: 사람의 주의력에 의존하면 반드시 사고가 납니다.</strong></p>
+<h3 id="33-방어선-3중-구조">3.3 방어선 3중 구조</h3>
+<pre><code>① .gitignore              — 실수 방지 (기본)
+② pre-commit 훅           — 커밋 자체를 차단 (핵심) ★
+③ GitHub Actions (CI)     — push 후 검사 및 알림
+</code></pre>
+<h3 id="34-git-훅">3.4 Git 훅</h3>
+<p><code>.git/hooks/</code> 에 실행 가능한 스크립트를 두면 특정 시점에 자동 실행됩니다.</p>
+<div class="tw"><table>
+<thead>
+<tr>
+<th>훅</th>
+<th>실행 시점</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>pre-commit</code></td>
+<td>커밋 직전 (0이 아니면 커밋 중단) ★</td>
+</tr>
+<tr>
+<td><code>commit-msg</code></td>
+<td>메시지 작성 후 (형식 검사)</td>
+</tr>
+<tr>
+<td><code>pre-push</code></td>
+<td>push 직전</td>
+</tr>
+</tbody>
+</table></div>
+<blockquote>
+<p>⚠️ <code>.git/hooks/</code> 는 Git으로 추적되지 않습니다. 팀 공유하려면 <code>hooks/</code> 폴더에 두고 설치 스크립트를 제공하거나, <code>core.hooksPath</code> 를 설정합니다.</p>
+</blockquote>
+<h3 id="35-git-lfs">3.5 Git LFS</h3>
+<p>100MB 이상 파일은 GitHub가 거부합니다. 모델 가중치(<code>.pt</code>, <code>.onnx</code>, <code>.engine</code>)가 여기 해당합니다.</p>
+<pre><code class="language-bash">git lfs install
+git lfs track &quot;*.pt&quot;
+git add .gitattributes
+git lfs ls-files
+</code></pre>
+<blockquote>
+<p><strong>본 과정 권장</strong>: 모델 가중치는 LFS보다 <strong>GitHub Releases</strong> 또는 별도 저장소를 권장합니다. LFS는 무료 할당량(1GB/월 대역폭)이 금방 소진됩니다.</p>
+</blockquote>
+<h3 id="36-github-actions-맛보기">3.6 GitHub Actions 맛보기</h3>
+<p><code>.github/workflows/*.yml</code> 에 정의하면 push/PR 시 자동 실행됩니다.</p>
+<pre><code class="language-yaml">name: CI
+on: [push, pull_request]
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Shell syntax check
+        run: |
+          for f in scripts/*.sh; do bash -n &quot;$f&quot;; done
+</code></pre>
+<blockquote>
+<p>교과 14 팀별 차별화 기능 중 <strong>MLOps</strong> 가 가산 평가 대상입니다(안내서 교과 14 운영 포인트). CI 파이프라인 구축이 그 출발점입니다.</p>
+</blockquote>
+<hr />
+<h1 id="part-2-실습-45h">PART 2. 실습 (4.5H)</h1>
+<h2 id="실습-7-1-github-연결-50분">실습 7-1 · GitHub 연결 (50분)</h2>
+<h3 id="step-1-계정-및-ssh-키">Step 1. 계정 및 SSH 키</h3>
+<pre><code class="language-bash">ls ~/.ssh/
+ssh-keygen -t ed25519 -C &quot;$(git config user.email)&quot;
+# Enter 3번 (기본 경로, 패스프레이즈 없음 — 교육 환경 한정)
+
+chmod 600 ~/.ssh/id_ed25519
+chmod 644 ~/.ssh/id_ed25519.pub
+cat ~/.ssh/id_ed25519.pub
+</code></pre>
+<p>출력을 복사 → GitHub → Settings → SSH and GPG keys → New SSH key → 붙여넣기 → Add</p>
+<pre><code class="language-bash">ssh -T git@github.com
+# Hi &lt;username&gt;! You've successfully authenticated...
+</code></pre>
+<p><strong>SSH가 막힌 환경이면 HTTPS + PAT</strong></p>
+<pre><code class="language-bash">git config --global credential.helper 'cache --timeout=7200'
+# push 시 username / password(=PAT) 입력
+</code></pre>
+<h3 id="step-2-원격-저장소-생성">Step 2. 원격 저장소 생성</h3>
+<p>GitHub 웹에서:
+1. New repository
+2. 이름: <code>kdt-vision-linux</code>
+3. <strong>Private</strong> 선택 (중요 — 교육/실습 저장소는 기본 Private)
+4. README/gitignore/license <strong>추가하지 않음</strong> (로컬에 이미 있음)
+5. Create</p>
+<h3 id="step-3-연결-및-push">Step 3. 연결 및 push</h3>
+<pre><code class="language-bash">cd ~/kdt-linux
+git remote -v                                  # 없음
+git remote add origin git@github.com:&lt;계정&gt;/kdt-vision-linux.git
+git remote -v
+
+git branch                                     # main 인지 확인
+git push -u origin main
+git push --tags
+</code></pre>
+<h3 id="step-4-웹에서-확인">Step 4. 웹에서 확인 ★</h3>
+<p>GitHub 저장소 페이지에서 반드시 확인:
+- [ ] 커밋 개수가 로컬과 일치
+- [ ] <strong><code>.jpg</code> 파일이 하나도 없다</strong>
+- [ ] <code>dataset/*/meta/</code> 문서는 있다
+- [ ] README.md가 첫 화면에 렌더링된다
+- [ ] 태그(Releases)에 <code>v1.0-day6</code> 표시</p>
+<pre><code class="language-bash">git log --oneline | wc -l                      # 로컬 커밋 수
+</code></pre>
+<h3 id="step-5-clone-테스트">Step 5. clone 테스트</h3>
+<pre><code class="language-bash">cd /tmp
+git clone git@github.com:&lt;계정&gt;/kdt-vision-linux.git clone-test
+cd clone-test
+ls -la
+du -sh .                                       # 이미지 없으므로 매우 작음
+find . -name &quot;*.jpg&quot; | wc -l                   # 0 이어야 정상 ★
+./scripts/dataset_check.sh --help              # 실행 가능한지
+cd ~ &amp;&amp; rm -rf /tmp/clone-test
+</code></pre>
+<h3 id="체크포인트-7-1" class="cp">✅ 체크포인트 7-1</h3>
+<ul>
+<li>[ ] SSH 인증(또는 PAT) 성공</li>
+<li>[ ] Private 저장소에 push 완료</li>
+<li>[ ] 원격에 이미지 파일 0개</li>
+<li>[ ] clone 후 스크립트 실행 가능</li>
+</ul>
+<hr />
+<h2 id="실습-7-2-pre-commit-보안-훅-60분-핵심">실습 7-2 · pre-commit 보안 훅 (60분) ★★핵심</h2>
+<h3 id="배경">배경</h3>
+<p>안내서 6.2절 규정을 <strong>기술적으로 강제</strong>하는 장치를 만듭니다. 이 훅은 교과 8·14·15 프로젝트 저장소에 그대로 복사해 사용합니다.</p>
+<h3 id="요구-기능">요구 기능</h3>
+<div class="tw"><table>
+<thead>
+<tr>
+<th>#</th>
+<th>차단 대상</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>B1</td>
+<td>이미지·동영상 파일 (jpg/png/mp4 등)</td>
+</tr>
+<tr>
+<td>B2</td>
+<td>모델 가중치 (pt/pth/onnx/engine/tflite)</td>
+</tr>
+<tr>
+<td>B3</td>
+<td>대용량 파일 (10MB 초과)</td>
+</tr>
+<tr>
+<td>B4</td>
+<td>자격증명 (pem/key/.env/credentials)</td>
+</tr>
+<tr>
+<td>B5</td>
+<td>기업 데이터 경로 (<code>dataset/*/raw/</code>)</td>
+</tr>
+<tr>
+<td>B6</td>
+<td>커밋 메시지 형식 검사 (별도 훅)</td>
+</tr>
+</tbody>
+</table></div>
+<h3 id="step-1-훅-스크립트-작성">Step 1. 훅 스크립트 작성</h3>
+<pre><code class="language-bash">mkdir -p ~/kdt-linux/hooks
+cd ~/kdt-linux/hooks
+vim pre-commit
+</code></pre>
+<pre><code class="language-bash">#!/bin/bash
+#===============================================================
+# pre-commit hook
+# 목적: ㈜비솔 제공 데이터 및 대용량/민감 파일의 커밋을 차단
+# 근거: AI캠퍼스 훈련운영 안내서 6.2절 · 7장 데이터 보안 규정
+#===============================================================
+set -uo pipefail
+
+RED='\033[0;31m'; YEL='\033[0;33m'; GRN='\033[0;32m'; NC='\033[0m'
+BLOCKED=0
+MAX_SIZE=$((10 * 1024 * 1024))     # 10MB
+
+STAGED=$(git diff --cached --name-only --diff-filter=ACM)
+[ -z &quot;$STAGED&quot; ] &amp;&amp; exit 0
+
+block () {
+    echo -e &quot;${RED}  ✘ BLOCKED${NC} $1&quot;
+    echo -e &quot;    이유: $2&quot;
+    BLOCKED=1
+}
+
+echo &quot;─────────────────────────────────────────────&quot;
+echo &quot; pre-commit 보안 검사&quot;
+echo &quot;─────────────────────────────────────────────&quot;
+
+while IFS= read -r file; do
+    [ -f &quot;$file&quot; ] || continue
+
+    # B1. 이미지 / 동영상
+    case &quot;$file&quot; in
+        *.jpg|*.jpeg|*.png|*.bmp|*.gif|*.tif|*.tiff|*.webp|*.mp4|*.avi|*.mov|*.mkv)
+            block &quot;$file&quot; &quot;이미지·영상 파일은 저장소에 포함할 수 없습니다 (데이터 보안 규정)&quot;
+            continue ;;
+    esac
+
+    # B2. 모델 가중치
+    case &quot;$file&quot; in
+        *.pt|*.pth|*.onnx|*.engine|*.tflite|*.h5|*.pb|*.caffemodel)
+            block &quot;$file&quot; &quot;모델 가중치는 Releases 또는 별도 저장소를 사용하세요&quot;
+            continue ;;
+    esac
+
+    # B4. 자격증명
+    case &quot;$file&quot; in
+        *.pem|*.key|*.p12|.env|*credentials*|*secret*|*token*)
+            block &quot;$file&quot; &quot;자격증명 파일은 절대 커밋할 수 없습니다&quot;
+            continue ;;
+    esac
+
+    # B5. 기업 데이터 경로
+    case &quot;$file&quot; in
+        */raw/*|dataset/*/raw/*|*/processed/*)
+            block &quot;$file&quot; &quot;원본·전처리 데이터 경로는 커밋 대상이 아닙니다&quot;
+            continue ;;
+    esac
+
+    # B3. 대용량
+    size=$(stat -c%s &quot;$file&quot; 2&gt;/dev/null || echo 0)
+    if [ &quot;$size&quot; -gt &quot;$MAX_SIZE&quot; ]; then
+        block &quot;$file&quot; &quot;파일 크기 $((size/1024/1024))MB &gt; 10MB 제한&quot;
+        continue
+    fi
+
+    # 하드코딩된 비밀정보 스캔 (경고)
+    if grep -qEi &quot;(aws_secret|api[_-]?key|password\s*=\s*['\&quot;])&quot; &quot;$file&quot; 2&gt;/dev/null; then
+        echo -e &quot;${YEL}  ⚠ WARN${NC}    $file&quot;
+        echo    &quot;    비밀정보로 보이는 문자열이 있습니다. 확인하세요.&quot;
+    fi
+
+done &lt;&lt;&lt; &quot;$STAGED&quot;
+
+echo &quot;─────────────────────────────────────────────&quot;
+if [ &quot;$BLOCKED&quot; -eq 1 ]; then
+    echo -e &quot;${RED} 커밋이 차단되었습니다.${NC}&quot;
+    echo &quot;&quot;
+    echo &quot; 조치 방법:&quot;
+    echo &quot;   1) git restore --staged &lt;파일&gt;   # 스테이징에서 제외&quot;
+    echo &quot;   2) .gitignore 에 규칙 추가&quot;
+    echo &quot;   3) 정말 필요한 경우에만: git commit --no-verify&quot;
+    echo &quot;&quot;
+    echo &quot; ※ ㈜비솔 제공 데이터는 원내 폐쇄망 전용이며&quot;
+    echo &quot;    외부 클라우드·GitHub 업로드가 금지되어 있습니다.&quot;
+    echo &quot;    (AI캠퍼스 훈련운영 안내서 6.2절·7장)&quot;
+    echo &quot;─────────────────────────────────────────────&quot;
+    exit 1
+fi
+
+echo -e &quot;${GRN} 보안 검사 통과${NC}&quot;
+echo &quot;─────────────────────────────────────────────&quot;
+exit 0
+</code></pre>
+<h3 id="step-2-commit-msg-훅">Step 2. commit-msg 훅</h3>
+<pre><code class="language-bash">vim commit-msg
+</code></pre>
+<pre><code class="language-bash">#!/bin/bash
+# commit-msg hook — Conventional Commits 형식 검사
+MSG_FILE=&quot;$1&quot;
+MSG=$(head -1 &quot;$MSG_FILE&quot;)
+
+# merge/revert 커밋은 통과
+echo &quot;$MSG&quot; | grep -qE &quot;^(Merge|Revert)&quot; &amp;&amp; exit 0
+
+PATTERN=&quot;^(feat|fix|docs|style|refactor|test|chore|data|merge)(\([a-z0-9_-]+\))?: .{5,72}$&quot;
+
+if ! echo &quot;$MSG&quot; | grep -qE &quot;$PATTERN&quot;; then
+    echo &quot;&quot;
+    echo &quot;✘ 커밋 메시지 형식이 올바르지 않습니다.&quot;
+    echo &quot;&quot;
+    echo &quot;  현재: $MSG&quot;
+    echo &quot;&quot;
+    echo &quot;  형식: &lt;type&gt;(&lt;scope&gt;): &lt;subject&gt;&quot;
+    echo &quot;  type: feat|fix|docs|style|refactor|test|chore|data&quot;
+    echo &quot;  예시: feat(check): 해상도 검증 기능 추가&quot;
+    echo &quot;&quot;
+    exit 1
+fi
+exit 0
+</code></pre>
+<h3 id="step-3-설치-스크립트">Step 3. 설치 스크립트</h3>
+<pre><code class="language-bash">vim install_hooks.sh
+</code></pre>
+<pre><code class="language-bash">#!/bin/bash
+# Git 훅 설치 스크립트
+set -e
+HOOK_SRC=&quot;$(cd &quot;$(dirname &quot;$0&quot;)&quot; &amp;&amp; pwd)&quot;
+HOOK_DST=&quot;$(git rev-parse --git-dir)/hooks&quot;
+
+for h in pre-commit commit-msg; do
+    if [ -f &quot;$HOOK_SRC/$h&quot; ]; then
+        cp &quot;$HOOK_SRC/$h&quot; &quot;$HOOK_DST/$h&quot;
+        chmod +x &quot;$HOOK_DST/$h&quot;
+        echo &quot;[OK] $h 설치 완료&quot;
+    fi
+done
+echo &quot;훅 설치 위치: $HOOK_DST&quot;
+</code></pre>
+<pre><code class="language-bash">chmod +x install_hooks.sh pre-commit commit-msg
+cd ~/kdt-linux
+./hooks/install_hooks.sh
+ls -l .git/hooks/pre-commit .git/hooks/commit-msg
+</code></pre>
+<h3 id="step-4-동작-검증">Step 4. 동작 검증 ★</h3>
+<pre><code class="language-bash">cd ~/kdt-linux
+
+# ① 이미지 차단 테스트
+cp dataset/kimchi/raw/images/kimchi_0001.jpg ./test_leak.jpg 2&gt;/dev/null || \
+  cp dataset/kimchi/raw/kimchi_0001.jpg ./test_leak.jpg
+git add -f test_leak.jpg
+git commit -m &quot;test: 이미지 커밋 시도&quot;
+# → BLOCKED 메시지와 함께 커밋 실패해야 정상 ★
+
+git restore --staged test_leak.jpg
+rm test_leak.jpg
+</code></pre>
+<pre><code class="language-bash"># ② 자격증명 차단 테스트
+echo &quot;AWS_SECRET_ACCESS_KEY=abcd1234&quot; &gt; .env
+git add -f .env
+git commit -m &quot;test: 자격증명 커밋 시도&quot;
+# → BLOCKED
+
+git restore --staged .env &amp;&amp; rm .env
+</code></pre>
+<pre><code class="language-bash"># ③ 대용량 파일 차단 테스트
+dd if=/dev/zero of=big.bin bs=1M count=15 2&gt;/dev/null
+git add -f big.bin
+git commit -m &quot;test: 대용량 파일 커밋 시도&quot;
+# → BLOCKED (15MB &gt; 10MB)
+
+git restore --staged big.bin &amp;&amp; rm big.bin
+</code></pre>
+<pre><code class="language-bash"># ④ 커밋 메시지 형식 검사
+echo &quot;# hook test&quot; &gt;&gt; DAY6.md
+git add DAY6.md
+git commit -m &quot;수정&quot;
+# → 형식 오류로 실패
+
+git commit -m &quot;docs: 훅 동작 검증 메모 추가&quot;
+# → 성공
+</code></pre>
+<pre><code class="language-bash"># ⑤ 정상 파일은 통과
+git add hooks/
+git commit -m &quot;feat(security): 데이터 유출 방지 pre-commit 훅 추가
+
+AI캠퍼스 안내서 6.2절·7장 데이터 보안 규정을 기술적으로 강제한다.
+- 이미지/영상/모델가중치/자격증명/대용량 파일 차단
+- raw/, processed/ 경로 차단
+- Conventional Commits 메시지 형식 검사&quot;
+git push
+</code></pre>
+<h3 id="step-5-우회-방법과-그-위험성">Step 5. 우회 방법과 그 위험성</h3>
+<pre><code class="language-bash">git commit --no-verify -m &quot;...&quot;     # 훅을 건너뜀
+</code></pre>
+<blockquote>
+<p><strong>강사 강조</strong>: <code>--no-verify</code> 는 존재하지만, <strong>㈜비솔 데이터에는 절대 사용하지 않습니다.</strong> 이 옵션을 쓴 흔적은 남지 않으므로, 팀 규칙과 보안서약서로 관리합니다. 훅은 실수를 막는 장치이지 악의를 막는 장치가 아닙니다.</p>
+</blockquote>
+<h3 id="체크포인트-7-2" class="cp">✅ 체크포인트 7-2</h3>
+<ul>
+<li>[ ] 이미지 커밋이 차단된다</li>
+<li>[ ] 자격증명 커밋이 차단된다</li>
+<li>[ ] 10MB 초과 파일이 차단된다</li>
+<li>[ ] 잘못된 형식의 커밋 메시지가 거부된다</li>
+<li>[ ] 정상 파일은 통과한다</li>
+<li>[ ] <code>install_hooks.sh</code> 로 재설치 가능</li>
+</ul>
+<hr />
+<h2 id="실습-7-3-pr-협업-사이클-80분-핵심">실습 7-3 · PR 협업 사이클 (80분) ★핵심</h2>
+<p><strong>2인 1조로 진행합니다.</strong> (A = 저장소 소유자, B = 협업자)</p>
+<h3 id="step-1-협업자-초대">Step 1. 협업자 초대</h3>
+<p>A:
+1. GitHub 저장소 → Settings → Collaborators → Add people → B의 계정
+B: 초대 메일 수락</p>
+<h3 id="step-2-b가-clone">Step 2. B가 clone</h3>
+<pre><code class="language-bash"># B의 PC에서
+cd ~
+git clone git@github.com:&lt;A계정&gt;/kdt-vision-linux.git partner-repo
+cd partner-repo
+./hooks/install_hooks.sh          # 훅 설치 (중요)
+git log --oneline | head
+</code></pre>
+<h3 id="step-3-b가-기능-브랜치-작업">Step 3. B가 기능 브랜치 작업</h3>
+<pre><code class="language-bash">git switch -c feature/class-balance-check
+
+vim scripts/dataset_check.sh
+</code></pre>
+<p><code>show_distribution()</code> 뒤에 추가:</p>
+<pre><code class="language-bash">check_balance () {
+    section 8 &quot;클래스 균형&quot;
+    local raw=&quot;$DATASET_DIR/raw&quot;
+    local stats
+    stats=$(cat &quot;$raw&quot;/labels/*.txt &quot;$raw&quot;/*.txt 2&gt;/dev/null \
+            | cut -d' ' -f1 | sort | uniq -c | awk '{print $1}' | sort -n)
+    local min max ratio
+    min=$(echo &quot;$stats&quot; | head -1)
+    max=$(echo &quot;$stats&quot; | tail -1)
+    [ -z &quot;$min&quot; ] &amp;&amp; { log &quot;(라벨 없음)&quot;; return; }
+    ratio=$(awk -v a=&quot;$max&quot; -v b=&quot;$min&quot; 'BEGIN{printf &quot;%.1f&quot;, a/b}')
+    log &quot;최다/최소 클래스 비율: ${ratio}:1 (max=$max, min=$min)&quot;
+    if awk -v r=&quot;$ratio&quot; 'BEGIN{exit !(r&gt;5)}'; then
+        warn &quot;클래스 불균형 심함 (5:1 초과) — 증강 또는 가중 손실 검토 필요&quot;
+    else
+        ok &quot;클래스 균형 양호&quot;
+    fi
+}
+</code></pre>
+<p><code>main()</code> 에 <code>check_balance</code> 호출 추가.</p>
+<pre><code class="language-bash">bash -n scripts/dataset_check.sh
+./scripts/dataset_check.sh ~/kdt-linux/dataset/kimchi 2&gt;/dev/null | tail -10
+
+git add scripts/dataset_check.sh
+git commit -m &quot;feat(check): 클래스 균형 검사 기능 추가
+
+교과 8·14 목표 성능(mAP@0.5 0.7 이상) 달성을 위해
+소수 클래스로 인한 성능 저하를 사전에 탐지한다.&quot;
+git push -u origin feature/class-balance-check
+</code></pre>
+<h3 id="step-4-b가-pr-생성">Step 4. B가 PR 생성</h3>
+<p>GitHub 웹 → Compare &amp; pull request
+- 제목: <code>feat(check): 클래스 균형 검사 기능 추가</code>
+- 본문: 2교시 템플릿(무엇을/왜/어떻게/테스트) 작성
+- Reviewers: A 지정
+- Create pull request</p>
+<h3 id="step-5-a가-리뷰">Step 5. A가 리뷰</h3>
+<p>GitHub → Pull requests → Files changed
+- 라인 옆 <code>+</code> 클릭 → 코멘트
+- 반드시 다음 3종을 남길 것:
+  - <code>[must]</code> 1건
+  - <code>[nit]</code> 1건
+  - <code>[praise]</code> 1건
+- Review changes → <strong>Request changes</strong> 선택</p>
+<p><strong>리뷰 예시</strong></p>
+<pre><code>[must] 5:1 임계값이 하드코딩되어 있습니다. 상단 상수로 빼거나 --balance-ratio 옵션으로 받으면 좋겠습니다.
+[nit] &quot;심함&quot; → &quot;심각&quot; 이 더 자연스러울 것 같습니다.
+[praise] awk로 비율 계산하는 방식 깔끔합니다.
+</code></pre>
+<h3 id="step-6-b가-수정-반영">Step 6. B가 수정 반영</h3>
+<pre><code class="language-bash">vim scripts/dataset_check.sh
+# 상단에 BALANCE_RATIO=5 상수 추가
+# check_balance 에서 $BALANCE_RATIO 사용
+# --balance-ratio 옵션 parse_args 에 추가
+
+bash -n scripts/dataset_check.sh
+git add scripts/dataset_check.sh
+git commit -m &quot;refactor(check): 클래스 균형 임계값을 옵션으로 분리
+
+리뷰 반영: 하드코딩된 5:1 임계값을 --balance-ratio 옵션으로 변경&quot;
+git push
+</code></pre>
+<p>PR 페이지에서 리뷰 코멘트에 답글:</p>
+<pre><code>반영했습니다. --balance-ratio 옵션으로 변경했고 기본값은 5입니다. 확인 부탁드립니다.
+</code></pre>
+<h3 id="step-7-a가-승인-및-머지">Step 7. A가 승인 및 머지</h3>
+<ul>
+<li>Files changed → 변경 확인</li>
+<li>Review changes → <strong>Approve</strong></li>
+<li>Conversation → <strong>Merge pull request</strong> → Confirm</li>
+<li><strong>Delete branch</strong></li>
+</ul>
+<h3 id="step-8-동기화">Step 8. 동기화</h3>
+<pre><code class="language-bash"># B
+git switch main
+git pull
+git branch -d feature/class-balance-check
+git log --oneline | head -5
+
+# A (원본 로컬)
+cd ~/kdt-linux
+git pull
+git log --oneline --graph | head -10
+</code></pre>
+<h3 id="step-9-역할-교대">Step 9. 역할 교대 ★</h3>
+<p><strong>A와 B의 역할을 바꿔 한 번 더 수행합니다.</strong>
+A가 <code>feature/csv-export</code> 브랜치에서 리포트 CSV 출력 기능을 추가하고, B가 리뷰합니다.</p>
+<h3 id="step-10-충돌이-있는-pr-처리">Step 10. 충돌이 있는 PR 처리</h3>
+<p>두 사람이 <strong>같은 줄</strong>을 동시에 수정한 상황을 만듭니다.</p>
+<pre><code class="language-bash"># A: main에서 MIN_IMAGES=500 → 600
+git switch main &amp;&amp; git pull
+sed -i 's/^MIN_IMAGES=.*/MIN_IMAGES=600/' scripts/dataset_check.sh
+git add . &amp;&amp; git commit -m &quot;chore(check): 최소 요건 600장으로 상향&quot; &amp;&amp; git push
+
+# B: 브랜치에서 MIN_IMAGES=500 → 400
+git switch -c fix/min-images
+sed -i 's/^MIN_IMAGES=.*/MIN_IMAGES=400/' scripts/dataset_check.sh
+git add . &amp;&amp; git commit -m &quot;fix(check): 최소 요건 400장으로 조정&quot;
+git push -u origin fix/min-images
+</code></pre>
+<p>B가 PR 생성 → GitHub이 "This branch has conflicts" 표시</p>
+<p><strong>로컬에서 해결</strong>:</p>
+<pre><code class="language-bash">git fetch origin
+git merge origin/main
+# 충돌 발생
+vim scripts/dataset_check.sh      # 마커 제거, 합의값 500으로
+git add scripts/dataset_check.sh
+git commit -m &quot;merge: main 병합 및 MIN_IMAGES 충돌 해결 (500 합의)&quot;
+git push
+</code></pre>
+<p>PR 페이지에서 충돌 해소 확인 → 머지</p>
+<h3 id="체크포인트-7-3" class="cp">✅ 체크포인트 7-3</h3>
+<ul>
+<li>[ ] PR 생성 → 리뷰 → 수정 → 승인 → 머지 사이클 완주</li>
+<li>[ ] 리뷰 코멘트 3종([must]/[nit]/[praise]) 작성</li>
+<li>[ ] 역할 교대로 2회 수행 (리뷰어·작성자 양쪽 경험)</li>
+<li>[ ] 충돌 있는 PR을 해결했다</li>
+<li>[ ] <code>git log --graph</code> 에 협업 이력이 남았다</li>
+</ul>
+<hr />
+<h2 id="실습-7-4-issue-actions-readme-50분">실습 7-4 · Issue · Actions · README (50분)</h2>
+<h3 id="step-1-issue-생성-및-연결">Step 1. Issue 생성 및 연결</h3>
+<p>GitHub → Issues → New issue</p>
+<p><strong>Issue 1</strong></p>
+<pre><code>제목: [FEAT] 검사 결과를 JSON으로 출력하는 옵션 추가
+라벨: enhancement
+본문:
+## 배경
+CI 파이프라인에서 검사 결과를 파싱해야 함
+## 제안
+--json 옵션 추가 시 구조화된 JSON 출력
+## 기대 효과
+GitHub Actions에서 자동 판정 가능
+</code></pre>
+<p><strong>Issue 2</strong></p>
+<pre><code>제목: [DOCS] README에 스크린샷 추가
+라벨: documentation, good first issue
+</code></pre>
+<p><strong>Issue를 커밋으로 닫기</strong></p>
+<pre><code class="language-bash">git switch -c feature/json-output
+# ... 작업 ...
+git commit -m &quot;feat(check): 검사 결과 JSON 출력 옵션 추가
+
+Closes #1&quot;
+git push -u origin feature/json-output
+</code></pre>
+<p>PR 머지 시 Issue #1이 자동으로 닫힙니다.</p>
+<h3 id="step-2-github-actions-워크플로우">Step 2. GitHub Actions 워크플로우</h3>
+<pre><code class="language-bash">cd ~/kdt-linux
+mkdir -p .github/workflows
+cat &gt; .github/workflows/ci.yml &lt;&lt; 'EOF'
+name: CI
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+
+jobs:
+  shell-lint:
+    name: Shell Script Lint
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Bash syntax check
+        run: |
+          fail=0
+          for f in scripts/*.sh hooks/*; do
+            [ -f &quot;$f&quot; ] || continue
+            if bash -n &quot;$f&quot;; then
+              echo &quot;OK   $f&quot;
+            else
+              echo &quot;FAIL $f&quot;; fail=1
+            fi
+          done
+          exit $fail
+
+      - name: ShellCheck
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y shellcheck
+          shellcheck -S warning scripts/*.sh || true
+
+  security-scan:
+    name: Data Leak Scan
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: 이미지·모델 파일 검사
+        run: |
+          echo &quot;== 금지 파일 형식 검사 ==&quot;
+          found=$(git ls-files | grep -Ei '\.(jpg|jpeg|png|bmp|mp4|avi|pt|pth|onnx|engine|tflite)$' || true)
+          if [ -n &quot;$found&quot; ]; then
+            echo &quot;::error::금지된 파일이 저장소에 포함되어 있습니다&quot;
+            echo &quot;$found&quot;
+            exit 1
+          fi
+          echo &quot;통과: 금지 파일 없음&quot;
+
+      - name: 대용량 파일 검사
+        run: |
+          big=$(git ls-files | while read -r f; do
+            [ -f &quot;$f&quot; ] || continue
+            s=$(stat -c%s &quot;$f&quot;)
+            [ &quot;$s&quot; -gt 10485760 ] &amp;&amp; echo &quot;$f ($((s/1024/1024))MB)&quot;
+          done)
+          if [ -n &quot;$big&quot; ]; then
+            echo &quot;::error::10MB 초과 파일 발견&quot;; echo &quot;$big&quot;; exit 1
+          fi
+          echo &quot;통과: 대용량 파일 없음&quot;
+EOF
+
+git add .github/
+git commit -m &quot;ci: 셸 문법 검사 및 데이터 유출 스캔 워크플로우 추가&quot;
+git push
+</code></pre>
+<p>GitHub → Actions 탭에서 실행 결과 확인.</p>
+<blockquote>
+<p><strong>의미</strong>: 훅은 로컬에서만 동작하고 <code>--no-verify</code>로 우회 가능합니다. Actions는 <strong>서버에서 실행되므로 우회 불가</strong>입니다. 3중 방어선이 완성됩니다.</p>
+</blockquote>
+<h3 id="step-3-포트폴리오-readme-완성">Step 3. 포트폴리오 README 완성</h3>
+<pre><code class="language-bash">cd ~/kdt-linux
+vim README.md
+</code></pre>
+<pre><code class="language-markdown"># KDT Vision AI — Linux 데이터셋 운영 툴킷
+
+&gt; KDT AI Campus [비솔] 현장 데이터 기반 Vision AI &amp; 산업분야 Vertical AI 융합 전문가 양성 과정
+&gt; 교과 1 · 리눅스 (60H) 산출물
+
+[![CI](https://github.com/&lt;계정&gt;/kdt-vision-linux/actions/workflows/ci.yml/badge.svg)](../../actions)
+
+## 개요
+
+Vision AI 프로젝트에서 반복적으로 발생하는 데이터셋 준비 작업을 자동화하는 CLI 툴킷입니다.
+교과 8(객체검출), 교과 14(제조 검사), 교과 15(동작 인식) 프로젝트에서 재사용합니다.
+
+## 주요 기능
+
+| 스크립트 | 기능 |
+|---|---|
+| `dataset_check.sh` | 이미지-라벨 정합성, 라벨 포맷, 클래스 균형 검증 |
+| `split_dataset.sh` | 시드 고정 재현 가능한 train/val/test 분할 |
+| `auto_backup.sh` | 메타정보 자동 백업 및 오래된 백업 정리 |
+| `run_pipeline.sh` | 검증 → 분할 → 백업 통합 실행 |
+| `hooks/pre-commit` | 기업 데이터·대용량·자격증명 커밋 차단 |
+
+## 요구 환경
+
+- Ubuntu 22.04 LTS
+- Bash 5.x, GNU awk, coreutils
+- Anaconda 3 (Python 3.10+)
+
+## 설치
+
+```bash
+git clone https://github.com/&lt;계정&gt;/kdt-vision-linux.git
+cd kdt-vision-linux
+conda env create -f env/environment.yml
+conda activate vision-ai
+./hooks/install_hooks.sh
+```
+
+## 사용법
+
+### 데이터셋 검증
+```bash
+./scripts/dataset_check.sh dataset/kimchi --min 500
+```
+```
+[1] 디렉토리 구조
+  [OK]   raw/ 존재
+...
+  판정: PASS ✔
+```
+
+### 데이터셋 분할
+```bash
+./scripts/split_dataset.sh dataset/kimchi --ratio 70:15:15 --seed 42 --clean
+```
+
+### 전체 파이프라인
+```bash
+./scripts/run_pipeline.sh dataset/kimchi
+```
+
+## 디렉토리 구조
+
+```
+kdt-vision-linux/
+├── scripts/          CLI 도구
+├── hooks/            Git 훅
+├── env/              conda 환경 정의
+├── dataset/*/meta/   데이터셋 메타 문서
+└── .github/workflows/ CI
+```
+
+## ⚠️ 데이터 사용 제한
+
+본 저장소는 **코드와 메타데이터만** 포함합니다.
+
+㈜비솔이 제공하는 실습 데이터(조각김치·이물 이미지 및 라벨)는
+**원내 폐쇄망 전용**이며 외부 클라우드·GitHub 업로드가 금지되어 있습니다.
+(AI캠퍼스 훈련운영 안내서 6.2절 · 7장, 개인별 보안서약서 대상)
+
+`pre-commit` 훅과 CI 워크플로우가 해당 파일의 커밋·push를 자동 차단합니다.
+
+## 라이선스
+
+교육 목적 산출물. 데이터는 포함하지 않습니다.
+</code></pre>
+<pre><code class="language-bash">git add README.md
+git commit -m &quot;docs(readme): 포트폴리오용 README 작성&quot;
+git push
+</code></pre>
+<h3 id="체크포인트-7-4" class="cp">✅ 체크포인트 7-4</h3>
+<ul>
+<li>[ ] Issue 2개 생성, 1개는 커밋으로 자동 닫기</li>
+<li>[ ] Actions 워크플로우가 성공(초록)으로 표시</li>
+<li>[ ] 의도적으로 이미지를 커밋해 CI가 실패하는 것도 확인</li>
+<li>[ ] README가 GitHub 첫 화면에 잘 렌더링됨</li>
+</ul>
+<hr />
+<h2 id="마무리-10분">마무리 (10분)</h2>
+<pre><code class="language-bash">cd ~/kdt-linux
+git tag -a v2.0-day7 -m &quot;교과1 7일차 — GitHub 협업 및 보안 체계 완료&quot;
+git push --tags
+
+cat &gt; DAY7.md &lt;&lt; 'EOF'
+# Day 7 — GitHub 협업 · 데이터 보안
+## 핵심
+- SSH 키 / PAT 인증, remote add / push -u
+- fetch → 확인 → merge (pull보다 안전)
+- GitHub Flow: branch → push → PR → review → merge → delete
+- 리뷰 접두사: [must] [should] [nit] [q] [praise]
+- 3중 방어선: .gitignore → pre-commit 훅 → GitHub Actions
+## 보안 규정 (안내서 6.2절·7장)
+- ㈜비솔 제공 데이터: 원내 폐쇄망 전용, GitHub 업로드 금지
+- 훈련생 직접 촬영(교과 14): 외부 반출 가능
+EOF
+git add DAY7.md &amp;&amp; git commit -m &quot;docs: 7일차 학습 정리&quot; &amp;&amp; git push
+</code></pre>
+<hr />
+<h2 id="과제-8일차-프로젝트-준비">과제 (8일차 프로젝트 준비)</h2>
+<ol>
+<li>오늘 만든 저장소를 정리하고, 8일차 파이널 프로젝트 계획을 Issue로 등록</li>
+<li><code>git stash</code>, <code>git rebase -i</code>, <code>git cherry-pick</code> 중 하나를 조사해 사용 시나리오 작성</li>
+<li>팀원의 저장소를 clone해서 README만 보고 실행이 되는지 검증 → 안 되면 Issue 등록</li>
+<li>8일차 프로젝트 요구사항 문서(<code>08_8일차_부분파이널프로젝트_visionops.md</code>) 정독</li>
+</ol>
+<hr />
+<h2 id="강사-운영-노트">강사 운영 노트</h2>
+<div class="tw"><table>
+<thead>
+<tr>
+<th>시점</th>
+<th>주의사항</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>SSH 포트</td>
+<td><strong>개강 전 반드시 22번 포트 개방 여부를 확인</strong>하십시오. 막혀 있으면 30명이 동시에 막힙니다. HTTPS+PAT 대안을 준비해 두십시오.</td>
+</tr>
+<tr>
+<td>Private 저장소</td>
+<td>반드시 Private로 만들게 하십시오. Public에 실수로 올라가면 회수가 불가능합니다.</td>
+</tr>
+<tr>
+<td>pre-commit 훅</td>
+<td><strong>오늘의 하이라이트입니다.</strong> 안내서 보안 규정과 직접 연결되므로, 규정 원문을 화면에 띄우고 시작하십시오. 훅이 실제로 차단되는 장면을 전원이 봐야 합니다.</td>
+</tr>
+<tr>
+<td>PR 실습</td>
+<td>2인 1조 편성 시 <strong>전공/비전공을 섞으십시오.</strong> 리뷰 과정에서 자연스러운 상호 학습이 일어납니다.</td>
+</tr>
+<tr>
+<td>역할 교대</td>
+<td>리뷰어 경험이 없으면 교과 14·15 팀 프로젝트에서 리뷰가 형식화됩니다. 반드시 양쪽을 경험시키십시오.</td>
+</tr>
+<tr>
+<td>Actions</td>
+<td>무료 사용량 제한이 있습니다. 30명 × 여러 push면 Private 저장소 분(minutes)이 소진될 수 있으니, 워크플로우를 가볍게 유지하십시오.</td>
+</tr>
+<tr>
+<td>시간 부족</td>
+<td>7-4(Issue/Actions)를 축소하고 7-3(PR 사이클)을 반드시 완주시키십시오.</td>
+</tr>
+</tbody>
+</table></div>
+    <nav class="pager"><a href="06.html"><span class="k">← 이전 · D6</span><span class="v">Git 기초</span></a><a class="next" href="08.html"><span class="k">다음 · D8 →</span><span class="v">부분 파이널 프로젝트</span></a></nav>
+  </main>
+</div>
+<script>
+(function(){
+  var links=[].slice.call(document.querySelectorAll('.toc a'));
+  if(!links.length)return;
+  var map={},targets=[];
+  links.forEach(function(a){
+    var el=document.getElementById(decodeURIComponent(a.getAttribute('href').slice(1)));
+    if(el){map[el.id]=a;targets.push(el);}
+  });
+  var cur=null;
+  var io=new IntersectionObserver(function(es){
+    es.forEach(function(e){
+      if(e.isIntersecting){
+        if(cur)cur.classList.remove('active');
+        cur=map[e.target.id];
+        if(cur){cur.classList.add('active');
+          var r=document.querySelector('.rail');
+          if(r&&r.scrollHeight>r.clientHeight){
+            var t=cur.offsetTop-r.clientHeight/2;
+            if(Math.abs(r.scrollTop-t)>90)r.scrollTop=t;
+          }
+        }
+      }
+    });
+  },{rootMargin:'-76px 0px -72% 0px',threshold:0});
+  targets.forEach(function(t){io.observe(t);});
+})();
+</script>
+</body>
+</html>

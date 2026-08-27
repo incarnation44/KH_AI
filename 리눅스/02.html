@@ -1,0 +1,1165 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>권한 · 아카이브 · 텍스트 스트림 · 교과 1 · 리눅스</title>
+<link rel="preconnect" href="https://cdn.jsdelivr.net">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fontsource/jetbrains-mono@5.0.20/index.min.css">
+<style>
+/* ============ 토큰 ============ */
+:root{
+  --paper:#FAFAFB; --card:#FFFFFF;
+  --ink:#161B22; --ink2:#495364; --ink3:#828D9E;
+  --rule:#E4E8ED; --rule2:#F0F2F5;
+  --spec:#14539A;          /* 청사진 잉크 — 구조 · 링크 */
+  --spec-soft:#EAF1FA;
+  --warn:#A85408;          /* 신호 앰버 — 경고 · 보안 */
+  --warn-soft:#FDF3E7;
+  --ok:#0B6E5F;            /* 검수 통과 — 체크포인트 */
+  --ok-soft:#E7F3F0;
+  --term:#0E141B; --term-ink:#DCE6F0; --term-rule:#232C38;
+  --mono:"JetBrains Mono",ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+  --sans:"Pretendard Variable",Pretendard,-apple-system,BlinkMacSystemFont,
+         "Segoe UI","Malgun Gothic","Apple SD Gothic Neo","Noto Sans KR",sans-serif;
+  --rail:264px;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth;scroll-padding-top:84px}
+@media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}*{animation:none!important;transition:none!important}}
+body{
+  margin:0;background:var(--paper);color:var(--ink);font-family:var(--sans);
+  font-size:16px;line-height:1.78;-webkit-font-smoothing:antialiased;
+  word-break:keep-all;overflow-wrap:anywhere;
+}
+
+/* ============ 상단 바 ============ */
+.topbar{
+  position:sticky;top:0;z-index:40;background:rgba(250,250,251,.92);
+  backdrop-filter:blur(10px);border-bottom:1px solid var(--rule);
+}
+.topbar .in{max-width:1400px;margin:0 auto;padding:0 24px;height:56px;
+  display:flex;align-items:center;gap:18px}
+.brand{font-family:var(--mono);font-size:11px;letter-spacing:.1em;color:var(--ink3);
+  text-transform:uppercase;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.brand b{color:var(--spec);font-weight:700}
+.navbtns{margin-left:auto;display:flex;gap:8px;flex-shrink:0}
+.navbtns a{font-family:var(--mono);font-size:11px;letter-spacing:.06em;
+  text-decoration:none;color:var(--ink2);border:1px solid var(--rule);
+  border-radius:6px;padding:6px 11px;background:var(--card);transition:.15s}
+.navbtns a:hover{border-color:var(--spec);color:var(--spec)}
+.navbtns a.home{background:var(--spec);color:#fff;border-color:var(--spec)}
+.navbtns a.home:hover{filter:brightness(1.12)}
+
+/* ============ 레이아웃 ============ */
+.wrap{max-width:1400px;margin:0 auto;padding:0 24px;display:grid;
+  grid-template-columns:var(--rail) minmax(0,1fr);gap:44px;align-items:start}
+.rail{position:sticky;top:56px;max-height:calc(100vh - 56px);overflow-y:auto;
+  padding:28px 0 60px;scrollbar-width:thin}
+.rail::-webkit-scrollbar{width:6px}
+.rail::-webkit-scrollbar-thumb{background:var(--rule);border-radius:3px}
+main{padding:36px 0 120px;min-width:0;max-width:920px}
+
+/* ============ 시그니처: 일차 스파인 ============ */
+.spine-h{font-family:var(--mono);font-size:10px;letter-spacing:.14em;
+  color:var(--ink3);text-transform:uppercase;margin:0 0 12px 2px}
+.spine{list-style:none;margin:0 0 30px;padding:0;position:relative}
+.spine::before{content:"";position:absolute;left:19px;top:14px;bottom:14px;
+  width:1px;background:var(--rule)}
+.spine li{position:relative}
+.spine a{display:grid;grid-template-columns:38px 40px minmax(0,1fr);align-items:center;gap:6px;
+  padding:5px 8px 5px 0;text-decoration:none;color:var(--ink2);border-radius:6px}
+.spine a:hover{background:var(--rule2)}
+.spine .dot{position:relative;z-index:1;justify-self:center;width:9px;height:9px;
+  border-radius:50%;background:var(--card);border:1.5px solid var(--rule)}
+.spine .lbl{font-family:var(--mono);font-size:11.5px;letter-spacing:.04em}
+.spine .ttl{font-size:12.5px;line-height:1.35;color:var(--ink3);
+  overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.spine a[aria-current]{background:var(--spec-soft)}
+.spine a[aria-current] .dot{background:var(--spec);border-color:var(--spec);
+  box-shadow:0 0 0 3px rgba(20,83,154,.14)}
+.spine a[aria-current] .lbl{color:var(--spec);font-weight:700}
+.spine a[aria-current] .ttl{color:var(--ink)}
+.spine .done .dot{background:var(--rule);border-color:var(--rule)}
+
+/* ============ 문서 내 목차 ============ */
+.toc-h{font-family:var(--mono);font-size:10px;letter-spacing:.14em;color:var(--ink3);
+  text-transform:uppercase;margin:0 0 10px 2px;padding-top:22px;border-top:1px solid var(--rule)}
+.toc{list-style:none;margin:0;padding:0}
+.toc li{margin:0}
+.toc a{display:block;padding:5px 10px;font-size:13.5px;line-height:1.45;
+  text-decoration:none;color:var(--ink2);border-left:2px solid transparent;border-radius:0 5px 5px 0}
+.toc a:hover{background:var(--rule2);color:var(--ink)}
+.toc .lv1>a{font-weight:700;color:var(--ink);margin-top:12px;font-size:13px;
+  font-family:var(--mono);letter-spacing:.02em}
+.toc .lv2>a{padding-left:16px}
+.toc a.active{border-left-color:var(--spec);background:var(--spec-soft);color:var(--spec);font-weight:600}
+
+/* ============ 문서 헤더 ============ */
+.dochead{margin:0 0 40px;padding-bottom:26px;border-bottom:2px solid var(--ink)}
+.eyebrow{font-family:var(--mono);font-size:11px;letter-spacing:.14em;color:var(--spec);
+  text-transform:uppercase;margin-bottom:12px}
+.dochead h1{margin:0;padding:0;background:none;color:var(--ink);border-radius:0;
+  font-size:clamp(26px,3.3vw,38px);line-height:1.24;font-weight:800;letter-spacing:-.025em}
+.dochead .sub{margin:12px 0 0;color:var(--ink2);font-size:15px}
+/* 진도 트랙 — 60시간 중 현재 위치 */
+.track{margin-top:22px}
+.track .bar{height:5px;background:var(--rule);border-radius:3px;overflow:hidden;display:flex}
+.track .bar i{display:block;height:100%}
+.track .bar .past{background:var(--rule)}
+.track .bar .now{background:var(--spec)}
+.track .cap{display:flex;justify-content:space-between;margin-top:8px;max-width:640px;
+  font-family:var(--mono);font-size:10.5px;color:var(--ink3);letter-spacing:.04em}
+.track .bar{max-width:640px}
+
+/* ============ 본문 타이포 ============ */
+main h1{font-size:22px;font-weight:800;letter-spacing:-.01em;margin:64px 0 20px;
+  padding:14px 18px;background:var(--ink);color:#fff;border-radius:8px}
+main h1:first-of-type{margin-top:8px}
+main h2{font-size:19.5px;font-weight:750;margin:48px 0 14px;padding-bottom:9px;
+  border-bottom:1px solid var(--rule);letter-spacing:-.01em;scroll-margin-top:80px}
+main h3{font-size:16.5px;font-weight:700;margin:34px 0 10px;color:var(--ink);
+  scroll-margin-top:80px}
+main h4{font-size:15px;font-weight:700;margin:24px 0 8px;color:var(--ink2)}
+main p{margin:0 0 15px}
+main ul,main ol{margin:0 0 16px;padding-left:22px}
+main li{margin:5px 0}
+main li>ul,main li>ol{margin:6px 0}
+main hr{border:0;border-top:1px solid var(--rule);margin:46px 0}
+main strong{font-weight:700}
+main a{color:var(--spec);text-underline-offset:3px}
+
+/* 체크포인트 · 경고 헤딩 */
+main h3.cp,main h4.cp{background:var(--ok-soft);color:var(--ok);border-left:3px solid var(--ok);
+  padding:9px 14px;border-radius:0 7px 7px 0;font-size:15px}
+main h3.warn,main h4.warn,main h2.warn{background:var(--warn-soft);color:var(--warn);
+  border-left:3px solid var(--warn);border-bottom:0;padding:9px 14px;border-radius:0 7px 7px 0;font-size:15px}
+
+/* ============ 코드 ============ */
+main :not(pre)>code{font-family:var(--mono);font-size:.855em;background:var(--spec-soft);
+  color:#0F3F76;padding:1.5px 5px;border-radius:4px;word-break:break-all}
+main pre{background:var(--term);color:var(--term-ink);border-radius:10px;
+  padding:16px 18px;overflow-x:auto;margin:0 0 18px;font-size:13.5px;line-height:1.7;
+  border:1px solid var(--term-rule)}
+main pre code{font-family:var(--mono);background:none;color:inherit;padding:0;font-size:inherit}
+main pre::-webkit-scrollbar{height:8px}
+main pre::-webkit-scrollbar-thumb{background:#2C3846;border-radius:4px}
+
+/* ============ 표 ============ */
+.tw{overflow-x:auto;margin:0 0 20px;border:1px solid var(--rule);border-radius:9px;background:var(--card)}
+main table{border-collapse:collapse;width:100%;font-size:14px;min-width:min(100%,420px)}
+main th,main td{padding:9px 13px;border-bottom:1px solid var(--rule2);
+  text-align:left;vertical-align:top;line-height:1.6}
+main th{background:#F5F7F9;font-weight:700;font-size:12.5px;letter-spacing:.02em;
+  color:var(--ink2);white-space:nowrap;border-bottom:1px solid var(--rule)}
+main tbody tr:last-child td{border-bottom:0}
+main tbody tr:hover{background:#FBFCFD}
+main td code{white-space:nowrap}
+
+/* ============ 인용 ============ */
+main blockquote{margin:0 0 18px;padding:13px 18px;background:var(--card);
+  border:1px solid var(--rule);border-left:3px solid var(--spec);border-radius:0 8px 8px 0;
+  color:var(--ink2);font-size:14.5px}
+main blockquote p:last-child{margin-bottom:0}
+
+/* ============ 하단 이동 ============ */
+.pager{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:70px;
+  padding-top:26px;border-top:1px solid var(--rule)}
+.pager a{display:block;padding:15px 18px;border:1px solid var(--rule);border-radius:10px;
+  text-decoration:none;background:var(--card);transition:.15s}
+.pager a:hover{border-color:var(--spec);box-shadow:0 2px 10px rgba(20,83,154,.07)}
+.pager .k{font-family:var(--mono);font-size:10px;letter-spacing:.12em;color:var(--ink3);
+  text-transform:uppercase;display:block;margin-bottom:5px}
+.pager .v{font-size:14.5px;font-weight:650;color:var(--ink);line-height:1.4}
+.pager .next{text-align:right}
+.pager .empty{border-style:dashed;opacity:.4;pointer-events:none}
+
+/* ============ 색인 페이지 ============ */
+.hero{padding:56px 0 40px;border-bottom:2px solid var(--ink);margin-bottom:44px}
+.hero h1{margin:14px 0 0;padding:0;background:none;color:var(--ink);border-radius:0;
+  font-size:clamp(30px,4.4vw,48px);line-height:1.18;font-weight:800;letter-spacing:-.03em}
+.hero .eyebrow{margin-bottom:0}
+.hero .lede{margin:20px 0 0;font-size:16.5px;line-height:1.68;color:var(--ink2);max-width:60ch}
+.stats{display:flex;flex-wrap:wrap;gap:36px;margin-top:34px}
+.stat .n{font-family:var(--mono);font-size:27px;font-weight:700;color:var(--spec);
+  letter-spacing:-.02em;line-height:1}
+.stat .l{font-family:var(--mono);font-size:10.5px;letter-spacing:.12em;color:var(--ink3);
+  text-transform:uppercase;margin-top:7px}
+.cards{display:grid;gap:12px;margin-bottom:60px}
+.card{display:grid;grid-template-columns:74px 1fr auto;align-items:center;gap:20px;
+  padding:17px 22px;background:var(--card);border:1px solid var(--rule);border-radius:11px;
+  text-decoration:none;color:inherit;transition:.15s}
+.card:hover{border-color:var(--spec);transform:translateX(3px);
+  box-shadow:0 3px 14px rgba(20,83,154,.08)}
+.card .key{font-family:var(--mono);font-size:15px;font-weight:700;color:var(--spec);
+  letter-spacing:.02em}
+.card .key small{display:block;font-size:9.5px;color:var(--ink3);font-weight:400;
+  letter-spacing:.1em;margin-top:3px}
+.card .t{font-size:16px;font-weight:700;line-height:1.35}
+.card .d{font-size:13.5px;color:#78818E;margin-top:4px;line-height:1.55}
+.card .h{font-family:var(--mono);font-size:11px;color:var(--ink3);white-space:nowrap;
+  letter-spacing:.04em}
+.idx-sec{font-family:var(--mono);font-size:10.5px;letter-spacing:.14em;color:var(--ink3);
+  text-transform:uppercase;margin:34px 0 12px}
+.idx-sec:first-child{margin-top:0}
+.note{background:var(--warn-soft);border:1px solid #F0DFC6;border-left:3px solid var(--warn);
+  border-radius:0 10px 10px 0;padding:18px 22px;margin-bottom:56px;font-size:14.5px;color:#6B3A08}
+.note b{color:var(--warn)}
+.note ul{margin:9px 0 0;padding-left:20px}
+
+/* ============ 반응형 ============ */
+@media (max-width:1080px){
+  .wrap{grid-template-columns:1fr;gap:0}
+  .rail{position:static;max-height:none;overflow:visible;padding:22px 0 0;
+    border-bottom:1px solid var(--rule);margin-bottom:8px}
+  .spine{display:flex;flex-wrap:wrap;gap:5px;margin-bottom:20px}
+  .spine::before{display:none}
+  .spine a{grid-template-columns:auto;padding:6px 11px;border:1px solid var(--rule);border-radius:7px}
+  .spine .dot,.spine .ttl{display:none}
+  .toc-h{padding-top:16px}
+  .toc{columns:2;column-gap:20px;max-height:230px;overflow-y:auto;
+    border:1px solid var(--rule);border-radius:9px;padding:8px;background:var(--card)}
+  .toc .lv1>a{margin-top:0}
+  main{padding:22px 0 80px}
+}
+@media (max-width:620px){
+  body{font-size:15.5px}
+  .wrap,.topbar .in{padding:0 15px}
+  .toc{columns:1;max-height:200px}
+  .pager{grid-template-columns:1fr}
+  .pager .next{text-align:left}
+  .card{grid-template-columns:56px 1fr;gap:14px}
+  .card .h{grid-column:2;margin-top:5px}
+  main h1{font-size:19px;padding:12px 14px}
+  main pre{font-size:12.5px;padding:13px 14px}
+}
+
+/* ============ 인쇄 ============ */
+@media print{
+  :root{--paper:#fff}
+  .topbar,.rail,.pager,.track{display:none!important}
+  .wrap{display:block;max-width:none;padding:0}
+  main{padding:0}
+  body{font-size:10.5pt;line-height:1.62}
+  main h1{background:none;color:#000;border:1.5pt solid #000;padding:7pt 10pt;
+    font-size:15pt;margin:22pt 0 11pt;page-break-after:avoid}
+  main h2,main h3,main h4{page-break-after:avoid}
+  main h2{font-size:13pt;margin:16pt 0 7pt}
+  main h3{font-size:11.5pt}
+  main pre{background:#F6F7F9;color:#111;border:.5pt solid #CBD2DA;
+    font-size:8.6pt;page-break-inside:avoid;white-space:pre-wrap;word-break:break-all}
+  main pre code{color:#111}
+  main :not(pre)>code{background:#EFF2F5;color:#111}
+  main table{font-size:9pt;page-break-inside:avoid}
+  .tw{overflow:visible;border-color:#CBD2DA}
+  main blockquote{page-break-inside:avoid}
+  a{color:#000;text-decoration:none}
+  .dochead{page-break-after:avoid}
+  @page{margin:15mm 14mm}
+}
+</style>
+</head>
+<body>
+<header class="topbar"><div class="in">
+  <div class="brand">KDT · AI 캠퍼스 [비솔] Vision AI &amp; 산업분야 Vertical AI 융합 전문가 양성 · <b>교과 1 · 리눅스</b></div>
+  <nav class="navbtns">
+    <a class="home" href="index.html">전체 목차</a>
+    <a href="#" onclick="window.print();return false;">인쇄 / PDF</a>
+  </nav>
+</div></header>
+
+<div class="wrap">
+  <aside class="rail">
+    <p class="spine-h">교과 1 · 60H 전체</p>
+    <ul class="spine"><li><a class="done" href="00.html"><span class="dot"></span><span class="lbl">PLAN</span><span class="ttl">강의 기획서</span></a></li>
+<li><a class="done" href="01.html"><span class="dot"></span><span class="lbl">D1</span><span class="ttl">리눅스 시작과 파일 시스템</span></a></li>
+<li><a class="" href="02.html" aria-current="page"><span class="dot"></span><span class="lbl">D2</span><span class="ttl">권한 · 아카이브 · 텍스트 스트림</span></a></li>
+<li><a class="" href="03.html"><span class="dot"></span><span class="lbl">D3</span><span class="ttl">편집기와 텍스트 처리</span></a></li>
+<li><a class="" href="04.html"><span class="dot"></span><span class="lbl">D4</span><span class="ttl">셸 스크립트 · 프로세스 · 자동화</span></a></li>
+<li><a class="" href="05.html"><span class="dot"></span><span class="lbl">D5</span><span class="ttl">Anaconda 환경과 데이터셋 구조화</span></a></li>
+<li><a class="" href="06.html"><span class="dot"></span><span class="lbl">D6</span><span class="ttl">Git 기초</span></a></li>
+<li><a class="" href="07.html"><span class="dot"></span><span class="lbl">D7</span><span class="ttl">GitHub 협업과 데이터 보안</span></a></li>
+<li><a class="" href="08.html"><span class="dot"></span><span class="lbl">D8</span><span class="ttl">부분 파이널 프로젝트</span></a></li>
+<li><a class="" href="99.html"><span class="dot"></span><span class="lbl">APX</span><span class="ttl">부록 · 치트시트 &amp; 트러블슈팅</span></a></li></ul>
+    <p class="toc-h">이 문서 안에서</p>
+    <ul class="toc"><li class="lv2"><a href="#학습-목표">학습 목표</a></li>
+<li class="lv2"><a href="#0교시-전일-복습-퀴즈-10분">0교시 · 전일 복습 퀴즈 (10분)</a></li>
+<li class="lv1"><a href="#part-1-이론-3h">PART 1. 이론 (3H)</a></li>
+<li class="lv2"><a href="#1교시-사용자그룹권한-50분">1교시 · 사용자·그룹·권한 (50분)</a></li>
+<li class="lv2"><a href="#2교시-링크와-저장소-50분">2교시 · 링크와 저장소 (50분)</a></li>
+<li class="lv2"><a href="#3교시-표준-스트림과-파이프-50분">3교시 · 표준 스트림과 파이프 (50분)</a></li>
+<li class="lv1"><a href="#part-2-실습-5h">PART 2. 실습 (5H)</a></li>
+<li class="lv2"><a href="#실습-2-1-권한-실습-50분">실습 2-1 · 권한 실습 (50분)</a></li>
+<li class="lv2"><a href="#실습-2-2-심볼릭-링크로-데이터셋-분할-50분">실습 2-2 · 심볼릭 링크로 데이터셋 분할 (50분) ★</a></li>
+<li class="lv2"><a href="#실습-2-3-파이프로-라벨-통계-뽑기-70분-핵심">실습 2-3 · 파이프로 라벨 통계 뽑기 (70분) ★핵심</a></li>
+<li class="lv2"><a href="#실습-2-4-아카이브와-백업-50분">실습 2-4 · 아카이브와 백업 (50분)</a></li>
+<li class="lv2"><a href="#실습-2-5-종합-챌린지-40분">실습 2-5 · 종합 챌린지 (40분)</a></li>
+<li class="lv2"><a href="#마무리-10분">마무리 (10분)</a></li>
+<li class="lv2"><a href="#과제">과제</a></li>
+<li class="lv2"><a href="#강사-운영-노트">강사 운영 노트</a></li></ul>
+  </aside>
+
+  <main>
+    <div class="dochead">
+      <div class="eyebrow">D2 &nbsp;/&nbsp; 교과 1 · 리눅스 &nbsp;/&nbsp; 8시간</div>
+      <h1>2일차 · 권한 · 아카이브 · 텍스트 스트림 (8H)</h1>
+      <p class="sub">rwx · 심볼릭 링크 분할 · 파이프로 클래스 분포 집계</p>
+      <div class="track"><div class="bar"><i class="past" style="width:13.33%"></i><i class="now" style="width:13.33%"></i></div><div class="cap"><span>8H 누적</span><span>이 문서 8H</span><span>전체 60H</span></div></div>
+    </div>
+    <blockquote>
+<p>이론 3H · 실습 5H
+<strong>오늘의 한 문장:</strong> "명령어를 파이프로 엮어서, 라벨 1,000개의 클래스 분포를 30초 만에 뽑는다."</p>
+</blockquote>
+<hr />
+<h2 id="학습-목표">학습 목표</h2>
+<div class="tw"><table>
+<thead>
+<tr>
+<th>코드</th>
+<th>목표</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>D2-1</td>
+<td>사용자·그룹·권한(rwx) 체계를 설명하고 chmod/chown으로 제어한다</td>
+</tr>
+<tr>
+<td>D2-2</td>
+<td>데이터셋 원본 보호를 위한 권한 설계를 수행한다</td>
+</tr>
+<tr>
+<td>D2-3</td>
+<td>심볼릭 링크로 대용량 데이터를 중복 없이 참조한다</td>
+</tr>
+<tr>
+<td>D2-4</td>
+<td>표준입출력·리다이렉션·파이프 개념을 설명한다</td>
+</tr>
+<tr>
+<td>D2-5</td>
+<td><code>sort/uniq/cut/wc/head/tail</code>을 조합해 라벨 통계를 산출한다</td>
+</tr>
+<tr>
+<td>D2-6</td>
+<td>tar/gzip으로 데이터셋을 아카이브하고 복원한다</td>
+</tr>
+</tbody>
+</table></div>
+<hr />
+<h2 id="0교시-전일-복습-퀴즈-10분">0교시 · 전일 복습 퀴즈 (10분)</h2>
+<ol>
+<li><code>cp</code>와 <code>mv</code>의 차이를 데이터셋 관리 관점에서 설명하시오.</li>
+<li><code>ls -l</code> 출력의 첫 글자가 <code>d</code>, <code>l</code>, <code>-</code> 일 때 각각의 의미는?</li>
+<li>라벨 없는 이미지를 찾는 명령을 3줄로 작성하시오.</li>
+<li><code>rsync</code>가 <code>scp</code>보다 대용량에서 유리한 이유는?</li>
+</ol>
+<hr />
+<h1 id="part-1-이론-3h">PART 1. 이론 (3H)</h1>
+<h2 id="1교시-사용자그룹권한-50분">1교시 · 사용자·그룹·권한 (50분)</h2>
+<h3 id="11-왜-권한을-배워야-하는가">1.1 왜 권한을 배워야 하는가</h3>
+<p>이 과정에서 권한 문제가 터지는 지점은 정해져 있습니다.</p>
+<div class="tw"><table>
+<thead>
+<tr>
+<th>상황</th>
+<th>증상</th>
+<th>교과</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>pip install</code> 시 권한 오류</td>
+<td><code>Permission denied</code></td>
+<td>교과 1·5</td>
+</tr>
+<tr>
+<td>셸 스크립트 실행 안 됨</td>
+<td><code>bash: ./run.sh: Permission denied</code></td>
+<td>교과 4·14</td>
+</tr>
+<tr>
+<td>Raspberry Pi에서 카메라 접근 실패</td>
+<td><code>/dev/video0</code> 권한 없음</td>
+<td>교과 13</td>
+</tr>
+<tr>
+<td>Jetson에서 GPIO 제어 실패</td>
+<td><code>gpio</code> 그룹 미포함</td>
+<td>교과 13·14</td>
+</tr>
+<tr>
+<td>팀 공유 데이터셋을 팀원이 못 읽음</td>
+<td><code>Permission denied</code></td>
+<td>교과 14·15</td>
+</tr>
+</tbody>
+</table></div>
+<h3 id="12-rwx-33-구조">1.2 rwx 3×3 구조</h3>
+<pre><code>-rwxr-xr--   1  kdt  ai-team  4096  Aug 26  run.sh
+ └┬┘└┬┘└┬┘
+  │  │  └── others(기타 사용자): r-- = 읽기만
+  │  └───── group(그룹): r-x = 읽기+실행
+  └──────── user(소유자): rwx = 읽기+쓰기+실행
+</code></pre>
+<div class="tw"><table>
+<thead>
+<tr>
+<th>기호</th>
+<th>파일에서</th>
+<th>디렉토리에서 ★</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>r</code> (4)</td>
+<td>내용 읽기</td>
+<td>목록 조회(<code>ls</code>)</td>
+</tr>
+<tr>
+<td><code>w</code> (2)</td>
+<td>내용 수정</td>
+<td>파일 생성/삭제</td>
+</tr>
+<tr>
+<td><code>x</code> (1)</td>
+<td>실행</td>
+<td><strong>진입(<code>cd</code>) 및 내부 접근</strong></td>
+</tr>
+</tbody>
+</table></div>
+<blockquote>
+<p><strong>함정</strong>: 디렉토리에 <code>r</code>만 있고 <code>x</code>가 없으면 <code>ls</code>는 되는데 안으로 못 들어갑니다. 반대로 <code>x</code>만 있으면 목록은 못 보지만 정확한 파일명을 알면 접근됩니다.</p>
+</blockquote>
+<h3 id="13-8진수-표기">1.3 8진수 표기</h3>
+<pre><code>rwx = 4+2+1 = 7
+rw- = 4+2   = 6
+r-x = 4+0+1 = 5
+r-- = 4     = 4
+--- = 0
+</code></pre>
+<div class="tw"><table>
+<thead>
+<tr>
+<th>자주 쓰는 값</th>
+<th>의미</th>
+<th>용도</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>755</code></td>
+<td>rwxr-xr-x</td>
+<td>실행 스크립트, 디렉토리</td>
+</tr>
+<tr>
+<td><code>644</code></td>
+<td>rw-r--r--</td>
+<td>일반 파일, 설정 파일</td>
+</tr>
+<tr>
+<td><code>700</code></td>
+<td>rwx------</td>
+<td>개인 전용 폴더</td>
+</tr>
+<tr>
+<td><code>600</code></td>
+<td>rw-------</td>
+<td><strong>SSH 개인키, API 키 파일 (필수)</strong></td>
+</tr>
+<tr>
+<td><code>444</code></td>
+<td>r--r--r--</td>
+<td><strong>데이터셋 원본 보호</strong></td>
+</tr>
+<tr>
+<td><code>775</code></td>
+<td>rwxrwxr-x</td>
+<td>팀 공유 디렉토리</td>
+</tr>
+</tbody>
+</table></div>
+<h3 id="14-명령어">1.4 명령어</h3>
+<pre><code class="language-bash">chmod 755 run.sh          # 8진수 방식
+chmod u+x run.sh          # 기호 방식: 소유자에게 실행 추가
+chmod go-w data/          # group, others 에서 쓰기 제거
+chmod -R 444 raw/         # 재귀 적용
+
+chown kdt:ai-team file    # 소유자:그룹 변경 (sudo 필요)
+chgrp ai-team file        # 그룹만 변경
+
+umask                     # 기본 권한 마스크 (보통 0022)
+</code></pre>
+<h3 id="15-sudo">1.5 sudo</h3>
+<pre><code class="language-bash">sudo apt install tree     # 관리자 권한으로 실행
+sudo -l                   # 내가 sudo로 뭘 할 수 있나
+</code></pre>
+<blockquote>
+<p>⚠️ <strong><code>sudo pip install</code> 금지.</strong> 시스템 파이썬을 오염시켜 이후 conda 환경과 충돌합니다. 5일차에서 정확한 이유를 다룹니다. 패키지는 반드시 가상환경 안에서 설치합니다.</p>
+</blockquote>
+<hr />
+<h2 id="2교시-링크와-저장소-50분">2교시 · 링크와 저장소 (50분)</h2>
+<h3 id="21-하드링크-vs-심볼릭-링크">2.1 하드링크 vs 심볼릭 링크</h3>
+<pre><code class="language-bash">ln  원본 하드링크명        # 하드링크: 같은 inode를 가리킴
+ln -s 원본 심볼릭링크명    # 심볼릭링크: 경로를 가리키는 바로가기 ★
+</code></pre>
+<div class="tw"><table>
+<thead>
+<tr>
+<th></th>
+<th>하드링크</th>
+<th>심볼릭링크</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>원본 삭제 시</td>
+<td>데이터 유지</td>
+<td><strong>깨짐(broken link)</strong></td>
+</tr>
+<tr>
+<td>디렉토리 대상</td>
+<td>불가</td>
+<td>가능</td>
+</tr>
+<tr>
+<td>파일시스템 넘기</td>
+<td>불가</td>
+<td>가능</td>
+</tr>
+<tr>
+<td>실무 사용 빈도</td>
+<td>낮음</td>
+<td><strong>높음</strong></td>
+</tr>
+</tbody>
+</table></div>
+<h3 id="22-심볼릭-링크가-필요한-실제-상황">2.2 심볼릭 링크가 필요한 실제 상황 ★</h3>
+<p><strong>문제</strong>: 조각김치 데이터 1,000장(원본 4848×2704, 수십 GB)을 train/val/test로 7:1.5:1.5 분할해야 합니다. 복사하면 용량이 2배가 됩니다. 학생 PC의 SSD는 512GB입니다.</p>
+<p><strong>해결</strong>: 원본은 한 곳에 두고, 분할 폴더에는 <strong>링크만</strong> 만듭니다.</p>
+<pre><code class="language-bash">cd ~/kdt-linux/dataset/kimchi
+ln -s ../../raw/kimchi_0001.jpg images/train/kimchi_0001.jpg
+ls -l images/train/            # l 로 시작, -&gt; 로 원본 표시
+</code></pre>
+<blockquote>
+<p>교과 8·14의 데이터셋 분할 실습에서 이 기법을 그대로 씁니다. 5일차 <code>split_dataset.sh</code>에서 옵션으로 구현합니다.</p>
+</blockquote>
+<h3 id="23-디스크-용량-관리">2.3 디스크 용량 관리</h3>
+<pre><code class="language-bash">df -h                     # 파일시스템별 여유 공간
+du -sh ~/kdt-linux        # 특정 폴더 총 용량
+du -sh */ | sort -rh      # 하위 폴더별 용량 큰 순 ★
+du -h --max-depth=1 ~ | sort -rh | head
+</code></pre>
+<blockquote>
+<p>교과 5·8에서 체크포인트(.pt) 파일이 쌓여 디스크가 꽉 차는 사고가 자주 납니다. <code>du -sh */ | sort -rh</code> 는 그때 첫 번째로 치는 명령입니다.</p>
+</blockquote>
+<hr />
+<h2 id="3교시-표준-스트림과-파이프-50분">3교시 · 표준 스트림과 파이프 (50분)</h2>
+<h3 id="31-모든-명령어는-3개의-통로를-가진다">3.1 모든 명령어는 3개의 통로를 가진다</h3>
+<pre><code>        ┌───────────────────┐
+stdin ──▶│                    │──▶ stdout (표준 출력, 1)
+  (0)    │      명령어         │
+        │                    │──▶ stderr (표준 에러, 2)
+        └───────────────────┘
+</code></pre>
+<h3 id="32-리다이렉션">3.2 리다이렉션</h3>
+<pre><code class="language-bash">명령 &gt; 파일          # stdout을 파일로 (덮어쓰기)
+명령 &gt;&gt; 파일         # stdout을 파일에 추가
+명령 2&gt; 파일         # stderr만 파일로
+명령 &amp;&gt; 파일         # stdout + stderr 둘 다
+명령 2&gt;/dev/null     # 에러 메시지 버리기 ★
+명령 &lt; 파일          # 파일을 stdin으로
+</code></pre>
+<p><strong>실무 예시</strong></p>
+<pre><code class="language-bash">python train.py &gt; train.log 2&gt;&amp;1 &amp;      # 학습 로그 전체를 파일로, 백그라운드 실행
+find / -name &quot;*.pt&quot; 2&gt;/dev/null         # 권한 오류 메시지 숨기고 결과만
+</code></pre>
+<blockquote>
+<p><code>2&gt;&amp;1</code> 은 "stderr(2)를 stdout(1)이 가는 곳으로 합치라"는 뜻입니다. 교과 5·8·14의 장시간 학습에서 로그를 남길 때 반드시 씁니다.</p>
+</blockquote>
+<h3 id="33-파이프-리눅스의-핵심-철학">3.3 파이프 — 리눅스의 핵심 철학</h3>
+<blockquote>
+<p><strong>"하나의 프로그램은 한 가지 일만 잘 하게 만들고, 프로그램들이 함께 동작하도록 만들어라." — Unix 철학</strong></p>
+</blockquote>
+<pre><code class="language-bash">명령A | 명령B        # A의 출력을 B의 입력으로
+</code></pre>
+<pre><code class="language-bash">ls *.txt | wc -l                      # 텍스트 파일 개수
+cat *.txt | cut -d' ' -f1 | sort | uniq -c | sort -rn
+#  전체 라벨 → 첫 필드(클래스) 추출 → 정렬 → 개수 세기 → 많은 순
+</code></pre>
+<h3 id="34-파이프-조립용-부품-명령어">3.4 파이프 조립용 부품 명령어</h3>
+<div class="tw"><table>
+<thead>
+<tr>
+<th>명령</th>
+<th>역할</th>
+<th>자주 쓰는 옵션</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>cat</code></td>
+<td>파일 내용 출력</td>
+<td><code>-n</code> 줄번호</td>
+</tr>
+<tr>
+<td><code>head</code> / <code>tail</code></td>
+<td>앞/뒤 N줄</td>
+<td><code>-n 20</code>, <code>tail -f</code> 실시간</td>
+</tr>
+<tr>
+<td><code>wc</code></td>
+<td>개수 세기</td>
+<td><code>-l</code> 줄, <code>-w</code> 단어, <code>-c</code> 바이트</td>
+</tr>
+<tr>
+<td><code>sort</code></td>
+<td>정렬</td>
+<td><code>-n</code> 숫자, <code>-r</code> 역순, <code>-k2</code> 2번째 필드</td>
+</tr>
+<tr>
+<td><code>uniq</code></td>
+<td>중복 처리</td>
+<td><code>-c</code> 개수, <code>-d</code> 중복만</td>
+</tr>
+<tr>
+<td><code>cut</code></td>
+<td>열 추출</td>
+<td><code>-d' '</code> 구분자, <code>-f1</code> 필드</td>
+</tr>
+<tr>
+<td><code>tr</code></td>
+<td>문자 치환</td>
+<td><code>tr ' ' '\n'</code></td>
+</tr>
+<tr>
+<td><code>xargs</code></td>
+<td>입력을 인자로 변환</td>
+<td><code>-n1</code>, <code>-I{}</code></td>
+</tr>
+<tr>
+<td><code>tee</code></td>
+<td>화면 + 파일 동시 출력</td>
+<td><code>-a</code> 추가</td>
+</tr>
+</tbody>
+</table></div>
+<h3 id="35-아카이브와-압축">3.5 아카이브와 압축</h3>
+<pre><code class="language-bash"># 묶기 (create)
+tar -cvf data.tar dataset/
+tar -czvf data.tar.gz dataset/        # gzip 압축 ★
+tar -cJvf data.tar.xz dataset/        # xz (더 작지만 느림)
+
+# 풀기 (extract)
+tar -xzvf data.tar.gz
+tar -xzvf data.tar.gz -C /목적지/
+
+# 내용만 보기 (list)
+tar -tzvf data.tar.gz | head
+</code></pre>
+<div class="tw"><table>
+<thead>
+<tr>
+<th>옵션</th>
+<th>의미</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>c</code></td>
+<td>create (묶기)</td>
+</tr>
+<tr>
+<td><code>x</code></td>
+<td>extract (풀기)</td>
+</tr>
+<tr>
+<td><code>t</code></td>
+<td>list (목록)</td>
+</tr>
+<tr>
+<td><code>z</code></td>
+<td>gzip</td>
+</tr>
+<tr>
+<td><code>v</code></td>
+<td>verbose</td>
+</tr>
+<tr>
+<td><code>f</code></td>
+<td>file (파일명 지정, <strong>항상 마지막</strong>)</td>
+</tr>
+</tbody>
+</table></div>
+<blockquote>
+<p>암기법: <strong>"cvf 만들고, xvf 풀고, tvf 본다. 압축은 z 하나 더."</strong></p>
+</blockquote>
+<hr />
+<h1 id="part-2-실습-5h">PART 2. 실습 (5H)</h1>
+<h2 id="실습-2-1-권한-실습-50분">실습 2-1 · 권한 실습 (50분)</h2>
+<h3 id="step-1-권한-관찰">Step 1. 권한 관찰</h3>
+<pre><code class="language-bash">cd ~/kdt-linux
+ls -l make_sample_dataset.sh
+ls -ld dataset/
+stat make_sample_dataset.sh
+</code></pre>
+<h3 id="step-2-실행-권한의-의미-체험">Step 2. 실행 권한의 의미 체험</h3>
+<pre><code class="language-bash">cd ~/kdt-linux
+cat &gt; hello.sh &lt;&lt; 'EOF'
+#!/bin/bash
+echo &quot;안녕하세요, $(whoami) 님&quot;
+EOF
+
+./hello.sh                # → Permission denied
+ls -l hello.sh            # -rw-rw-r-- : x 가 없다
+
+chmod +x hello.sh
+ls -l hello.sh            # -rwxrwxr-x
+./hello.sh                # → 정상 실행
+</code></pre>
+<h3 id="step-3-8진수로-정확히-지정">Step 3. 8진수로 정확히 지정</h3>
+<pre><code class="language-bash">chmod 700 hello.sh; ls -l hello.sh      # rwx------
+chmod 644 hello.sh; ls -l hello.sh      # rw-r--r--
+./hello.sh                              # → 다시 Permission denied
+chmod 755 hello.sh; ls -l hello.sh      # rwxr-xr-x
+./hello.sh                              # → 실행됨
+</code></pre>
+<h3 id="step-4-디렉토리의-x-권한-체험">Step 4. 디렉토리의 x 권한 체험 ★</h3>
+<pre><code class="language-bash">mkdir -p /tmp/perm_test/inner
+echo &quot;secret&quot; &gt; /tmp/perm_test/inner/data.txt
+
+chmod 600 /tmp/perm_test/inner          # rw- : x 없음
+ls /tmp/perm_test/inner                 # 목록은 보임(r)
+cd /tmp/perm_test/inner                 # → Permission denied (x 없음)
+cat /tmp/perm_test/inner/data.txt       # → Permission denied
+
+chmod 700 /tmp/perm_test/inner
+cd /tmp/perm_test/inner &amp;&amp; cat data.txt # → 정상
+cd ~
+</code></pre>
+<p><strong>결론 정리하기 (노트에 기록)</strong>: 디렉토리에서 <code>r</code>은 <strong><em>_</em>_, <code>x</code>는 </strong>____ 이다.</p>
+<h3 id="step-5-실무-미션-데이터셋-권한-설계">Step 5. 실무 미션 — 데이터셋 권한 설계</h3>
+<p><strong>요구사항</strong></p>
+<div class="tw"><table>
+<thead>
+<tr>
+<th>대상</th>
+<th>권한</th>
+<th>이유</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>raw/</code> 디렉토리</td>
+<td>555 (r-xr-xr-x)</td>
+<td>진입 가능, 생성/삭제 불가</td>
+</tr>
+<tr>
+<td><code>raw/</code> 내부 파일</td>
+<td>444 (r--r--r--)</td>
+<td>읽기 전용</td>
+</tr>
+<tr>
+<td><code>images/</code>, <code>labels/</code></td>
+<td>755</td>
+<td>작업 공간</td>
+</tr>
+<tr>
+<td>스크립트 <code>.sh</code></td>
+<td>755</td>
+<td>실행 가능</td>
+</tr>
+<tr>
+<td><code>meta/</code> 문서</td>
+<td>644</td>
+<td>일반 파일</td>
+</tr>
+</tbody>
+</table></div>
+<pre><code class="language-bash">cd ~/kdt-linux/dataset/kimchi
+
+# 원본 잠금
+chmod 444 raw/*
+chmod 555 raw
+
+# 검증
+touch raw/hack.txt        # → Permission denied 여야 정상
+rm raw/kimchi_0001.jpg    # → 삭제 확인 프롬프트 또는 거부
+
+# 작업 공간
+chmod -R 755 images labels
+chmod 644 meta/*
+
+ls -ld raw images labels meta
+</code></pre>
+<p><strong>해제가 필요할 때</strong></p>
+<pre><code class="language-bash">chmod 755 raw &amp;&amp; chmod 644 raw/*        # 임시 해제
+# 작업 후 다시 잠금
+chmod 444 raw/* &amp;&amp; chmod 555 raw
+</code></pre>
+<h3 id="체크포인트-2-1" class="cp">✅ 체크포인트 2-1</h3>
+<ul>
+<li>[ ] 실행 권한 없이 스크립트를 실행하면 나는 에러 메시지를 말할 수 있다</li>
+<li>[ ] 디렉토리의 <code>x</code> 권한이 없으면 무엇이 안 되는지 설명한다</li>
+<li>[ ] <code>raw/</code>가 읽기 전용으로 잠겨 있다</li>
+</ul>
+<hr />
+<h2 id="실습-2-2-심볼릭-링크로-데이터셋-분할-50분">실습 2-2 · 심볼릭 링크로 데이터셋 분할 (50분) ★</h2>
+<h3 id="step-1-링크-기본-동작-확인">Step 1. 링크 기본 동작 확인</h3>
+<pre><code class="language-bash">cd /tmp &amp;&amp; rm -rf linktest &amp;&amp; mkdir linktest &amp;&amp; cd linktest
+echo &quot;원본 데이터&quot; &gt; original.txt
+
+ln original.txt hard.txt          # 하드링크
+ln -s original.txt soft.txt       # 심볼릭링크
+
+ls -li                            # -i : inode 번호 표시
+# original.txt 와 hard.txt 는 inode가 같음
+# soft.txt 는 다른 inode, 크기가 작음, l 로 시작
+
+cat hard.txt; cat soft.txt
+
+rm original.txt                   # 원본 삭제
+cat hard.txt                      # → 정상 (데이터 유지)
+cat soft.txt                      # → No such file (깨진 링크)
+ls -l soft.txt                    # 빨간색으로 표시됨
+</code></pre>
+<h3 id="step-2-실무-적용-링크-방식-분할">Step 2. 실무 적용 — 링크 방식 분할</h3>
+<pre><code class="language-bash">cd ~/kdt-linux/dataset/kimchi
+
+# 이미지 목록을 무작위로 섞어 700 / 150 / 150 으로 분할
+ls raw/*.jpg | shuf --random-source=&lt;(yes) &gt; /tmp/all_imgs.txt
+wc -l /tmp/all_imgs.txt
+
+head -700 /tmp/all_imgs.txt              &gt; /tmp/train.txt
+sed -n '701,850p' /tmp/all_imgs.txt      &gt; /tmp/val.txt
+sed -n '851,$p'   /tmp/all_imgs.txt      &gt; /tmp/test.txt
+wc -l /tmp/train.txt /tmp/val.txt /tmp/test.txt
+</code></pre>
+<pre><code class="language-bash"># 링크 생성 함수형 실행
+link_split () {
+    SPLIT=$1          # train / val / test
+    LIST=$2
+    while read -r img; do
+        base=$(basename &quot;$img&quot; .jpg)
+        ln -sf &quot;$(realpath &quot;$img&quot;)&quot;                images/$SPLIT/$base.jpg
+        [ -f &quot;raw/$base.txt&quot; ] &amp;&amp; \
+          ln -sf &quot;$(realpath raw/$base.txt)&quot;       labels/$SPLIT/$base.txt
+    done &lt; &quot;$LIST&quot;
+}
+
+link_split train /tmp/train.txt
+link_split val   /tmp/val.txt
+link_split test  /tmp/test.txt
+</code></pre>
+<h3 id="step-3-결과-검증">Step 3. 결과 검증</h3>
+<pre><code class="language-bash">ls images/train | wc -l          # 700
+ls images/val   | wc -l          # 150
+ls labels/train | wc -l          # 699 또는 700 (누락 라벨 반영)
+ls -l images/train | head -3     # l 로 시작하는지 확인
+
+du -sh raw images                # 링크라 images 는 거의 0
+
+# 깨진 링크 찾기
+find images labels -xtype l
+</code></pre>
+<blockquote>
+<p><code>find -xtype l</code> 이 깨진 심볼릭 링크를 찾는 명령입니다. 교과 8·14에서 데이터를 옮긴 뒤 학습이 <code>FileNotFoundError</code>로 죽으면 여기부터 확인합니다.</p>
+</blockquote>
+<h3 id="체크포인트-2-2" class="cp">✅ 체크포인트 2-2</h3>
+<ul>
+<li>[ ] 하드링크와 심볼릭링크의 차이를 원본 삭제 실험으로 확인했다</li>
+<li>[ ] train/val/test 링크 분할을 7:1.5:1.5로 완료했다</li>
+<li>[ ] 깨진 링크가 0개다</li>
+</ul>
+<hr />
+<h2 id="실습-2-3-파이프로-라벨-통계-뽑기-70분-핵심">실습 2-3 · 파이프로 라벨 통계 뽑기 (70분) ★핵심</h2>
+<h3 id="배경">배경</h3>
+<p>교과 8 목표 성능은 mAP@0.5 기준입니다. 그런데 클래스별 데이터가 심하게 불균형하면(예: 클래스 3이 5장뿐) 그 클래스의 AP는 거의 0이 되고 mAP 전체가 무너집니다. <strong>학습 시작 전에 클래스 분포를 확인하는 것</strong>이 첫 번째 절차입니다.</p>
+<h3 id="step-1-라벨-파일-구조-확인">Step 1. 라벨 파일 구조 확인</h3>
+<pre><code class="language-bash">cd ~/kdt-linux/dataset/kimchi/raw
+cat kimchi_0001.txt
+# 출력 예: 3 0.512345 0.443210 0.150000 0.220000
+#          └┬┘ └───┬──┘ └───┬──┘ └───┬──┘ └───┬──┘
+#         class  x_center y_center  width   height   (전부 0~1 비율)
+</code></pre>
+<h3 id="step-2-한-걸음씩-파이프-조립하기">Step 2. 한 걸음씩 파이프 조립하기</h3>
+<pre><code class="language-bash"># 1단계: 모든 라벨을 한 줄씩 모으기
+cat *.txt | head -5
+
+# 2단계: 첫 번째 필드(클래스)만 추출
+cat *.txt | cut -d' ' -f1 | head -5
+
+# 3단계: 정렬
+cat *.txt | cut -d' ' -f1 | sort | head -5
+
+# 4단계: 중복 개수 세기
+cat *.txt | cut -d' ' -f1 | sort | uniq -c
+
+# 5단계: 많은 순으로 정렬
+cat *.txt | cut -d' ' -f1 | sort | uniq -c | sort -rn
+</code></pre>
+<blockquote>
+<p><strong>한 줄씩 늘려가며 결과를 보는 것</strong>이 파이프 학습의 정석입니다. 처음부터 긴 명령을 외우려 하지 마십시오.</p>
+</blockquote>
+<h3 id="step-3-클래스-이름-붙여-리포트-만들기">Step 3. 클래스 이름 붙여 리포트 만들기</h3>
+<pre><code class="language-bash">cd ~/kdt-linux/dataset/kimchi
+
+cat raw/*.txt | cut -d' ' -f1 | sort | uniq -c | sort -k2n &gt; /tmp/counts.txt
+cat /tmp/counts.txt
+
+# classes.txt 와 결합
+awk 'NR==FNR{name[$1]=$2; next} {printf &quot;%-24s %5d\n&quot;, name[$2], $1}' \
+    meta/classes.txt /tmp/counts.txt | tee meta/class_distribution.txt
+</code></pre>
+<p>출력 예:</p>
+<pre><code>leaf                       168
+plastic_stone_metal        171
+branch                     159
+rubber_glove               165
+disease_browning           172
+green_onion_pepper         164
+</code></pre>
+<blockquote>
+<p><code>tee</code> 는 화면에 보여주면서 동시에 파일로 저장합니다. <code>&gt;</code> 만 쓰면 화면에 안 보입니다.</p>
+</blockquote>
+<h3 id="step-4-추가-통계-미션">Step 4. 추가 통계 미션</h3>
+<p><strong>M1. 총 객체(bbox) 개수는?</strong></p>
+<pre><code class="language-bash">cat raw/*.txt | wc -l
+</code></pre>
+<p><strong>M2. 이미지 1장당 평균 객체 수는?</strong></p>
+<pre><code class="language-bash">echo &quot;scale=2; $(cat raw/*.txt | wc -l) / $(ls raw/*.jpg | wc -l)&quot; | bc
+</code></pre>
+<p><strong>M3. 좌표가 0~1 범위를 벗어난 라벨을 찾으시오</strong> ★</p>
+<pre><code class="language-bash">awk '{for(i=2;i&lt;=5;i++) if($i&lt;0 || $i&gt;1) {print FILENAME&quot;: &quot;$0; break}}' raw/*.txt
+# 기대: kimchi_0456.txt 검출
+</code></pre>
+<p><strong>M4. 정의되지 않은 클래스 ID를 쓰는 라벨을 찾으시오</strong></p>
+<pre><code class="language-bash">MAXCLS=$(( $(wc -l &lt; meta/classes.txt) - 1 ))
+awk -v m=$MAXCLS '$1&lt;0 || $1&gt;m {print FILENAME&quot;: class=&quot;$1}' raw/*.txt
+# 기대: kimchi_0456.txt class=9
+</code></pre>
+<p><strong>M5. 빈 라벨 파일을 찾으시오</strong></p>
+<pre><code class="language-bash">find raw -name &quot;*.txt&quot; -size 0
+# 기대: kimchi_0789.txt
+</code></pre>
+<p><strong>★ M6 (심화). bbox 면적이 전체 이미지의 1% 미만인 초소형 객체 개수는?</strong></p>
+<pre><code class="language-bash">awk '$4*$5 &lt; 0.01 {c++} END {print &quot;tiny objects:&quot;, c+0}' raw/*.txt
+</code></pre>
+<blockquote>
+<p>초소형 객체는 YOLO에서 검출이 어렵습니다. 교과 8·14에서 mAP가 안 오를 때 이 통계를 먼저 확인합니다.</p>
+</blockquote>
+<h3 id="step-5-리포트-파일로-저장">Step 5. 리포트 파일로 저장</h3>
+<pre><code class="language-bash">cd ~/kdt-linux/dataset/kimchi
+{
+  echo &quot;=== Kimchi Dataset Report ===&quot;
+  echo &quot;생성일: $(date '+%Y-%m-%d %H:%M')&quot;
+  echo &quot;이미지: $(ls raw/*.jpg | wc -l) 장&quot;
+  echo &quot;라벨:   $(ls raw/*.txt | wc -l) 개&quot;
+  echo &quot;총 객체: $(cat raw/*.txt | wc -l) 개&quot;
+  echo &quot;&quot;
+  echo &quot;--- 클래스 분포 ---&quot;
+  cat meta/class_distribution.txt
+  echo &quot;&quot;
+  echo &quot;--- 이상 데이터 ---&quot;
+  echo &quot;빈 라벨: $(find raw -name '*.txt' -size 0 | wc -l)&quot;
+  echo &quot;범위 초과: $(awk '{for(i=2;i&lt;=5;i++) if($i&lt;0||$i&gt;1){print;break}}' raw/*.txt | wc -l)&quot;
+} | tee meta/dataset_report.txt
+</code></pre>
+<h3 id="체크포인트-2-3" class="cp">✅ 체크포인트 2-3</h3>
+<ul>
+<li>[ ] <code>cut | sort | uniq -c</code> 조합을 설명할 수 있다</li>
+<li>[ ] 클래스 분포 리포트를 파일로 저장했다</li>
+<li>[ ] 이상 데이터 3종(빈 파일·범위초과·미정의 클래스)을 모두 찾아냈다</li>
+</ul>
+<hr />
+<h2 id="실습-2-4-아카이브와-백업-50분">실습 2-4 · 아카이브와 백업 (50분)</h2>
+<h3 id="step-1-tar-기본">Step 1. tar 기본</h3>
+<pre><code class="language-bash">cd ~/kdt-linux/dataset/kimchi
+
+tar -czvf /tmp/meta_backup.tar.gz meta/
+ls -lh /tmp/meta_backup.tar.gz
+tar -tzvf /tmp/meta_backup.tar.gz
+
+mkdir -p /tmp/restore
+tar -xzvf /tmp/meta_backup.tar.gz -C /tmp/restore
+ls -R /tmp/restore
+</code></pre>
+<h3 id="step-2-압축률-비교-실험">Step 2. 압축률 비교 실험</h3>
+<pre><code class="language-bash">cd /tmp
+tar -cf  raw_none.tar  ~/kdt-linux/dataset/kimchi/raw 2&gt;/dev/null
+tar -czf raw_gzip.tar.gz ~/kdt-linux/dataset/kimchi/raw 2&gt;/dev/null
+tar -cJf raw_xz.tar.xz   ~/kdt-linux/dataset/kimchi/raw 2&gt;/dev/null
+ls -lh raw_none.tar raw_gzip.tar.gz raw_xz.tar.xz
+</code></pre>
+<p>관찰: 텍스트(라벨)는 압축률이 매우 높고, JPG는 이미 압축되어 있어 거의 줄지 않습니다.</p>
+<blockquote>
+<p><strong>현업 시사점</strong>: 이미지 데이터셋은 압축해도 용량이 안 줄어듭니다. 전송할 때는 압축보다 <code>rsync</code> 증분 전송이 낫습니다.</p>
+</blockquote>
+<h3 id="step-3-제외-규칙">Step 3. 제외 규칙</h3>
+<pre><code class="language-bash">cd ~/kdt-linux
+tar -czvf /tmp/project_backup.tar.gz \
+    --exclude='*.jpg' \
+    --exclude='*.pt' \
+    --exclude='__pycache__' \
+    --exclude='.git' \
+    dataset/
+</code></pre>
+<blockquote>
+<p>이 <code>--exclude</code> 목록이 6일차 <code>.gitignore</code>의 예고편입니다. <strong>코드와 메타데이터는 버전관리, 이미지·모델 가중치는 제외</strong> — 이 원칙이 교과 7 이후 전 프로젝트의 규칙입니다.</p>
+</blockquote>
+<h3 id="step-4-날짜-자동-백업">Step 4. 날짜 자동 백업</h3>
+<pre><code class="language-bash">cd ~/kdt-linux/dataset/kimchi
+BACKUP_NAME=&quot;kimchi_meta_$(date +%Y%m%d_%H%M).tar.gz&quot;
+tar -czf &quot;backup/$BACKUP_NAME&quot; meta/
+ls -lh backup/
+</code></pre>
+<h3 id="step-5-실무-미션-백업-스크립트-초안">Step 5. 실무 미션 — 백업 스크립트 초안</h3>
+<pre><code class="language-bash">cd ~/kdt-linux
+cat &gt; backup_meta.sh &lt;&lt; 'EOF'
+#!/bin/bash
+# 데이터셋 메타정보 백업 (이미지·모델 제외)
+set -e
+DS_ROOT=~/kdt-linux/dataset
+STAMP=$(date +%Y%m%d_%H%M)
+
+for ds in &quot;$DS_ROOT&quot;/*/; do
+    name=$(basename &quot;$ds&quot;)
+    out=&quot;$ds/backup/${name}_meta_${STAMP}.tar.gz&quot;
+    mkdir -p &quot;$ds/backup&quot;
+    tar -czf &quot;$out&quot; -C &quot;$ds&quot; meta 2&gt;/dev/null &amp;&amp; \
+      echo &quot;[OK] $out ($(du -h &quot;$out&quot; | cut -f1))&quot;
+done
+
+# 30일 이상 된 백업 정리
+find &quot;$DS_ROOT&quot; -name &quot;*_meta_*.tar.gz&quot; -mtime +30 -delete
+echo &quot;백업 완료: $STAMP&quot;
+EOF
+
+chmod +x backup_meta.sh
+./backup_meta.sh
+</code></pre>
+<blockquote>
+<p>4일차에 이 스크립트를 옵션 처리·로깅·에러 핸들링까지 갖춘 형태로 확장합니다.</p>
+</blockquote>
+<h3 id="체크포인트-2-4" class="cp">✅ 체크포인트 2-4</h3>
+<ul>
+<li>[ ] tar czvf / xzvf / tzvf 를 각각 사용했다</li>
+<li>[ ] <code>--exclude</code> 로 이미지를 제외한 백업을 만들었다</li>
+<li>[ ] <code>backup_meta.sh</code> 가 정상 동작한다</li>
+</ul>
+<hr />
+<h2 id="실습-2-5-종합-챌린지-40분">실습 2-5 · 종합 챌린지 (40분)</h2>
+<p><strong>상황</strong>: 팀장이 요청했습니다. "내일 오전까지 우리 데이터셋 현황 보고서 하나 만들어 주세요. 이미지 몇 장인지, 클래스별로 몇 개인지, 문제 있는 파일이 뭔지, 그리고 팀원들이 읽을 수 있게 권한 맞춰 주세요."</p>
+<h3 id="요구사항">요구사항</h3>
+<ol>
+<li><code>conveyor</code> 데이터셋에 대해 동일한 리포트 생성 (<code>meta/dataset_report.txt</code>)</li>
+<li>두 데이터셋(kimchi, conveyor)의 통합 요약을 <code>~/kdt-linux/SUMMARY.txt</code>로 생성</li>
+<li>모든 <code>meta/</code> 파일을 팀원이 읽을 수 있게 644로 설정</li>
+<li>전체 메타정보를 <code>~/kdt-linux/backup_$(date +%Y%m%d).tar.gz</code>로 아카이브</li>
+<li>아카이브 내용 목록을 화면에 출력해 검증</li>
+</ol>
+<h3 id="힌트">힌트</h3>
+<pre><code class="language-bash">for ds in ~/kdt-linux/dataset/*/; do
+    echo &quot;### $(basename &quot;$ds&quot;)&quot;
+    echo &quot;images: $(ls &quot;$ds&quot;raw/*.jpg 2&gt;/dev/null | wc -l)&quot;
+    echo &quot;labels: $(ls &quot;$ds&quot;raw/*.txt 2&gt;/dev/null | wc -l)&quot;
+done | tee ~/kdt-linux/SUMMARY.txt
+</code></pre>
+<h3 id="최종-체크포인트" class="cp">✅ 최종 체크포인트</h3>
+<ul>
+<li>[ ] SUMMARY.txt에 두 데이터셋 정보가 모두 있다</li>
+<li>[ ] 아카이브가 생성되고 <code>tar -tzvf</code>로 내용 확인이 된다</li>
+<li>[ ] <code>ls -l meta/</code> 가 전부 <code>-rw-r--r--</code></li>
+</ul>
+<hr />
+<h2 id="마무리-10분">마무리 (10분)</h2>
+<pre><code class="language-bash">cd ~/kdt-linux
+history | tail -60 &gt;&gt; day2_history.txt
+cat &gt; DAY2.md &lt;&lt; 'EOF'
+# Day 2 — 권한 · 아카이브 · 텍스트 스트림
+## 핵심 명령
+- chmod 755/644/444, chown, 디렉토리 x 권한의 의미
+- ln -s 로 용량 절약형 데이터셋 분할
+- cat *.txt | cut -d' ' -f1 | sort | uniq -c | sort -rn
+- tar czvf / xzvf / tzvf, --exclude
+## 실무 연결
+- raw/ 읽기전용 잠금 → 데이터 품질 평가 항목
+- 클래스 분포 리포트 → 교과 8 mAP 사전 점검
+EOF
+</code></pre>
+<hr />
+<h2 id="과제">과제</h2>
+<ol>
+<li><code>chmod 600</code>이 SSH 개인키에 필수인 이유를 조사해 3줄로 정리</li>
+<li><code>du -sh */ | sort -rh</code> 를 <code>/var</code> 에 적용해 가장 큰 하위 디렉토리 3개 보고</li>
+<li>다음 파이프의 각 단계가 무엇을 하는지 설명하시오
+   <code>bash
+   cat raw/*.txt | awk '{print $1}' | sort -n | uniq -c | awk '{print $2": "$1}'</code></li>
+<li>내일 퀴즈 대비: <code>&gt;</code> 와 <code>&gt;&gt;</code> 의 차이, <code>2&gt;&amp;1</code>의 의미</li>
+</ol>
+<hr />
+<h2 id="강사-운영-노트">강사 운영 노트</h2>
+<div class="tw"><table>
+<thead>
+<tr>
+<th>시점</th>
+<th>주의사항</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>실습 2-1 Step4</td>
+<td>디렉토리 x 권한 실험은 <strong>반드시 개별 실행</strong>시키십시오. 말로만 들으면 절대 이해 못 합니다.</td>
+</tr>
+<tr>
+<td>실습 2-2</td>
+<td><code>realpath</code> 가 없으면 <code>readlink -f</code> 사용. WSL 환경에서 Windows 경로 마운트 시 심볼릭 링크 제약이 있을 수 있으므로 반드시 리눅스 파일시스템(<code>~/</code>) 안에서 실습.</td>
+</tr>
+<tr>
+<td>실습 2-3</td>
+<td>파이프를 한 번에 완성해 보여주지 말고 <strong>한 단계씩 결과를 보여주며</strong> 확장하십시오. 비전공자 이해도가 갈리는 지점입니다.</td>
+</tr>
+<tr>
+<td>실습 2-4</td>
+<td>압축률 비교에서 "JPG는 왜 안 줄어드는가"를 질문으로 던지면 이미지 압축(교과 3) 예고가 자연스럽습니다.</td>
+</tr>
+<tr>
+<td>전체</td>
+<td><code>chmod -R 777</code> 을 만능 해결책으로 쓰는 습관이 생기지 않도록 초반에 강하게 경고하십시오.</td>
+</tr>
+</tbody>
+</table></div>
+    <nav class="pager"><a href="01.html"><span class="k">← 이전 · D1</span><span class="v">리눅스 시작과 파일 시스템</span></a><a class="next" href="03.html"><span class="k">다음 · D3 →</span><span class="v">편집기와 텍스트 처리</span></a></nav>
+  </main>
+</div>
+<script>
+(function(){
+  var links=[].slice.call(document.querySelectorAll('.toc a'));
+  if(!links.length)return;
+  var map={},targets=[];
+  links.forEach(function(a){
+    var el=document.getElementById(decodeURIComponent(a.getAttribute('href').slice(1)));
+    if(el){map[el.id]=a;targets.push(el);}
+  });
+  var cur=null;
+  var io=new IntersectionObserver(function(es){
+    es.forEach(function(e){
+      if(e.isIntersecting){
+        if(cur)cur.classList.remove('active');
+        cur=map[e.target.id];
+        if(cur){cur.classList.add('active');
+          var r=document.querySelector('.rail');
+          if(r&&r.scrollHeight>r.clientHeight){
+            var t=cur.offsetTop-r.clientHeight/2;
+            if(Math.abs(r.scrollTop-t)>90)r.scrollTop=t;
+          }
+        }
+      }
+    });
+  },{rootMargin:'-76px 0px -72% 0px',threshold:0});
+  targets.forEach(function(t){io.observe(t);});
+})();
+</script>
+</body>
+</html>

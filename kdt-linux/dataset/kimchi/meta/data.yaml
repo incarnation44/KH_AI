@@ -1,0 +1,12 @@
+path: /c/Users/user1/.gemini/antigravity/scratch/visionops/dataset/kimchi
+train: images/train
+val: images/val
+test: images/test
+nc: 6
+names:
+  0: leaf
+  1: plastic_stone_metal
+  2: branch
+  3: rubber_glove
+  4: disease_browning
+  5: green_onion_pepper

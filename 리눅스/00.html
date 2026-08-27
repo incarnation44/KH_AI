@@ -1,0 +1,953 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>강의 기획서 · 교과 1 · 리눅스</title>
+<link rel="preconnect" href="https://cdn.jsdelivr.net">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fontsource/jetbrains-mono@5.0.20/index.min.css">
+<style>
+/* ============ 토큰 ============ */
+:root{
+  --paper:#FAFAFB; --card:#FFFFFF;
+  --ink:#161B22; --ink2:#495364; --ink3:#828D9E;
+  --rule:#E4E8ED; --rule2:#F0F2F5;
+  --spec:#14539A;          /* 청사진 잉크 — 구조 · 링크 */
+  --spec-soft:#EAF1FA;
+  --warn:#A85408;          /* 신호 앰버 — 경고 · 보안 */
+  --warn-soft:#FDF3E7;
+  --ok:#0B6E5F;            /* 검수 통과 — 체크포인트 */
+  --ok-soft:#E7F3F0;
+  --term:#0E141B; --term-ink:#DCE6F0; --term-rule:#232C38;
+  --mono:"JetBrains Mono",ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+  --sans:"Pretendard Variable",Pretendard,-apple-system,BlinkMacSystemFont,
+         "Segoe UI","Malgun Gothic","Apple SD Gothic Neo","Noto Sans KR",sans-serif;
+  --rail:264px;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth;scroll-padding-top:84px}
+@media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}*{animation:none!important;transition:none!important}}
+body{
+  margin:0;background:var(--paper);color:var(--ink);font-family:var(--sans);
+  font-size:16px;line-height:1.78;-webkit-font-smoothing:antialiased;
+  word-break:keep-all;overflow-wrap:anywhere;
+}
+
+/* ============ 상단 바 ============ */
+.topbar{
+  position:sticky;top:0;z-index:40;background:rgba(250,250,251,.92);
+  backdrop-filter:blur(10px);border-bottom:1px solid var(--rule);
+}
+.topbar .in{max-width:1400px;margin:0 auto;padding:0 24px;height:56px;
+  display:flex;align-items:center;gap:18px}
+.brand{font-family:var(--mono);font-size:11px;letter-spacing:.1em;color:var(--ink3);
+  text-transform:uppercase;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.brand b{color:var(--spec);font-weight:700}
+.navbtns{margin-left:auto;display:flex;gap:8px;flex-shrink:0}
+.navbtns a{font-family:var(--mono);font-size:11px;letter-spacing:.06em;
+  text-decoration:none;color:var(--ink2);border:1px solid var(--rule);
+  border-radius:6px;padding:6px 11px;background:var(--card);transition:.15s}
+.navbtns a:hover{border-color:var(--spec);color:var(--spec)}
+.navbtns a.home{background:var(--spec);color:#fff;border-color:var(--spec)}
+.navbtns a.home:hover{filter:brightness(1.12)}
+
+/* ============ 레이아웃 ============ */
+.wrap{max-width:1400px;margin:0 auto;padding:0 24px;display:grid;
+  grid-template-columns:var(--rail) minmax(0,1fr);gap:44px;align-items:start}
+.rail{position:sticky;top:56px;max-height:calc(100vh - 56px);overflow-y:auto;
+  padding:28px 0 60px;scrollbar-width:thin}
+.rail::-webkit-scrollbar{width:6px}
+.rail::-webkit-scrollbar-thumb{background:var(--rule);border-radius:3px}
+main{padding:36px 0 120px;min-width:0;max-width:920px}
+
+/* ============ 시그니처: 일차 스파인 ============ */
+.spine-h{font-family:var(--mono);font-size:10px;letter-spacing:.14em;
+  color:var(--ink3);text-transform:uppercase;margin:0 0 12px 2px}
+.spine{list-style:none;margin:0 0 30px;padding:0;position:relative}
+.spine::before{content:"";position:absolute;left:19px;top:14px;bottom:14px;
+  width:1px;background:var(--rule)}
+.spine li{position:relative}
+.spine a{display:grid;grid-template-columns:38px 40px minmax(0,1fr);align-items:center;gap:6px;
+  padding:5px 8px 5px 0;text-decoration:none;color:var(--ink2);border-radius:6px}
+.spine a:hover{background:var(--rule2)}
+.spine .dot{position:relative;z-index:1;justify-self:center;width:9px;height:9px;
+  border-radius:50%;background:var(--card);border:1.5px solid var(--rule)}
+.spine .lbl{font-family:var(--mono);font-size:11.5px;letter-spacing:.04em}
+.spine .ttl{font-size:12.5px;line-height:1.35;color:var(--ink3);
+  overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.spine a[aria-current]{background:var(--spec-soft)}
+.spine a[aria-current] .dot{background:var(--spec);border-color:var(--spec);
+  box-shadow:0 0 0 3px rgba(20,83,154,.14)}
+.spine a[aria-current] .lbl{color:var(--spec);font-weight:700}
+.spine a[aria-current] .ttl{color:var(--ink)}
+.spine .done .dot{background:var(--rule);border-color:var(--rule)}
+
+/* ============ 문서 내 목차 ============ */
+.toc-h{font-family:var(--mono);font-size:10px;letter-spacing:.14em;color:var(--ink3);
+  text-transform:uppercase;margin:0 0 10px 2px;padding-top:22px;border-top:1px solid var(--rule)}
+.toc{list-style:none;margin:0;padding:0}
+.toc li{margin:0}
+.toc a{display:block;padding:5px 10px;font-size:13.5px;line-height:1.45;
+  text-decoration:none;color:var(--ink2);border-left:2px solid transparent;border-radius:0 5px 5px 0}
+.toc a:hover{background:var(--rule2);color:var(--ink)}
+.toc .lv1>a{font-weight:700;color:var(--ink);margin-top:12px;font-size:13px;
+  font-family:var(--mono);letter-spacing:.02em}
+.toc .lv2>a{padding-left:16px}
+.toc a.active{border-left-color:var(--spec);background:var(--spec-soft);color:var(--spec);font-weight:600}
+
+/* ============ 문서 헤더 ============ */
+.dochead{margin:0 0 40px;padding-bottom:26px;border-bottom:2px solid var(--ink)}
+.eyebrow{font-family:var(--mono);font-size:11px;letter-spacing:.14em;color:var(--spec);
+  text-transform:uppercase;margin-bottom:12px}
+.dochead h1{margin:0;padding:0;background:none;color:var(--ink);border-radius:0;
+  font-size:clamp(26px,3.3vw,38px);line-height:1.24;font-weight:800;letter-spacing:-.025em}
+.dochead .sub{margin:12px 0 0;color:var(--ink2);font-size:15px}
+/* 진도 트랙 — 60시간 중 현재 위치 */
+.track{margin-top:22px}
+.track .bar{height:5px;background:var(--rule);border-radius:3px;overflow:hidden;display:flex}
+.track .bar i{display:block;height:100%}
+.track .bar .past{background:var(--rule)}
+.track .bar .now{background:var(--spec)}
+.track .cap{display:flex;justify-content:space-between;margin-top:8px;max-width:640px;
+  font-family:var(--mono);font-size:10.5px;color:var(--ink3);letter-spacing:.04em}
+.track .bar{max-width:640px}
+
+/* ============ 본문 타이포 ============ */
+main h1{font-size:22px;font-weight:800;letter-spacing:-.01em;margin:64px 0 20px;
+  padding:14px 18px;background:var(--ink);color:#fff;border-radius:8px}
+main h1:first-of-type{margin-top:8px}
+main h2{font-size:19.5px;font-weight:750;margin:48px 0 14px;padding-bottom:9px;
+  border-bottom:1px solid var(--rule);letter-spacing:-.01em;scroll-margin-top:80px}
+main h3{font-size:16.5px;font-weight:700;margin:34px 0 10px;color:var(--ink);
+  scroll-margin-top:80px}
+main h4{font-size:15px;font-weight:700;margin:24px 0 8px;color:var(--ink2)}
+main p{margin:0 0 15px}
+main ul,main ol{margin:0 0 16px;padding-left:22px}
+main li{margin:5px 0}
+main li>ul,main li>ol{margin:6px 0}
+main hr{border:0;border-top:1px solid var(--rule);margin:46px 0}
+main strong{font-weight:700}
+main a{color:var(--spec);text-underline-offset:3px}
+
+/* 체크포인트 · 경고 헤딩 */
+main h3.cp,main h4.cp{background:var(--ok-soft);color:var(--ok);border-left:3px solid var(--ok);
+  padding:9px 14px;border-radius:0 7px 7px 0;font-size:15px}
+main h3.warn,main h4.warn,main h2.warn{background:var(--warn-soft);color:var(--warn);
+  border-left:3px solid var(--warn);border-bottom:0;padding:9px 14px;border-radius:0 7px 7px 0;font-size:15px}
+
+/* ============ 코드 ============ */
+main :not(pre)>code{font-family:var(--mono);font-size:.855em;background:var(--spec-soft);
+  color:#0F3F76;padding:1.5px 5px;border-radius:4px;word-break:break-all}
+main pre{background:var(--term);color:var(--term-ink);border-radius:10px;
+  padding:16px 18px;overflow-x:auto;margin:0 0 18px;font-size:13.5px;line-height:1.7;
+  border:1px solid var(--term-rule)}
+main pre code{font-family:var(--mono);background:none;color:inherit;padding:0;font-size:inherit}
+main pre::-webkit-scrollbar{height:8px}
+main pre::-webkit-scrollbar-thumb{background:#2C3846;border-radius:4px}
+
+/* ============ 표 ============ */
+.tw{overflow-x:auto;margin:0 0 20px;border:1px solid var(--rule);border-radius:9px;background:var(--card)}
+main table{border-collapse:collapse;width:100%;font-size:14px;min-width:min(100%,420px)}
+main th,main td{padding:9px 13px;border-bottom:1px solid var(--rule2);
+  text-align:left;vertical-align:top;line-height:1.6}
+main th{background:#F5F7F9;font-weight:700;font-size:12.5px;letter-spacing:.02em;
+  color:var(--ink2);white-space:nowrap;border-bottom:1px solid var(--rule)}
+main tbody tr:last-child td{border-bottom:0}
+main tbody tr:hover{background:#FBFCFD}
+main td code{white-space:nowrap}
+
+/* ============ 인용 ============ */
+main blockquote{margin:0 0 18px;padding:13px 18px;background:var(--card);
+  border:1px solid var(--rule);border-left:3px solid var(--spec);border-radius:0 8px 8px 0;
+  color:var(--ink2);font-size:14.5px}
+main blockquote p:last-child{margin-bottom:0}
+
+/* ============ 하단 이동 ============ */
+.pager{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:70px;
+  padding-top:26px;border-top:1px solid var(--rule)}
+.pager a{display:block;padding:15px 18px;border:1px solid var(--rule);border-radius:10px;
+  text-decoration:none;background:var(--card);transition:.15s}
+.pager a:hover{border-color:var(--spec);box-shadow:0 2px 10px rgba(20,83,154,.07)}
+.pager .k{font-family:var(--mono);font-size:10px;letter-spacing:.12em;color:var(--ink3);
+  text-transform:uppercase;display:block;margin-bottom:5px}
+.pager .v{font-size:14.5px;font-weight:650;color:var(--ink);line-height:1.4}
+.pager .next{text-align:right}
+.pager .empty{border-style:dashed;opacity:.4;pointer-events:none}
+
+/* ============ 색인 페이지 ============ */
+.hero{padding:56px 0 40px;border-bottom:2px solid var(--ink);margin-bottom:44px}
+.hero h1{margin:14px 0 0;padding:0;background:none;color:var(--ink);border-radius:0;
+  font-size:clamp(30px,4.4vw,48px);line-height:1.18;font-weight:800;letter-spacing:-.03em}
+.hero .eyebrow{margin-bottom:0}
+.hero .lede{margin:20px 0 0;font-size:16.5px;line-height:1.68;color:var(--ink2);max-width:60ch}
+.stats{display:flex;flex-wrap:wrap;gap:36px;margin-top:34px}
+.stat .n{font-family:var(--mono);font-size:27px;font-weight:700;color:var(--spec);
+  letter-spacing:-.02em;line-height:1}
+.stat .l{font-family:var(--mono);font-size:10.5px;letter-spacing:.12em;color:var(--ink3);
+  text-transform:uppercase;margin-top:7px}
+.cards{display:grid;gap:12px;margin-bottom:60px}
+.card{display:grid;grid-template-columns:74px 1fr auto;align-items:center;gap:20px;
+  padding:17px 22px;background:var(--card);border:1px solid var(--rule);border-radius:11px;
+  text-decoration:none;color:inherit;transition:.15s}
+.card:hover{border-color:var(--spec);transform:translateX(3px);
+  box-shadow:0 3px 14px rgba(20,83,154,.08)}
+.card .key{font-family:var(--mono);font-size:15px;font-weight:700;color:var(--spec);
+  letter-spacing:.02em}
+.card .key small{display:block;font-size:9.5px;color:var(--ink3);font-weight:400;
+  letter-spacing:.1em;margin-top:3px}
+.card .t{font-size:16px;font-weight:700;line-height:1.35}
+.card .d{font-size:13.5px;color:#78818E;margin-top:4px;line-height:1.55}
+.card .h{font-family:var(--mono);font-size:11px;color:var(--ink3);white-space:nowrap;
+  letter-spacing:.04em}
+.idx-sec{font-family:var(--mono);font-size:10.5px;letter-spacing:.14em;color:var(--ink3);
+  text-transform:uppercase;margin:34px 0 12px}
+.idx-sec:first-child{margin-top:0}
+.note{background:var(--warn-soft);border:1px solid #F0DFC6;border-left:3px solid var(--warn);
+  border-radius:0 10px 10px 0;padding:18px 22px;margin-bottom:56px;font-size:14.5px;color:#6B3A08}
+.note b{color:var(--warn)}
+.note ul{margin:9px 0 0;padding-left:20px}
+
+/* ============ 반응형 ============ */
+@media (max-width:1080px){
+  .wrap{grid-template-columns:1fr;gap:0}
+  .rail{position:static;max-height:none;overflow:visible;padding:22px 0 0;
+    border-bottom:1px solid var(--rule);margin-bottom:8px}
+  .spine{display:flex;flex-wrap:wrap;gap:5px;margin-bottom:20px}
+  .spine::before{display:none}
+  .spine a{grid-template-columns:auto;padding:6px 11px;border:1px solid var(--rule);border-radius:7px}
+  .spine .dot,.spine .ttl{display:none}
+  .toc-h{padding-top:16px}
+  .toc{columns:2;column-gap:20px;max-height:230px;overflow-y:auto;
+    border:1px solid var(--rule);border-radius:9px;padding:8px;background:var(--card)}
+  .toc .lv1>a{margin-top:0}
+  main{padding:22px 0 80px}
+}
+@media (max-width:620px){
+  body{font-size:15.5px}
+  .wrap,.topbar .in{padding:0 15px}
+  .toc{columns:1;max-height:200px}
+  .pager{grid-template-columns:1fr}
+  .pager .next{text-align:left}
+  .card{grid-template-columns:56px 1fr;gap:14px}
+  .card .h{grid-column:2;margin-top:5px}
+  main h1{font-size:19px;padding:12px 14px}
+  main pre{font-size:12.5px;padding:13px 14px}
+}
+
+/* ============ 인쇄 ============ */
+@media print{
+  :root{--paper:#fff}
+  .topbar,.rail,.pager,.track{display:none!important}
+  .wrap{display:block;max-width:none;padding:0}
+  main{padding:0}
+  body{font-size:10.5pt;line-height:1.62}
+  main h1{background:none;color:#000;border:1.5pt solid #000;padding:7pt 10pt;
+    font-size:15pt;margin:22pt 0 11pt;page-break-after:avoid}
+  main h2,main h3,main h4{page-break-after:avoid}
+  main h2{font-size:13pt;margin:16pt 0 7pt}
+  main h3{font-size:11.5pt}
+  main pre{background:#F6F7F9;color:#111;border:.5pt solid #CBD2DA;
+    font-size:8.6pt;page-break-inside:avoid;white-space:pre-wrap;word-break:break-all}
+  main pre code{color:#111}
+  main :not(pre)>code{background:#EFF2F5;color:#111}
+  main table{font-size:9pt;page-break-inside:avoid}
+  .tw{overflow:visible;border-color:#CBD2DA}
+  main blockquote{page-break-inside:avoid}
+  a{color:#000;text-decoration:none}
+  .dochead{page-break-after:avoid}
+  @page{margin:15mm 14mm}
+}
+</style>
+</head>
+<body>
+<header class="topbar"><div class="in">
+  <div class="brand">KDT · AI 캠퍼스 [비솔] Vision AI &amp; 산업분야 Vertical AI 융합 전문가 양성 · <b>교과 1 · 리눅스</b></div>
+  <nav class="navbtns">
+    <a class="home" href="index.html">전체 목차</a>
+    <a href="#" onclick="window.print();return false;">인쇄 / PDF</a>
+  </nav>
+</div></header>
+
+<div class="wrap">
+  <aside class="rail">
+    <p class="spine-h">교과 1 · 60H 전체</p>
+    <ul class="spine"><li><a class="" href="00.html" aria-current="page"><span class="dot"></span><span class="lbl">PLAN</span><span class="ttl">강의 기획서</span></a></li>
+<li><a class="" href="01.html"><span class="dot"></span><span class="lbl">D1</span><span class="ttl">리눅스 시작과 파일 시스템</span></a></li>
+<li><a class="" href="02.html"><span class="dot"></span><span class="lbl">D2</span><span class="ttl">권한 · 아카이브 · 텍스트 스트림</span></a></li>
+<li><a class="" href="03.html"><span class="dot"></span><span class="lbl">D3</span><span class="ttl">편집기와 텍스트 처리</span></a></li>
+<li><a class="" href="04.html"><span class="dot"></span><span class="lbl">D4</span><span class="ttl">셸 스크립트 · 프로세스 · 자동화</span></a></li>
+<li><a class="" href="05.html"><span class="dot"></span><span class="lbl">D5</span><span class="ttl">Anaconda 환경과 데이터셋 구조화</span></a></li>
+<li><a class="" href="06.html"><span class="dot"></span><span class="lbl">D6</span><span class="ttl">Git 기초</span></a></li>
+<li><a class="" href="07.html"><span class="dot"></span><span class="lbl">D7</span><span class="ttl">GitHub 협업과 데이터 보안</span></a></li>
+<li><a class="" href="08.html"><span class="dot"></span><span class="lbl">D8</span><span class="ttl">부분 파이널 프로젝트</span></a></li>
+<li><a class="" href="99.html"><span class="dot"></span><span class="lbl">APX</span><span class="ttl">부록 · 치트시트 &amp; 트러블슈팅</span></a></li></ul>
+    <p class="toc-h">이 문서 안에서</p>
+    <ul class="toc"><li class="lv2"><a href="#1-교과-포지셔닝">1. 교과 포지셔닝</a></li>
+<li class="lv2"><a href="#2-학습-목표-성취-기준">2. 학습 목표 (성취 기준)</a></li>
+<li class="lv2"><a href="#3-시간-배분-이론-실무-4-6">3. 시간 배분 (이론 : 실무 = 4 : 6)</a></li>
+<li class="lv2"><a href="#4-세부-학습내용-매핑-승인-교과-내용-100-커버-확인">4. 세부 학습내용 매핑 (승인 교과 내용 100% 커버 확인)</a></li>
+<li class="lv2"><a href="#5-실습-데이터-준비-계획">5. 실습 데이터 준비 계획</a></li>
+<li class="lv2"><a href="#6-실습-환경-안내서-명시-사양-기준">6. 실습 환경 (안내서 명시 사양 기준)</a></li>
+<li class="lv2"><a href="#7-평가-계획">7. 평가 계획</a></li>
+<li class="lv2"><a href="#8-산출물-목록">8. 산출물 목록</a></li>
+<li class="lv2"><a href="#9-강사-운영-유의사항">9. 강사 운영 유의사항</a></li>
+<li class="lv2"><a href="#10-문서-구성-안내">10. 문서 구성 안내</a></li></ul>
+  </aside>
+
+  <main>
+    <div class="dochead">
+      <div class="eyebrow">PLAN &nbsp;/&nbsp; 교과 1 · 리눅스 &nbsp;/&nbsp; 운영 문서</div>
+      <h1>교과 1 · 리눅스 (60H) 강의 기획서</h1>
+      <p class="sub">60시간 전체 설계 · 시간 배분 · 평가 계획 · 개강 전 준비</p>
+      
+    </div>
+    <blockquote>
+<p>[비솔] 현장 데이터 기반 Vision AI &amp; 산업분야 Vertical AI 융합 전문가 양성
+1단계(기반) · 정규교과 · 60시간 · 1일 8시간 × 7.5일</p>
+</blockquote>
+<hr />
+<h2 id="1-교과-포지셔닝">1. 교과 포지셔닝</h2>
+<h3 id="11-이-교과가-과정에서-맡는-역할">1.1 이 교과가 과정에서 맡는 역할</h3>
+<p>안내서 「교과 1 · 리눅스」의 <em>어디로 이어지는가</em> 항목은 다음과 같이 규정되어 있습니다.</p>
+<blockquote>
+<p>이후 전 교과의 개발환경 기반. Git/GitHub는 교과 7 이후 모든 프로젝트의 산출물 제출·평가 경로(코드 품질 KPI 측정도구)로 그대로 쓰임</p>
+</blockquote>
+<p>즉 이 교과는 <strong>"리눅스 명령어를 배우는 시간"이 아니라, 앞으로 6.8개월간 훈련생이 사용할 작업 환경 그 자체를 세팅하고 규칙을 몸에 붙이는 시간</strong>입니다. 따라서 모든 실습 소재를 이후 교과에서 실제로 다룰 대상(조각김치 이물검출 이미지·YOLO 라벨 TXT·모션캡처 Keypoint JSON/CSV)으로 통일합니다.</p>
+<h3 id="12-후행-교과-연결-지도">1.2 후행 교과 연결 지도</h3>
+<div class="tw"><table>
+<thead>
+<tr>
+<th>이 교과에서 익히는 것</th>
+<th>어디서 다시 쓰이는가</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Ubuntu 셸 · 파일시스템</td>
+<td>교과 2~16 전체 개발환경</td>
+</tr>
+<tr>
+<td>Anaconda 가상환경 / environment.yml</td>
+<td>교과 2·4·5(PyTorch·TF), 교과 13 Raspberry Pi, 교과 14 Jetson</td>
+</tr>
+<tr>
+<td>대용량 데이터셋 디렉토리 구조화</td>
+<td>교과 8(약 1,000장), 교과 14(최소 500장), 교과 15(동작 10종 이상)</td>
+</tr>
+<tr>
+<td>Vim/Nano 원격 편집</td>
+<td>교과 13 Raspberry Pi, 교과 14 Jetson Orin Nano Super (GUI 없는 보드 작업)</td>
+</tr>
+<tr>
+<td>grep/sed/awk 텍스트 처리</td>
+<td>교과 7 라벨 포맷 변환, 교과 8 라벨 검수, 교과 12 Keypoint CSV 처리</td>
+</tr>
+<tr>
+<td>셸 스크립트 · tmux · 로그</td>
+<td>교과 5·8·14 장시간 학습 세션 운영</td>
+</tr>
+<tr>
+<td>Git 커밋 관리</td>
+<td>평가항목 「코드 품질 10점」 직접 측정 대상</td>
+</tr>
+<tr>
+<td>GitHub 원격/PR/리뷰</td>
+<td>교과 7 이후 전 프로젝트 산출물 제출 경로</td>
+</tr>
+<tr>
+<td>.gitignore · pre-commit 보안 훅</td>
+<td><strong>㈜비솔 제공 데이터 외부 유출 금지 규정(6.2절·7장) 기술적 준수 수단</strong></td>
+</tr>
+</tbody>
+</table></div>
+<h3 id="13-훈련생-출발점-가정">1.3 훈련생 출발점 가정</h3>
+<ul>
+<li>사전학습 「Python 기반 AI 입문」 30차시 이수 → 파이썬 문법·AI 개념은 <strong>한 번 훑은 상태</strong></li>
+<li>전공자(SW 학과) + 비전공자(산업공학·로봇공학·산업안전) 혼합</li>
+<li><strong>리눅스 CLI 경험은 양쪽 모두 사실상 0으로 가정</strong> (전공자도 대부분 Windows + IDE GUI 경험)</li>
+<li>따라서 1~2일차는 전원 동일 출발선, 3일차부터 전공자용 심화 미션(★ 표기)을 병행</li>
+</ul>
+<hr />
+<h2 id="2-학습-목표-성취-기준">2. 학습 목표 (성취 기준)</h2>
+<p>교과 종료 시점에 훈련생은 다음을 <strong>혼자서</strong> 할 수 있어야 합니다.</p>
+<div class="tw"><table>
+<thead>
+<tr>
+<th>코드</th>
+<th>성취 기준</th>
+<th>검증 방법</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>L1</td>
+<td>GUI 없이 터미널만으로 Ubuntu에서 파일·디렉토리를 자유롭게 다룬다</td>
+<td>1일차 체크리스트 실기</td>
+</tr>
+<tr>
+<td>L2</td>
+<td>수천 장 규모 데이터셋을 표준 규칙에 맞게 구조화하고 7:1.5:1.5로 분할한다</td>
+<td>5일차 실습 산출물</td>
+</tr>
+<tr>
+<td>L3</td>
+<td>이미지-라벨 정합성을 셸에서 검증하고 클래스 분포 리포트를 뽑는다</td>
+<td>3·4일차 실습 산출물</td>
+</tr>
+<tr>
+<td>L4</td>
+<td>conda 환경을 만들고 environment.yml로 타 PC에서 그대로 재현한다</td>
+<td>5일차 상호 재현 테스트</td>
+</tr>
+<tr>
+<td>L5</td>
+<td>셸 스크립트로 반복 작업을 자동화하고 로그를 남긴다</td>
+<td>4일차 <code>dataset_check.sh</code></td>
+</tr>
+<tr>
+<td>L6</td>
+<td>Git으로 의미 단위 커밋·브랜치·충돌 해결을 수행한다</td>
+<td>6일차 커밋 히스토리</td>
+</tr>
+<tr>
+<td>L7</td>
+<td>GitHub에 PR을 올리고 리뷰를 주고받아 머지한다</td>
+<td>7일차 2인 1조 PR 이력</td>
+</tr>
+<tr>
+<td>L8</td>
+<td>기업 제공 데이터가 원격 저장소에 올라가지 않도록 기술적으로 차단한다</td>
+<td>7일차 pre-commit 훅 동작 시연</td>
+</tr>
+<tr>
+<td>L9</td>
+<td>위 전부를 묶어 포트폴리오 가능한 CLI 툴킷 저장소를 완성한다</td>
+<td>8일차 파이널 프로젝트</td>
+</tr>
+</tbody>
+</table></div>
+<hr />
+<h2 id="3-시간-배분-이론-실무-4-6">3. 시간 배분 (이론 : 실무 = 4 : 6)</h2>
+<div class="tw"><table>
+<thead>
+<tr>
+<th>일차</th>
+<th>주제</th>
+<th>이론</th>
+<th>실습</th>
+<th>합계</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1일차</td>
+<td>리눅스 시작과 파일 시스템</td>
+<td>3.0H</td>
+<td>5.0H</td>
+<td>8H</td>
+</tr>
+<tr>
+<td>2일차</td>
+<td>권한 · 아카이브 · 텍스트 스트림</td>
+<td>3.0H</td>
+<td>5.0H</td>
+<td>8H</td>
+</tr>
+<tr>
+<td>3일차</td>
+<td>편집기(Vim/Nano)와 텍스트 처리 3종</td>
+<td>3.0H</td>
+<td>5.0H</td>
+<td>8H</td>
+</tr>
+<tr>
+<td>4일차</td>
+<td>셸 스크립트 · 프로세스 · 작업 자동화</td>
+<td>3.5H</td>
+<td>4.5H</td>
+<td>8H</td>
+</tr>
+<tr>
+<td>5일차</td>
+<td>Anaconda 환경과 대용량 데이터셋 구조화</td>
+<td>4.0H</td>
+<td>4.0H</td>
+<td>8H</td>
+</tr>
+<tr>
+<td>6일차</td>
+<td>Git 기초 — 초기화 · 커밋 관리</td>
+<td>4.0H</td>
+<td>4.0H</td>
+<td>8H</td>
+</tr>
+<tr>
+<td>7일차</td>
+<td>GitHub 원격 연동 · 협업 · 데이터 보안</td>
+<td>3.5H</td>
+<td>4.5H</td>
+<td>8H</td>
+</tr>
+<tr>
+<td>8일차</td>
+<td>부분 파이널 프로젝트 <code>visionops</code></td>
+<td>0H</td>
+<td>4.0H</td>
+<td>4H</td>
+</tr>
+<tr>
+<td><strong>합계</strong></td>
+<td></td>
+<td><strong>24.0H (40%)</strong></td>
+<td><strong>36.0H (60%)</strong></td>
+<td><strong>60H</strong></td>
+</tr>
+</tbody>
+</table></div>
+<h3 id="31-1일-8시간-표준-운영-타임테이블">3.1 1일 8시간 표준 운영 타임테이블</h3>
+<div class="tw"><table>
+<thead>
+<tr>
+<th>교시</th>
+<th>시간</th>
+<th>구성</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1교시</td>
+<td>09:00–09:50</td>
+<td>전일 복습 퀴즈(10분) + 이론</td>
+</tr>
+<tr>
+<td>2교시</td>
+<td>10:00–10:50</td>
+<td>이론</td>
+</tr>
+<tr>
+<td>3교시</td>
+<td>11:00–11:50</td>
+<td>이론 → 데모(강사 시연)</td>
+</tr>
+<tr>
+<td>4교시</td>
+<td>12:00–12:50</td>
+<td>실습 A (가이드 따라하기)</td>
+</tr>
+<tr>
+<td><em>점심</em></td>
+<td>12:50–13:50</td>
+<td></td>
+</tr>
+<tr>
+<td>5교시</td>
+<td>13:50–14:40</td>
+<td>실습 B</td>
+</tr>
+<tr>
+<td>6교시</td>
+<td>14:50–15:40</td>
+<td>실습 C</td>
+</tr>
+<tr>
+<td>7교시</td>
+<td>15:50–16:40</td>
+<td>실습 D / 실무 미션</td>
+</tr>
+<tr>
+<td>8교시</td>
+<td>16:50–17:40</td>
+<td>챌린지 + 체크리스트 확인 + 커밋 &amp; 마무리</td>
+</tr>
+</tbody>
+</table></div>
+<blockquote>
+<p>매일 8교시 마지막 10분은 <strong>당일 산출물을 Git에 커밋</strong>하는 시간으로 고정합니다(6일차 이후 push까지). 이 습관이 평가항목 「코드 품질 · 버전관리 상태」의 근거 기록이 됩니다.</p>
+</blockquote>
+<hr />
+<h2 id="4-세부-학습내용-매핑-승인-교과-내용-100-커버-확인">4. 세부 학습내용 매핑 (승인 교과 내용 100% 커버 확인)</h2>
+<p>안내서에 확정 기재된 6개 항목이 어느 일차에서 다뤄지는지 대조표입니다.</p>
+<div class="tw"><table>
+<thead>
+<tr>
+<th>승인 세부 학습내용</th>
+<th>주 담당 일차</th>
+<th>보강 일차</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>① Anaconda 가상환경 및 라이브러리 설정</td>
+<td>5일차 (4H)</td>
+<td>1일차(설치), 8일차(재현)</td>
+</tr>
+<tr>
+<td>② 리눅스 파일 시스템 및 기본 명령어</td>
+<td>1일차 (8H)</td>
+<td>2일차</td>
+</tr>
+<tr>
+<td>③ 대용량 데이터셋 디렉토리 구조화</td>
+<td>5일차 (4H)</td>
+<td>1·2·4일차</td>
+</tr>
+<tr>
+<td>④ 편집기(Vim / Nano) 활용 텍스트 편집</td>
+<td>3일차 (3H)</td>
+<td>전 일차 상시 사용</td>
+</tr>
+<tr>
+<td>⑤ Git 초기화 및 커밋 관리</td>
+<td>6일차 (8H)</td>
+<td>1~5일차 매일 커밋</td>
+</tr>
+<tr>
+<td>⑥ GitHub 원격 리포지토리 연동 실습</td>
+<td>7일차 (8H)</td>
+<td>8일차</td>
+</tr>
+</tbody>
+</table></div>
+<blockquote>
+<p>③, ⑤, ⑥은 단일 일차로 끝내지 않고 <strong>매일 반복 노출</strong>시키는 나선형(spiral) 배치를 택했습니다. 안내서 「수업 운영 포인트」의 <em>"이 교과에서 커밋 습관을 잡아 두면 이후 프로젝트 단계가 한결 수월해집니다"</em> 를 실현하기 위한 설계입니다.</p>
+</blockquote>
+<hr />
+<h2 id="5-실습-데이터-준비-계획">5. 실습 데이터 준비 계획</h2>
+<h3 id="51-문제-상황">5.1 문제 상황</h3>
+<p>㈜비솔 제공 조각김치·이물 이미지(약 1,000장 + TXT 라벨)는 <strong>9월 중순 제공 예정</strong>이며, 원내 폐쇄망 전용입니다. 교과 1은 과정 최초 교과이므로 <strong>실데이터 없이 시작할 가능성이 매우 높습니다.</strong></p>
+<h3 id="52-대응-동형同形-더미-데이터셋-생성">5.2 대응 — 동형(同形) 더미 데이터셋 생성</h3>
+<p>실데이터와 <strong>디렉토리 구조·파일명 규칙·라벨 포맷이 완전히 동일한</strong> 더미 데이터셋을 1일차에 훈련생이 직접 생성합니다.</p>
+<ul>
+<li>이미지: 저용량 JPG 1,000장 (파일명 규칙만 실데이터와 동일)</li>
+<li>라벨: YOLO 포맷 TXT — <code>class_id x_center y_center width height</code> (전부 0~1 정규화 비율값)</li>
+<li>클래스 6종: 안내서 교과 8 이물 분류 6종과 동일하게 부여
+  <code>1 나뭇잎류 / 2 플라스틱·돌·금속 / 3 나뭇가지류 / 4 고무장갑(미사용) / 5 병해·갈변 / 6 파·고추</code></li>
+<li><strong>의도적 오류 주입</strong>: 라벨 없는 이미지, 이미지 없는 라벨, 좌표 범위 초과, 빈 파일, 공백 포함 파일명 → 3·4일차 검증 실습의 재료</li>
+</ul>
+<blockquote>
+<p>실데이터 수령 후에는 동일 스크립트를 그대로 실행해 실데이터로 재검증합니다. 구조가 같으므로 교과 7·8 진입 시 <strong>추가 학습 없이 전환</strong>됩니다.</p>
+</blockquote>
+<h3 id="53-부가-실습-데이터">5.3 부가 실습 데이터</h3>
+<div class="tw"><table>
+<thead>
+<tr>
+<th>용도</th>
+<th>데이터</th>
+<th>생성 시점</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>텍스트 처리(grep/sed/awk)</td>
+<td>라벨 TXT 1,000개, 가짜 학습 로그(<code>train.log</code>)</td>
+<td>1일차 생성</td>
+</tr>
+<tr>
+<td>CSV/JSON 처리</td>
+<td>Keypoint CSV·JSON 샘플 (교과 12 규격 모사, COCO 17 joints)</td>
+<td>3일차 생성</td>
+</tr>
+<tr>
+<td>Git LFS 실습</td>
+<td>더미 <code>.pt</code> 모델 파일 (100MB 이상)</td>
+<td>7일차 생성</td>
+</tr>
+</tbody>
+</table></div>
+<hr />
+<h2 id="6-실습-환경-안내서-명시-사양-기준">6. 실습 환경 (안내서 명시 사양 기준)</h2>
+<div class="tw"><table>
+<thead>
+<tr>
+<th>구분</th>
+<th>사양</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>학생용 PC</td>
+<td>i5-12400 / RAM 16GB / SSD 512GB / <strong>GPU 없음</strong> (60대)</td>
+</tr>
+<tr>
+<td>OS</td>
+<td>Windows 11 + <strong>Ubuntu 22.04 LTS</strong></td>
+</tr>
+<tr>
+<td>파이썬</td>
+<td>Anaconda 3 (Python 3.10 이상)</td>
+</tr>
+<tr>
+<td>IDE</td>
+<td>VS Code, PyCharm Community</td>
+</tr>
+<tr>
+<td>버전관리</td>
+<td>Git 2.x, GitHub Desktop</td>
+</tr>
+<tr>
+<td>원격접속</td>
+<td>MobaXterm 또는 Putty</td>
+</tr>
+<tr>
+<td>클라우드</td>
+<td>AWS g5.xlarge 구독형 62계정 (※ 기업 데이터 업로드 금지)</td>
+</tr>
+</tbody>
+</table></div>
+<h3 id="61-ubuntu-제공-방식-3가지-안-비교">6.1 Ubuntu 제공 방식 — 3가지 안 비교</h3>
+<p>학생 PC가 Windows 11 · Ubuntu 22.04 병기이므로 운영 방식을 사전에 확정해야 합니다.</p>
+<div class="tw"><table>
+<thead>
+<tr>
+<th>안</th>
+<th>장점</th>
+<th>단점</th>
+<th>판단</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>A. 듀얼부팅</td>
+<td>성능 100%, 실제 리눅스 경험</td>
+<td>부팅 전환 번거로움, 파티션 사고 위험</td>
+<td>비권장</td>
+</tr>
+<tr>
+<td>B. <strong>WSL2 (Ubuntu 22.04)</strong></td>
+<td>설치 간편, Windows/VS Code 연동 우수, 스냅샷 백업 용이</td>
+<td>systemd·GUI 일부 제약</td>
+<td><strong>권장(주 환경)</strong></td>
+</tr>
+<tr>
+<td>C. VirtualBox VM</td>
+<td>완전 격리, 스냅샷</td>
+<td>RAM 16GB에서 성능 부담</td>
+<td>보조</td>
+</tr>
+</tbody>
+</table></div>
+<blockquote>
+<p><strong>권장안: B(WSL2)를 주 환경으로 하고, 7일차 SSH/원격 실습에서만 교실 내 리눅스 서버 또는 AWS 인스턴스에 접속.</strong> 단, 안내서상 학생 PC는 GPU가 없으므로 교과 5 이후 학습은 클라우드를 쓰게 됩니다. 교과 1에서 SSH·rsync·tmux를 반드시 익혀야 하는 이유가 여기 있습니다.
+※ WSL2 채택 여부는 <strong>KH 학사 운영 담당과 사전 협의 필요 항목</strong>입니다(0교시 전 확정).</p>
+</blockquote>
+<h3 id="62-개강-전-강사-준비-체크리스트">6.2 개강 전 강사 준비 체크리스트</h3>
+<ul>
+<li>[ ] Ubuntu 22.04 제공 방식(WSL2/VM/듀얼부팅) KH와 확정</li>
+<li>[ ] 60대 PC에 sudo 권한 부여 여부 확인 (apt 설치 실습에 필수)</li>
+<li>[ ] Anaconda 인스톨러 오프라인 배포본 준비 (동시 60대 다운로드 시 회선 부하)</li>
+<li>[ ] 사내 프록시/방화벽에서 <code>github.com</code>, <code>anaconda.org</code>, <code>pypi.org</code> 접근 가능 여부 확인</li>
+<li>[ ] 훈련생 30명 GitHub 계정 사전 생성 안내 (2일차까지)</li>
+<li>[ ] 교실용 GitHub Organization 생성 + 팀 저장소 템플릿</li>
+<li>[ ] 더미 데이터 생성 스크립트 사전 동작 검증 (<code>make_sample_dataset.sh</code>)</li>
+<li>[ ] 폐쇄망 정책 확인: 실데이터 반입 후 GitHub 차단 규칙(6.2절)을 훈련생에게 안내할 문구 준비</li>
+<li>[ ] 예비 강의장 이동 시 환경 복구 절차 확인</li>
+</ul>
+<hr />
+<h2 id="7-평가-계획">7. 평가 계획</h2>
+<h3 id="71-평가-구성-100점">7.1 평가 구성 (100점)</h3>
+<div class="tw"><table>
+<thead>
+<tr>
+<th>항목</th>
+<th>배점</th>
+<th>측정 방법</th>
+<th>후행 교과 평가와의 정렬</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>일일 체크리스트 실기 (8회)</td>
+<td>24</td>
+<td>일차별 필수 명령/작업 실기 확인</td>
+<td>—</td>
+</tr>
+<tr>
+<td>실무 미션 산출물 (5회)</td>
+<td>20</td>
+<td>3·4·5·6·7일차 미션 결과물</td>
+<td>프로젝트 완성도</td>
+</tr>
+<tr>
+<td>커밋 히스토리 품질</td>
+<td>16</td>
+<td>메시지 규칙 준수, 의미 단위 분리, 빈도</td>
+<td><strong>코드 품질(10점)</strong></td>
+</tr>
+<tr>
+<td>데이터셋 구조·검증 리포트</td>
+<td>15</td>
+<td>5일차 산출물, 정합성 리포트 정확도</td>
+<td><strong>데이터 품질(10점)</strong></td>
+</tr>
+<tr>
+<td>부분 파이널 프로젝트</td>
+<td>25</td>
+<td>8일차 <code>visionops</code> 저장소</td>
+<td>완성도·창의성·수행역량</td>
+</tr>
+</tbody>
+</table></div>
+<h3 id="72-부진자-조기-식별">7.2 부진자 조기 식별</h3>
+<p>안내서 「수업 중 지원」 규정에 따라 운영합니다.</p>
+<ul>
+<li><strong>1일차 종료 시</strong> 체크리스트 미완 항목 3개 이상 → 즉시 보강 대상 등록</li>
+<li>보강: 정규시간 외 1:1 코드 리뷰 + KH LMS 기초 보강 콘텐츠 연계 + 강의 녹화본 VOD 안내</li>
+<li><strong>우수자</strong>: 각 일차 ★ 심화 미션 부여 (전공자 대상), 8일차 프로젝트에서 팀 리드 역할 배정</li>
+</ul>
+<h3 id="73-일일-체크리스트-예시-1일차">7.3 일일 체크리스트 예시 (1일차)</h3>
+<pre><code>□ pwd / ls -al 출력을 읽고 각 컬럼의 의미를 설명할 수 있다
+□ mkdir -p 로 3단계 이상 중첩 디렉토리를 한 번에 만든다
+□ 절대경로와 상대경로로 같은 파일에 각각 접근한다
+□ cp -r / mv / rm -r 를 구분해 사용한다
+□ find 로 확장자 기준 파일 개수를 센다
+□ 데이터셋 표준 폴더 구조를 명령어만으로 재현한다
+</code></pre>
+<hr />
+<h2 id="8-산출물-목록">8. 산출물 목록</h2>
+<div class="tw"><table>
+<thead>
+<tr>
+<th>일차</th>
+<th>훈련생 산출물</th>
+<th>형식</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td><code>dataset/</code> 표준 구조, <code>make_sample_dataset.sh</code> 실행 결과</td>
+<td>디렉토리</td>
+</tr>
+<tr>
+<td>2</td>
+<td><code>class_distribution.txt</code>, <code>dataset_backup_YYYYMMDD.tar.gz</code></td>
+<td>텍스트/아카이브</td>
+</tr>
+<tr>
+<td>3</td>
+<td><code>.vimrc</code>, <code>label_fix.sed</code>, <code>label_stats.awk</code></td>
+<td>설정/스크립트</td>
+</tr>
+<tr>
+<td>4</td>
+<td><code>dataset_check.sh</code> (정합성 검증 CLI)</td>
+<td>셸 스크립트</td>
+</tr>
+<tr>
+<td>5</td>
+<td><code>environment.yml</code>, <code>split_dataset.sh</code>, <code>DATASET.md</code></td>
+<td>YAML/스크립트/문서</td>
+</tr>
+<tr>
+<td>6</td>
+<td>로컬 Git 저장소 (브랜치·태그·충돌해결 이력 포함)</td>
+<td>Git repo</td>
+</tr>
+<tr>
+<td>7</td>
+<td>GitHub 원격 저장소 + PR 2건 + 리뷰 코멘트 + pre-commit 훅</td>
+<td>GitHub</td>
+</tr>
+<tr>
+<td>8</td>
+<td><strong><code>visionops</code> 포트폴리오 저장소</strong> (README·스크립트·CI·데모 로그)</td>
+<td>GitHub</td>
+</tr>
+</tbody>
+</table></div>
+<hr />
+<h2 id="9-강사-운영-유의사항">9. 강사 운영 유의사항</h2>
+<ol>
+<li><strong>비전공자 이탈 방지</strong> — 1~2일차는 "왜 이걸 하는가"를 항상 Vision AI 맥락으로 연결합니다. 예: <code>find</code>를 가르칠 때 "라벨이 누락된 이미지 200장을 어떻게 찾을 것인가"에서 출발.</li>
+<li><strong>타이핑 강제</strong> — 명령어 복사/붙여넣기를 1~3일차에는 금지하고 직접 타이핑하게 합니다. 4일차 이후 스크립트 작성부터 허용.</li>
+<li><strong>에러를 교재로</strong> — 의도적 오류 데이터가 주입되어 있으므로, 에러 메시지를 읽고 원인을 말로 설명하는 훈련을 매 실습 포함.</li>
+<li><strong>커밋 시간 고정</strong> — 매일 마지막 10분. 이 기록이 이후 교과 14·15 평가의 근거 자료가 됩니다.</li>
+<li><strong>보안 규정 반복 고지</strong> — 안내서 6.2절·7장에 따라 ㈜비솔 제공 데이터는 원내 폐쇄망 전용이며 GitHub 업로드 금지입니다. 7일차 pre-commit 훅 실습은 이 규정을 <strong>기술적으로 강제하는 장치</strong>로 위치시킵니다.</li>
+<li><strong>교과 13 예고</strong> — Raspberry Pi 실습(교과 13)이 리눅스 기반이므로, 3일차 Vim·4일차 SSH/tmux 실습 시 "이 화면이 라즈베리파이에서 그대로 반복된다"고 명시합니다.</li>
+</ol>
+<hr />
+<h2 id="10-문서-구성-안내">10. 문서 구성 안내</h2>
+<div class="tw"><table>
+<thead>
+<tr>
+<th>파일</th>
+<th>내용</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>00_교과1_리눅스_60H_강의기획서.md</code></td>
+<td>본 문서</td>
+</tr>
+<tr>
+<td><code>01_1일차_리눅스_시작과_파일시스템.md</code></td>
+<td>강의안 + 실습 가이드</td>
+</tr>
+<tr>
+<td><code>02_2일차_권한_아카이브_텍스트스트림.md</code></td>
+<td>〃</td>
+</tr>
+<tr>
+<td><code>03_3일차_편집기와_텍스트처리.md</code></td>
+<td>〃</td>
+</tr>
+<tr>
+<td><code>04_4일차_셸스크립트_프로세스_자동화.md</code></td>
+<td>〃</td>
+</tr>
+<tr>
+<td><code>05_5일차_Anaconda환경과_데이터셋구조화.md</code></td>
+<td>〃</td>
+</tr>
+<tr>
+<td><code>06_6일차_Git_기초.md</code></td>
+<td>〃</td>
+</tr>
+<tr>
+<td><code>07_7일차_GitHub_협업과_데이터보안.md</code></td>
+<td>〃</td>
+</tr>
+<tr>
+<td><code>08_8일차_부분파이널프로젝트_visionops.md</code></td>
+<td>프로젝트 가이드 + 루브릭</td>
+</tr>
+<tr>
+<td><code>99_부록_치트시트_트러블슈팅.md</code></td>
+<td>명령어 치트시트 · 오류 대응</td>
+</tr>
+</tbody>
+</table></div>
+    <nav class="pager"><span class="empty"></span><a class="next" href="01.html"><span class="k">다음 · D1 →</span><span class="v">리눅스 시작과 파일 시스템</span></a></nav>
+  </main>
+</div>
+<script>
+(function(){
+  var links=[].slice.call(document.querySelectorAll('.toc a'));
+  if(!links.length)return;
+  var map={},targets=[];
+  links.forEach(function(a){
+    var el=document.getElementById(decodeURIComponent(a.getAttribute('href').slice(1)));
+    if(el){map[el.id]=a;targets.push(el);}
+  });
+  var cur=null;
+  var io=new IntersectionObserver(function(es){
+    es.forEach(function(e){
+      if(e.isIntersecting){
+        if(cur)cur.classList.remove('active');
+        cur=map[e.target.id];
+        if(cur){cur.classList.add('active');
+          var r=document.querySelector('.rail');
+          if(r&&r.scrollHeight>r.clientHeight){
+            var t=cur.offsetTop-r.clientHeight/2;
+            if(Math.abs(r.scrollTop-t)>90)r.scrollTop=t;
+          }
+        }
+      }
+    });
+  },{rootMargin:'-76px 0px -72% 0px',threshold:0});
+  targets.forEach(function(t){io.observe(t);});
+})();
+</script>
+</body>
+</html>
