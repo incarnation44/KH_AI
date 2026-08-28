@@ -1,0 +1,1288 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>1일차 · 리눅스와 첫 만남 (쉬운 완전판)</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;900&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#F6F7F2; --card:#FFFFFF; --ink:#20242A; --ink2:#565F63; --ink3:#8B9498;
+  --line:#E1E6DE;
+  --go:#2E7D5B; --go-soft:#E7F3EC; --go-deep:#1F5A40;
+  --warm:#E2662E; --warm-soft:#FDEEE5;
+  --danger:#C7402F; --danger-soft:#FBEAE7;
+  --star:#B08900; --star-soft:#FBF3DC;
+  --term-bg:#171D22; --term-ink:#DDE6E2; --term-dim:#7C8A87; --term-green:#63D9A6; --term-amber:#F2B15C;
+  --mono:'JetBrains Mono',ui-monospace,Menlo,Consolas,monospace;
+  --sans:'Noto Sans KR',sans-serif;
+}
+*{box-sizing:border-box;}
+html{scroll-behavior:smooth; scroll-padding-top:74px;}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--sans);line-height:1.85;font-size:16.5px;word-break:keep-all;}
+
+.topnav{position:sticky;top:0;z-index:50;background:rgba(23,29,34,0.96);backdrop-filter:blur(8px);
+  display:flex;overflow-x:auto;white-space:nowrap;scrollbar-width:none;}
+.topnav::-webkit-scrollbar{display:none;}
+.topnav a{color:#AEB8B4;text-decoration:none;font-size:12px;font-weight:500;padding:12px 10px;
+  border-bottom:2px solid transparent;font-family:var(--mono);}
+.topnav a:hover{color:#fff;border-color:var(--go);}
+
+.hero{background:linear-gradient(165deg,#171D22 0%,#20302A 100%);color:#EFF3F0;padding:56px 24px 46px;position:relative;overflow:hidden;}
+.hero::after{content:"";position:absolute;right:-100px;top:-100px;width:380px;height:380px;border-radius:50%;
+  background:radial-gradient(circle at 30% 30%, rgba(46,125,91,0.4), transparent 70%);}
+.hero-in{max-width:820px;margin:0 auto;position:relative;}
+.tag{display:inline-block;font-family:var(--mono);font-size:11.5px;background:rgba(46,125,91,0.22);
+  color:#8FE0BA;border:1px solid rgba(99,217,166,0.4);border-radius:99px;padding:5px 12px;margin-bottom:18px;}
+.hero h1{font-size:clamp(26px,4.4vw,40px);line-height:1.34;margin:0 0 14px;font-weight:900;letter-spacing:-.01em;}
+.hero p{color:#C3CDC8;font-size:15.5px;max-width:600px;margin:0 0 22px;}
+.hero-meta{display:flex;gap:18px;flex-wrap:wrap;font-family:var(--mono);font-size:12px;color:#9BAAA3;}
+.hero-meta b{color:var(--term-green);}
+
+.wrap{max-width:820px;margin:0 auto;padding:0 24px;}
+section.step{padding:46px 0;border-bottom:1px solid var(--line);}
+section.step:last-of-type{border-bottom:none;}
+.step-head{display:flex;gap:16px;align-items:flex-start;margin-bottom:22px;}
+.step-num{font-family:var(--mono);font-weight:700;font-size:13px;color:var(--go);background:var(--go-soft);
+  border:1px solid #C7E4D5;width:42px;height:42px;min-width:42px;border-radius:12px;
+  display:flex;align-items:center;justify-content:center;}
+.step-title h2{font-size:22px;margin:2px 0 6px;font-weight:900;}
+.step-title .sub{color:var(--ink2);font-size:14px;}
+h3.sec{font-size:17px;font-weight:800;margin:30px 0 12px;color:var(--ink);}
+h3.sec.star{color:var(--star);}
+h3.sec .badge{font-family:var(--mono);font-size:10.5px;background:var(--star-soft);color:var(--star);
+  border-radius:5px;padding:2px 7px;margin-left:6px;vertical-align:middle;}
+
+p.ex{font-size:15px;color:#333B3E;margin:0 0 13px;}
+p.ex b{color:var(--ink);}
+ul.plain{padding-left:22px;margin:0 0 15px;font-size:14.5px;color:#333B3E;}
+ul.plain li{margin-bottom:6px;}
+ol.plain{padding-left:22px;margin:0 0 15px;font-size:14.5px;color:#333B3E;}
+ol.plain li{margin-bottom:6px;}
+
+.why{background:var(--go-soft);border-radius:12px;padding:15px 18px;margin:0 0 20px;border-left:4px solid var(--go);}
+.why .lead{font-family:var(--mono);font-weight:700;font-size:11px;letter-spacing:.03em;color:var(--go-deep);
+  display:block;margin-bottom:6px;}
+.why p{margin:0;font-size:14px;color:#2B3730;}
+
+.figure{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:18px;margin:0 0 20px;text-align:center;}
+.figure .cap{font-size:12.5px;color:var(--ink3);margin-top:9px;font-family:var(--mono);}
+.figure svg{max-width:100%;height:auto;}
+
+.env{display:inline-flex;align-items:center;gap:6px;font-family:var(--mono);font-size:10.5px;font-weight:700;
+  padding:4px 10px;border-radius:7px 7px 0 0;background:var(--go);color:#fff;letter-spacing:.02em;}
+.term{background:var(--term-bg);border-radius:0 10px 10px 10px;overflow:hidden;margin:0 0 10px;border:1px solid #29332F;}
+.term-head{display:flex;justify-content:space-between;align-items:center;padding:7px 13px;background:#1D2520;border-bottom:1px solid #29332F;}
+.term-head .t{font-family:var(--mono);font-size:11px;color:#9BA8A2;}
+.copy-btn{font-family:var(--mono);font-size:10.5px;color:#9BA8A2;background:transparent;border:1px solid #37423D;
+  border-radius:6px;padding:3px 8px;cursor:pointer;}
+.copy-btn:hover{color:#fff;border-color:#5A6B62;}
+.copy-btn.copied{color:var(--term-green);border-color:var(--term-green);}
+.term pre{margin:0;padding:14px 17px;overflow-x:auto;}
+.term code{font-family:var(--mono);font-size:13px;color:var(--term-ink);line-height:1.85;}
+.term .prompt{color:var(--term-green);}
+.term .out{color:var(--term-dim);}
+.term .hl{color:var(--term-amber);}
+
+.output-note{background:#F2F4F0;border-radius:10px;padding:12px 15px;margin:0 0 18px;font-size:13.5px;color:#3A4340;}
+.output-note b{color:var(--ink);font-family:var(--mono);}
+
+.tip{background:var(--warm-soft);border-left:4px solid var(--warm);border-radius:0 10px 10px 0;padding:13px 17px;margin:16px 0;font-size:14px;}
+.tip .lead{font-family:var(--mono);font-weight:700;font-size:11px;color:#A3441C;display:block;margin-bottom:5px;}
+
+.danger{background:var(--danger-soft);border-left:4px solid var(--danger);border-radius:0 10px 10px 0;padding:13px 17px;margin:16px 0;font-size:14px;}
+.danger .lead{font-family:var(--mono);font-weight:700;font-size:11px;color:#8E2A1D;display:block;margin-bottom:5px;}
+
+.star-box{background:var(--star-soft);border-left:4px solid var(--star);border-radius:0 10px 10px 0;padding:13px 17px;margin:16px 0;font-size:14px;}
+.star-box .lead{font-family:var(--mono);font-weight:700;font-size:11px;color:#8A6A00;display:block;margin-bottom:5px;}
+
+.mini{display:grid;gap:8px;margin:0 0 18px;}
+.mini .row{display:grid;grid-template-columns:auto 1fr;gap:10px;align-items:start;background:var(--card);
+  border:1px solid var(--line);border-radius:9px;padding:9px 12px;}
+.mini code.cmd{font-family:var(--mono);font-size:13px;background:#12161A;color:#8FE0BA;padding:4px 8px;border-radius:6px;white-space:nowrap;}
+.mini .desc{font-size:13.5px;color:#3A4340;padding-top:3px;}
+
+.check{background:var(--card);border:2px dashed #B9CFC2;border-radius:12px;padding:16px 19px;margin-top:22px;}
+.check .lead{font-family:var(--mono);font-weight:700;font-size:11.5px;color:var(--go-deep);display:block;margin-bottom:9px;}
+.check label{display:flex;gap:9px;align-items:flex-start;font-size:14px;margin-bottom:8px;color:#2B3730;}
+.check input{margin-top:4px;}
+
+table.ref{width:100%;border-collapse:collapse;margin:13px 0 8px;font-size:13.5px;}
+table.ref th,table.ref td{text-align:left;padding:8px 11px;border-bottom:1px solid var(--line);}
+table.ref th{color:var(--ink2);font-weight:700;font-size:11.5px;text-transform:uppercase;letter-spacing:.03em;}
+table.ref code{font-family:var(--mono);font-size:12.5px;background:#EEF2ED;padding:2px 6px;border-radius:5px;color:var(--go-deep);}
+
+.kbd{font-family:var(--mono);font-size:12px;background:#EEF2ED;border:1px solid #D3DBCF;border-bottom-width:2px;
+  padding:2px 6px;border-radius:6px;color:#2B3338;}
+
+details.more{background:#EFF2ED;border-radius:10px;padding:2px 16px;margin:0 0 18px;}
+details.more summary{cursor:pointer;font-weight:700;font-size:14px;padding:12px 0;color:var(--go-deep);}
+details.more[open] summary{border-bottom:1px solid #DCE3D8;margin-bottom:12px;}
+
+footer{text-align:center;padding:40px 24px 56px;color:var(--ink3);font-size:12.5px;}
+hr.rule{border:0;border-top:1px solid var(--line);margin:34px 0;}
+</style>
+</head>
+<body>
+
+<nav class="topnav">
+  <a href="#intro">시작하며</a>
+  <a href="#terminal">1.터미널</a>
+  <a href="#open">2.터미널열기</a>
+  <a href="#prompt">3.프롬프트</a>
+  <a href="#first-cmd">4.첫명령어</a>
+  <a href="#anatomy">5.명령어구조</a>
+  <a href="#house">6.폴더구조</a>
+  <a href="#path">7.경로</a>
+  <a href="#lsl">8.ls -l 해독</a>
+  <a href="#move">9.이동연습</a>
+  <a href="#danger">10.위험명령어</a>
+  <a href="#make">11.만들기</a>
+  <a href="#explore">실습1-2</a>
+  <a href="#dataset">실습1-3</a>
+  <a href="#find">실습1-4</a>
+  <a href="#copy">실습1-5</a>
+  <a href="#challenge">실습1-6</a>
+  <a href="#wrap">마무리</a>
+  <a href="#homework">과제</a>
+  <a href="#faq">막혔나요?</a>
+</nav>
+
+<header class="hero">
+  <div class="hero-in">
+    <span class="tag">교과 1 · 리눅스 · 1일차 (쉬운 완전판)</span>
+    <h1>검은 화면이 무섭지 않게,<br>리눅스와 첫 인사 나누기</h1>
+    <p>오늘은 마우스를 거의 안 씁니다. 대신 <b>글자로 명령을 내리는 법</b>을 배웁니다. 원본 커리큘럼의 모든 내용을 빠짐없이 담되, 하나하나 아주 잘게 쪼개서 손으로 직접 쳐보며 익힙니다.</p>
+    <div class="hero-meta"><span>이론 <b>3H</b></span><span>실습 <b>5H</b></span><span>오늘의 목표 <b>1,000장 데이터셋을 터미널만으로 정리하기</b></span></div>
+  </div>
+</header>
+
+<main class="wrap">
+
+  <section class="step" id="intro">
+    <div class="step-head">
+      <div class="step-num">·</div>
+      <div class="step-title"><h2>시작하기 전에</h2><div class="sub">딱 세 가지만 기억하고 시작하세요.</div></div>
+    </div>
+    <ul class="plain">
+      <li><b>오타는 잘못이 아니라 과정입니다.</b> 오늘 배우는 명령어들은 원래 처음엔 다들 헷갈립니다.</li>
+      <li><b>절대 복사·붙여넣기 하지 마세요.</b> 오늘만큼은 손으로 직접 쳐보세요. 손가락이 기억하는 게 진짜 실력입니다.</li>
+      <li><b>모르면 바로 손 드세요.</b> 리눅스는 한 글자만 틀려도 다른 결과가 나옵니다.</li>
+    </ul>
+    <div class="why">
+      <span class="lead">🎯 오늘의 목표 한 문장</span>
+      <p>"GUI(마우스·아이콘) 없이, 터미널만으로 1,000장짜리 사진 데이터셋을 만들고 정리한다."</p>
+    </div>
+  </section>
+
+  <!-- 1. 터미널이란 -->
+  <section class="step" id="terminal">
+    <div class="step-head">
+      <div class="step-num">01</div>
+      <div class="step-title"><h2>터미널이 뭔가요?</h2><div class="sub">아이콘을 클릭하는 대신, 글자로 말을 거는 창입니다.</div></div>
+    </div>
+
+    <p class="ex">평소 컴퓨터를 쓸 때는 아이콘을 더블클릭하고, 마우스로 파일을 끌어다 옮기죠. <b>터미널</b>은 이런 그림(아이콘) 없이, <b>글자만으로 컴퓨터에게 명령을 내리는 창</b>입니다.</p>
+
+    <div class="figure">
+      <svg viewBox="0 0 700 220" xmlns="http://www.w3.org/2000/svg">
+        <rect x="10" y="10" width="330" height="200" rx="14" fill="#F2F4EF" stroke="#DCE3D8"/>
+        <text x="175" y="35" text-anchor="middle" font-family="Noto Sans KR" font-size="13" fill="#565F63" font-weight="700">평소 쓰던 방식 (GUI)</text>
+        <rect x="40" y="55" width="60" height="60" rx="10" fill="#8FE0BA" opacity="0.5"/>
+        <rect x="120" y="55" width="60" height="60" rx="10" fill="#F2B15C" opacity="0.5"/>
+        <rect x="200" y="55" width="60" height="60" rx="10" fill="#E2662E" opacity="0.4"/>
+        <text x="70" y="90" text-anchor="middle" font-size="22">🖱️</text>
+        <text x="150" y="90" text-anchor="middle" font-size="22">📁</text>
+        <text x="230" y="90" text-anchor="middle" font-size="22">🗑️</text>
+        <text x="175" y="145" text-anchor="middle" font-family="Noto Sans KR" font-size="13" fill="#333B3E">아이콘을 보고, 클릭하고, 끌어다 놓는다</text>
+        <text x="175" y="170" text-anchor="middle" font-family="Noto Sans KR" font-size="12" fill="#8B9498">→ 직관적이지만, 서버·장비엔 화면이 없다</text>
+        <rect x="360" y="10" width="330" height="200" rx="14" fill="#171D22"/>
+        <text x="525" y="35" text-anchor="middle" font-family="Noto Sans KR" font-size="13" fill="#8FE0BA" font-weight="700">터미널 방식 (CLI)</text>
+        <rect x="382" y="52" width="286" height="130" rx="8" fill="#0F1417"/>
+        <text x="396" y="76" font-family="JetBrains Mono" font-size="12" fill="#63D9A6">$ ls</text>
+        <text x="396" y="96" font-family="JetBrains Mono" font-size="12" fill="#DDE6E2">photo.jpg  memo.txt</text>
+        <text x="396" y="118" font-family="JetBrains Mono" font-size="12" fill="#63D9A6">$ rm memo.txt</text>
+        <text x="396" y="140" font-family="JetBrains Mono" font-size="12" fill="#63D9A6">$ █</text>
+        <text x="525" y="200" text-anchor="middle" font-family="Noto Sans KR" font-size="12" fill="#AEB8B4">글자로 명령을 "타이핑"해서 시킨다</text>
+      </svg>
+      <div class="cap">평소 쓰던 클릭 방식 vs 오늘 배울 타이핑 방식</div>
+    </div>
+
+    <h3 class="sec">터미널의 뼈대 — 셸과 커널</h3>
+    <p class="ex">터미널 안에서는 사실 두 가지가 함께 일합니다.</p>
+    <div class="figure">
+      <svg viewBox="0 0 500 200" xmlns="http://www.w3.org/2000/svg">
+        <text x="250" y="25" text-anchor="middle" font-family="Noto Sans KR" font-size="12" fill="#8B9498">[ 사용자 ]</text>
+        <line x1="250" y1="32" x2="250" y2="50" stroke="#8B9498"/>
+        <rect x="150" y="50" width="200" height="45" rx="8" fill="#E7F3EC" stroke="#B9DBC7"/>
+        <text x="250" y="78" text-anchor="middle" font-family="Noto Sans KR" font-size="13" font-weight="700" fill="#1F5A40">셸 (Shell) — bash</text>
+        <line x1="250" y1="95" x2="250" y2="113" stroke="#8B9498"/>
+        <text x="270" y="108" font-family="Noto Sans KR" font-size="10" fill="#8B9498">시스템 콜</text>
+        <rect x="150" y="113" width="200" height="45" rx="8" fill="#FDEEE5" stroke="#F4C6A5"/>
+        <text x="250" y="141" text-anchor="middle" font-family="Noto Sans KR" font-size="13" font-weight="700" fill="#A3441C">커널 (Kernel)</text>
+        <line x1="250" y1="158" x2="250" y2="176" stroke="#8B9498"/>
+        <text x="250" y="192" text-anchor="middle" font-family="Noto Sans KR" font-size="12" fill="#8B9498">[ 하드웨어: CPU·메모리·디스크 ]</text>
+      </svg>
+      <div class="cap">셸 = 내 말을 알아듣는 통역사, 커널 = 실제로 몸을 움직이는 사람</div>
+    </div>
+    <ul class="plain">
+      <li><b>커널(Kernel)</b> — 리누스 토르발스가 1991년 만든, 하드웨어(CPU·메모리·디스크)를 실제로 관리하는 핵심 프로그램. 우리가 직접 만질 일은 거의 없습니다.</li>
+      <li><b>셸(Shell)</b> — 우리가 타이핑한 명령을 해석해서 커널에 전달하는 프로그램. 오늘 우리가 대화하는 상대는 바로 이 셸(bash)입니다.</li>
+      <li><b>배포판(Distribution)</b> — 커널 + 여러 도구를 묶어 놓은 완제품. 우리는 <b>Ubuntu(우분투)</b>를 씁니다.</li>
+    </ul>
+
+    <table class="ref">
+      <tr><th>배포판</th><th>어디서 쓰이나</th></tr>
+      <tr><td>Ubuntu (본 과정)</td><td>여러분의 실습 PC, AWS 클라우드 학습 서버</td></tr>
+      <tr><td>Raspberry Pi OS</td><td>교과 13 라즈베리파이 (Ubuntu와 사촌 관계)</td></tr>
+      <tr><td>JetPack (Ubuntu 기반)</td><td>교과 14 NVIDIA Jetson 보드</td></tr>
+    </table>
+
+    <div class="why">
+      <span class="lead">💬 왜 굳이 이렇게 불편한 걸 배우나요?</span>
+      <p>이 과정 후반부의 결과물은 <b>모니터도 마우스도 없는 장비</b>(젯슨 보드, 라즈베리파이, 클라우드 서버) 위에서 돌아갑니다. 접속하면 딱 이 검은 화면 하나만 뜹니다. 터미널은 "선택 과목"이 아니라, 이후 모든 실습을 여는 <b>유일한 열쇠</b>입니다.</p>
+    </div>
+  </section>
+
+  <!-- 2. 터미널 열기 -->
+  <section class="step" id="open">
+    <div class="step-head">
+      <div class="step-num">02</div>
+      <div class="step-title"><h2>터미널 열어보기</h2><div class="sub">교육장 PC 기준입니다. 안내받은 방법으로 여세요.</div></div>
+    </div>
+    <ul class="plain">
+      <li><b>WSL(Windows + 리눅스) 환경</b>이라면 — Windows Terminal을 실행하고, 상단 탭에서 <b>Ubuntu</b> 탭을 선택합니다.</li>
+      <li><b>바로가기 키</b> — <span class="kbd">Ctrl</span> + <span class="kbd">Alt</span> + <span class="kbd">T</span> 로도 새 터미널을 열 수 있습니다.</li>
+    </ul>
+    <span class="env">터미널</span>
+    <div class="term"><div class="term-head"><span class="t">방금 연 터미널 창</span></div>
+      <pre><code><span class="prompt">kdt@vision-ai:~$</span> <span class="hl">█</span></code></pre></div>
+  </section>
+
+  <!-- 3. 프롬프트 읽기 -->
+  <section class="step" id="prompt">
+    <div class="step-head">
+      <div class="step-num">03</div>
+      <div class="step-title"><h2>프롬프트 읽는 법</h2><div class="sub">저 이상한 글자 줄, 사실은 4가지 정보를 한 줄에 담고 있습니다.</div></div>
+    </div>
+
+    <div class="figure">
+      <svg viewBox="0 0 620 150" xmlns="http://www.w3.org/2000/svg">
+        <text x="20" y="35" font-family="JetBrains Mono" font-size="18" fill="#20242A">kdt@vision-ai:~/dataset$</text>
+        <line x1="30" y1="45" x2="30" y2="70" stroke="#8B9498"/>
+        <line x1="90" y1="45" x2="90" y2="120" stroke="#8B9498"/>
+        <line x1="200" y1="45" x2="200" y2="70" stroke="#8B9498"/>
+        <line x1="330" y1="45" x2="330" y2="120" stroke="#8B9498"/>
+        <text x="30" y="90" text-anchor="middle" font-family="Noto Sans KR" font-size="11" fill="#565F63">로그인 계정</text>
+        <text x="200" y="90" text-anchor="middle" font-family="Noto Sans KR" font-size="11" fill="#565F63">이 컴퓨터 이름</text>
+        <text x="90" y="140" text-anchor="middle" font-family="Noto Sans KR" font-size="11" fill="#1F5A40">지금 위치 (~ = 내 방)</text>
+        <text x="330" y="140" text-anchor="middle" font-family="Noto Sans KR" font-size="11" fill="#A3441C">$ = 일반 사용자 / # = 관리자</text>
+      </svg>
+      <div class="cap">계정 @ 컴퓨터이름 : 위치 $</div>
+    </div>
+
+    <div class="danger">
+      <span class="lead">⚠️ 원격 서버를 여러 대 쓸 때 특히 중요</span>
+      나중에 원격 서버(AWS·젯슨·라즈베리파이)를 동시에 여러 개 다루게 됩니다. <b>"내가 지금 어느 장비의 어느 폴더에 있는가"</b>를 프롬프트로 확인하지 못하면, 지울 파일을 엉뚱한 장비에서 지우는 사고가 납니다.
+    </div>
+  </section>
+
+  <!-- 4. 첫 명령어 -->
+  <section class="step" id="first-cmd">
+    <div class="step-head">
+      <div class="step-num">04</div>
+      <div class="step-title"><h2>첫 명령어 쳐보기</h2><div class="sub">한 줄 치고 Enter, 결과를 보고, 다음 줄. 이 리듬만 익히면 됩니다.</div></div>
+    </div>
+
+    <p class="ex"><b>whoami</b> — "나는 누구인가"를 묻는 명령어입니다.</p>
+    <span class="env">터미널</span>
+    <div class="term"><div class="term-head"><span class="t">whoami</span><button class="copy-btn" data-copy="whoami">복사</button></div>
+      <pre><code><span class="prompt">$</span> whoami
+<span class="out">kdt</span></code></pre></div>
+    <div class="output-note">현재 로그인한 <b>내 계정 이름</b>이 나옵니다.</div>
+
+    <p class="ex"><b>pwd</b> — "지금 내가 어디에 있는가"를 알려줍니다. (Print Working Directory)</p>
+    <span class="env">터미널</span>
+    <div class="term"><div class="term-head"><span class="t">pwd</span><button class="copy-btn" data-copy="pwd">복사</button></div>
+      <pre><code><span class="prompt">$</span> pwd
+<span class="out">/home/kdt</span></code></pre></div>
+
+    <p class="ex"><b>ls</b> — "여기에 뭐가 있는지" 보여줍니다. (List)</p>
+    <span class="env">터미널</span>
+    <div class="term"><div class="term-head"><span class="t">ls</span><button class="copy-btn" data-copy="ls">복사</button></div>
+      <pre><code><span class="prompt">$</span> ls
+<span class="out">Desktop  Documents  Downloads</span></code></pre></div>
+
+    <p class="ex">그 밖에도 자주 쓰는 기본 확인 명령어가 몇 개 더 있습니다. 하나씩 쳐보세요.</p>
+    <div class="mini">
+      <div class="row"><code class="cmd">date</code><div class="desc">오늘 날짜와 현재 시각을 보여줍니다.</div></div>
+      <div class="row"><code class="cmd">hostname</code><div class="desc">지금 쓰고 있는 컴퓨터(장비)의 이름을 보여줍니다.</div></div>
+      <div class="row"><code class="cmd">uname -a</code><div class="desc">커널·운영체제 버전 정보를 한 번에 보여줍니다.</div></div>
+      <div class="row"><code class="cmd">df -h</code><div class="desc">디스크(저장공간) 여유가 얼마나 남았는지 사람이 읽기 좋은 단위(GB 등)로 보여줍니다.</div></div>
+      <div class="row"><code class="cmd">echo 안녕하세요</code><div class="desc">따라 적은 글자를 그대로 화면에 출력합니다. 나중에 파일 쓰기에서도 자주 씁니다.</div></div>
+    </div>
+
+    <span class="env">터미널</span>
+    <div class="term"><div class="term-head"><span class="t">직접 쳐보기</span><button class="copy-btn" data-copy="date
+hostname
+uname -a
+df -h
+echo 안녕하세요">복사</button></div>
+      <pre><code><span class="prompt">$</span> date
+<span class="out">Wed Aug 26 09:15:03 KST 2026</span>
+<span class="prompt">$</span> hostname
+<span class="out">vision-ai</span>
+<span class="prompt">$</span> df -h
+<span class="out">Filesystem  Size  Used  Avail  Use%  Mounted on
+/dev/sda1   500G   80G   420G   17%   /</span></code></pre></div>
+    <div class="output-note"><b>df -h</b> 출력에서 <b>Avail(여유 공간)</b>이 5GB 이상인지 확인하세요. 오늘 실습에 필요합니다.</div>
+
+    <div class="check">
+      <span class="lead">✅ 여기까지 확인</span>
+      <label><input type="checkbox"> whoami로 내 계정 이름을 확인했다</label>
+      <label><input type="checkbox"> pwd로 내 현재 위치를 확인했다</label>
+      <label><input type="checkbox"> ls로 지금 폴더 안의 목록을 봤다</label>
+      <label><input type="checkbox"> df -h 로 디스크 여유 공간을 확인했다 (5GB 이상)</label>
+    </div>
+  </section>
+
+  <!-- 5. 명령어 구조 -->
+  <section class="step" id="anatomy">
+    <div class="step-head">
+      <div class="step-num">05</div>
+      <div class="step-title"><h2>명령어는 세 조각으로 이루어져 있어요</h2><div class="sub">명령어 · 옵션 · 인자 — 이 세 단어만 알면 새 명령어를 봐도 안 무섭습니다.</div></div>
+    </div>
+
+    <div class="figure">
+      <svg viewBox="0 0 500 110" xmlns="http://www.w3.org/2000/svg">
+        <text x="30" y="35" font-family="JetBrains Mono" font-size="18" fill="#20242A">ls</text>
+        <text x="90" y="35" font-family="JetBrains Mono" font-size="18" fill="#1F5A40">-l -a</text>
+        <text x="190" y="35" font-family="JetBrains Mono" font-size="18" fill="#A3441C">/home/kdt</text>
+        <text x="30" y="60" text-anchor="middle" font-family="Noto Sans KR" font-size="11" fill="#565F63">명령어</text>
+        <text x="115" y="60" text-anchor="middle" font-family="Noto Sans KR" font-size="11" fill="#1F5A40">옵션</text>
+        <text x="235" y="60" text-anchor="middle" font-family="Noto Sans KR" font-size="11" fill="#A3441C">인자(대상)</text>
+        <text x="115" y="80" text-anchor="middle" font-family="Noto Sans KR" font-size="10" fill="#8B9498">- 짧게, -- 길게</text>
+      </svg>
+    </div>
+
+    <span class="env">터미널</span>
+    <div class="term"><div class="term-head"><span class="t">옵션 붙여쓰기 예제</span><button class="copy-btn" data-copy="ls -l -a
+ls -la
+ls --all">복사</button></div>
+      <pre><code><span class="prompt">$</span> ls -l -a         <span class="out"># 옵션 따로 쓰기</span>
+<span class="prompt">$</span> ls -la            <span class="out"># 붙여 쓰기 (완전히 동일)</span>
+<span class="prompt">$</span> ls --all          <span class="out"># 긴 옵션 이름으로 쓰기 (동일)</span></code></pre></div>
+
+    <h3 class="sec">모르는 명령어를 만났을 때 — 가장 중요한 기술</h3>
+    <p class="ex">앞으로 6개월간 처음 보는 명령어를 수십 개 만납니다. <b>외우는 게 목표가 아니라, 도움말을 읽고 5분 안에 쓸 수 있게 되는 것</b>이 목표입니다.</p>
+
+    <div class="mini">
+      <div class="row"><code class="cmd">ls --help</code><div class="desc">가장 간단한 사용법 요약. 제일 자주 씁니다.</div></div>
+      <div class="row"><code class="cmd">man ls</code><div class="desc">자세한 설명서(매뉴얼)를 봅니다. 나갈 땐 <span class="kbd">q</span>, 찾을 땐 <span class="kbd">/</span> 뒤에 검색어.</div></div>
+      <div class="row"><code class="cmd">which python</code><div class="desc">이 명령어가 실제로 어디에 설치돼 있는지 위치를 알려줍니다.</div></div>
+      <div class="row"><code class="cmd">type cd</code><div class="desc">이 명령어가 셸에 내장된 건지, 별도 프로그램인지 알려줍니다.</div></div>
+    </div>
+
+    <span class="env">터미널</span>
+    <div class="term"><div class="term-head"><span class="t">도움말 확인해보기</span><button class="copy-btn" data-copy="ls --help
+man ls">복사</button></div>
+      <pre><code><span class="prompt">$</span> ls --help
+<span class="out">Usage: ls [OPTION]... [FILE]...
+List information about the FILEs...
+  -a, --all   do not ignore entries starting with .
+  -l          use a long listing format
+  ...</span>
+
+<span class="prompt">$</span> man ls          <span class="out"># 자세한 설명 화면. q 를 누르면 빠져나옵니다</span></code></pre></div>
+
+    <h3 class="sec">오늘 쓸 명령어 미리 보기</h3>
+    <table class="ref">
+      <tr><th>분류</th><th>명령어</th></tr>
+      <tr><td>위치</td><td><code>pwd</code> <code>cd</code></td></tr>
+      <tr><td>조회</td><td><code>ls</code> <code>tree</code> <code>stat</code> <code>file</code></td></tr>
+      <tr><td>생성</td><td><code>mkdir</code> <code>touch</code></td></tr>
+      <tr><td>복사·이동</td><td><code>cp</code> <code>mv</code></td></tr>
+      <tr><td>삭제</td><td><code>rm</code> <code>rmdir</code></td></tr>
+      <tr><td>보기</td><td><code>cat</code> <code>head</code> <code>tail</code> <code>less</code></td></tr>
+      <tr><td>검색</td><td><code>find</code> <code>wc</code></td></tr>
+      <tr><td>시스템</td><td><code>whoami</code> <code>df</code> <code>du</code> <code>uname</code></td></tr>
+    </table>
+  </section>
+
+  <!-- 6. 집 구조 -->
+  <section class="step" id="house">
+    <div class="step-head">
+      <div class="step-num">06</div>
+      <div class="step-title"><h2>리눅스의 폴더 구조, 집이라고 생각하세요</h2><div class="sub">폴더가 수백 개처럼 보여도, 매일 쓰는 곳은 서너 군데뿐입니다.</div></div>
+    </div>
+
+    <p class="ex">윈도우는 <b>C드라이브, D드라이브</b>처럼 여러 개로 나뉘어 있지만, 리눅스는 <b>대문(/) 하나</b>에서 모든 폴더가 갈라져 나갑니다.</p>
+
+    <div class="figure">
+      <svg viewBox="0 0 700 320" xmlns="http://www.w3.org/2000/svg">
+        <rect x="300" y="20" width="100" height="46" rx="8" fill="#20302A"/>
+        <text x="350" y="48" text-anchor="middle" fill="#8FE0BA" font-family="JetBrains Mono" font-size="14" font-weight="700">/</text>
+        <text x="350" y="80" text-anchor="middle" fill="#8B9498" font-family="Noto Sans KR" font-size="11">대문 (모든 것의 시작)</text>
+        <line x1="350" y1="66" x2="120" y2="130" stroke="#C7D3CB" stroke-width="1.5"/>
+        <line x1="350" y1="66" x2="350" y2="130" stroke="#C7D3CB" stroke-width="1.5"/>
+        <line x1="350" y1="66" x2="580" y2="130" stroke="#C7D3CB" stroke-width="1.5"/>
+        <rect x="55" y="130" width="140" height="70" rx="10" fill="#E7F3EC" stroke="#B9DBC7"/>
+        <text x="125" y="153" text-anchor="middle" font-family="Noto Sans KR" font-size="13" font-weight="700" fill="#1F5A40">home</text>
+        <text x="125" y="170" text-anchor="middle" font-family="Noto Sans KR" font-size="11.5" fill="#3A4B42">내 방 🛏️</text>
+        <text x="125" y="185" text-anchor="middle" font-family="Noto Sans KR" font-size="10.5" fill="#6B7A70">내 파일이 사는 곳</text>
+        <rect x="280" y="130" width="140" height="70" rx="10" fill="#FDEEE5" stroke="#F4C6A5"/>
+        <text x="350" y="153" text-anchor="middle" font-family="Noto Sans KR" font-size="13" font-weight="700" fill="#A3441C">mnt</text>
+        <text x="350" y="170" text-anchor="middle" font-family="Noto Sans KR" font-size="11.5" fill="#5E3320">창고 📦</text>
+        <text x="350" y="185" text-anchor="middle" font-family="Noto Sans KR" font-size="10.5" fill="#8A6350">외장 디스크·대용량 데이터</text>
+        <rect x="505" y="130" width="140" height="70" rx="10" fill="#EEF1ED" stroke="#D3DBCF"/>
+        <text x="575" y="153" text-anchor="middle" font-family="Noto Sans KR" font-size="13" font-weight="700" fill="#40484A">bin / usr</text>
+        <text x="575" y="170" text-anchor="middle" font-family="Noto Sans KR" font-size="11.5" fill="#565F63">공구함 🧰</text>
+        <text x="575" y="185" text-anchor="middle" font-family="Noto Sans KR" font-size="10.5" fill="#7C8783">ls, cp 같은 명령어 도구</text>
+        <line x1="125" y1="200" x2="125" y2="230" stroke="#C7D3CB" stroke-width="1.5"/>
+        <rect x="45" y="230" width="160" height="60" rx="10" fill="#FFFFFF" stroke="#DCE3D8"/>
+        <text x="125" y="255" text-anchor="middle" font-family="Noto Sans KR" font-size="12.5" font-weight="700" fill="#20242A">/home/kdt</text>
+        <text x="125" y="273" text-anchor="middle" font-family="Noto Sans KR" font-size="11" fill="#565F63">= 오늘 여러분이 사는 방</text>
+        <rect x="470" y="230" width="160" height="60" rx="10" fill="#FFFFFF" stroke="#DCE3D8"/>
+        <text x="550" y="255" text-anchor="middle" font-family="Noto Sans KR" font-size="12.5" font-weight="700" fill="#20242A">/dev/video0</text>
+        <text x="550" y="273" text-anchor="middle" font-family="Noto Sans KR" font-size="11" fill="#565F63">= 카메라가 꽂히는 구멍</text>
+      </svg>
+      <div class="cap">집 하나(/) 안에 방(home)·창고(mnt)·공구함(bin, usr)이 있다고 생각하기</div>
+    </div>
+
+    <h3 class="sec">집안 곳곳, 방 이름표 전체 목록</h3>
+    <p class="ex">아래는 실제 안내서에 나오는 전체 목록입니다. <b>★ 표시</b>가 이 과정에서 실제로 자주 만질 곳입니다.</p>
+    <table class="ref">
+      <tr><th>폴더</th><th>비유</th><th>실제 쓰임</th></tr>
+      <tr><td><code>/bin</code></td><td>공구함</td><td>ls, cp 같은 기본 명령어 실행파일</td></tr>
+      <tr><td><code>/etc</code> ★</td><td>안내문 게시판</td><td>시스템 설정 파일(텍스트)</td></tr>
+      <tr><td><code>/home</code> ★★★</td><td>내 방</td><td>사용자별 개인 폴더 (예: /home/kdt)</td></tr>
+      <tr><td><code>/root</code></td><td>집주인 방</td><td>root(관리자) 계정 전용 홈</td></tr>
+      <tr><td><code>/usr</code></td><td>가전제품 창고</td><td>설치된 응용 프로그램</td></tr>
+      <tr><td><code>/var</code> ★</td><td>우체통</td><td>수시로 바뀌는 데이터, 로그(/var/log)</td></tr>
+      <tr><td><code>/tmp</code></td><td>메모지</td><td>임시 파일 (재부팅하면 사라짐)</td></tr>
+      <tr><td><code>/opt</code></td><td>별채</td><td>Anaconda 같은 대형 패키지가 자주 설치되는 곳</td></tr>
+      <tr><td><code>/mnt</code> ★</td><td>창고</td><td>외부 저장소가 연결되는 지점 (대용량 데이터셋)</td></tr>
+      <tr><td><code>/media</code></td><td>현관 신발장</td><td>USB 등이 자동으로 연결되는 곳</td></tr>
+      <tr><td><code>/dev</code> ★★</td><td>콘센트·잭 구멍</td><td>장치 파일. 카메라가 /dev/video0 로 나타남</td></tr>
+      <tr><td><code>/proc</code></td><td>계기판</td><td>커널·프로세스의 실시간 정보 (가상 파일시스템)</td></tr>
+    </table>
+
+    <div class="why">
+      <span class="lead">💬 실제로 이렇게 쓰입니다</span>
+      <p><code>/dev/video0</code>은 교과 14 카메라, 교과 15 웹캠이 잡히는 자리이고, OpenCV의 <code>cv2.VideoCapture(0)</code>이 바로 이 파일을 엽니다. <code>/mnt</code>는 사진 수천 장을 홈이 아니라 별도 디스크에 보관하는 현업 표준 위치입니다. <code>/var/log</code>는 나중에 학습이 죽었을 때 원인을 찾는 곳입니다.</p>
+    </div>
+
+    <h3 class="sec">윈도우와 다른 점 3가지</h3>
+    <table class="ref">
+      <tr><th></th><th>Windows</th><th>Linux</th></tr>
+      <tr><td>최상위</td><td><code>C:\</code>, <code>D:\</code> 로 분리</td><td><b>/</b> 하나 (모든 것이 여기서 시작)</td></tr>
+      <tr><td>경로 구분자</td><td><code>\</code> (역슬래시)</td><td><code>/</code> (슬래시)</td></tr>
+      <tr><td>대소문자</td><td>구분 안 함 (Data = data)</td><td><b>구분함</b> (Data ≠ data)</td></tr>
+    </table>
+    <div class="tip">
+      <span class="lead">💡 실제 사고 사례</span>
+      훈련생이 <code>Images/</code> 폴더를 만들고 코드에서는 <code>images/</code>를 참조 → Windows에서는 동작하지만 Jetson에 올리면 <code>FileNotFoundError</code>가 납니다. 교과 14 배포 단계에서 자주 나오는 실수이니 대소문자를 항상 정확히 맞추는 습관을 들이세요.
+    </div>
+  </section>
+
+  <!-- 7. 경로 -->
+  <section class="step" id="path">
+    <div class="step-head">
+      <div class="step-num">07</div>
+      <div class="step-title"><h2>주소(경로) 읽는 법</h2><div class="sub">"정확한 도로명 주소"와 "여기서 두 블록" 두 가지 방식</div></div>
+    </div>
+
+    <table class="ref">
+      <tr><th>표기</th><th>뜻</th><th>비유</th></tr>
+      <tr><td><code>/home/kdt/photo.jpg</code></td><td>대문(/)부터 시작하는 정확한 주소</td><td>도로명 주소</td></tr>
+      <tr><td><code>.</code></td><td>지금 내가 있는 자리</td><td>"여기"</td></tr>
+      <tr><td><code>..</code></td><td>한 층 위(부모 폴더)</td><td>"바로 윗집"</td></tr>
+      <tr><td><code>~</code></td><td>내 방(홈 폴더)</td><td>"우리 집"</td></tr>
+    </table>
+
+    <span class="env">터미널</span>
+    <div class="term"><div class="term-head"><span class="t">여러 예시로 감 잡기</span><button class="copy-btn" data-copy="cd ~
+pwd
+cd Documents
+pwd
+cd ..
+pwd
+cd ./Documents
+pwd
+cd ~/Documents
+pwd">복사</button></div>
+      <pre><code><span class="prompt">$</span> cd ~ &amp;&amp; pwd
+<span class="out">/home/kdt</span>
+<span class="prompt">$</span> cd Documents &amp;&amp; pwd     <span class="out"># 상대경로: 지금 위치 기준</span>
+<span class="out">/home/kdt/Documents</span>
+<span class="prompt">$</span> cd .. &amp;&amp; pwd              <span class="out"># .. = 한 칸 위로</span>
+<span class="out">/home/kdt</span>
+<span class="prompt">$</span> cd ./Documents &amp;&amp; pwd    <span class="out"># . = 지금 여기, 명시적으로 써도 결과 같음</span>
+<span class="out">/home/kdt/Documents</span>
+<span class="prompt">$</span> cd ~/Documents &amp;&amp; pwd    <span class="out"># ~ 는 어디서 실행해도 항상 내 홈 기준</span>
+<span class="out">/home/kdt/Documents</span></code></pre></div>
+
+    <div class="tip">
+      <span class="lead">💡 헷갈리면 이렇게 기억하세요</span>
+      <b>/</b>로 시작하면 "정확한 주소"(어디서 실행해도 같은 곳), 아니면 "지금 서 있는 자리 기준"입니다. 확신이 안 서면 언제든 <span class="kbd">pwd</span>로 먼저 확인하세요.
+    </div>
+    <div class="star-box">
+      <span class="lead">⭐ 현업 규칙</span>
+      학습 스크립트에 절대경로를 하드코딩하면 다른 사람 PC나 Jetson에서 그대로 깨집니다. <b>코드에는 상대경로나 설정변수, 실행할 때 치는 명령에는 절대경로</b> — 이 원칙은 교과 8·14 코드 리뷰에서 매번 지적되는 항목입니다.
+    </div>
+  </section>
+
+  <!-- 8. ls -l 해독 -->
+  <section class="step" id="lsl">
+    <div class="step-head">
+      <div class="step-num">08</div>
+      <div class="step-title"><h2><code style="background:none;">ls -l</code> 결과 읽는 법</h2><div class="sub">암호처럼 보이는 저 글자들, 사실 규칙이 있습니다.</div></div>
+    </div>
+
+    <span class="env">터미널</span>
+    <div class="term"><div class="term-head"><span class="t">ls -l 실행 예</span><button class="copy-btn" data-copy="ls -l">복사</button></div>
+      <pre><code><span class="prompt">$</span> ls -l
+<span class="out">-rw-r--r--  1  kdt  kdt   4096  Aug 26 09:15  img_0001.jpg</span></code></pre></div>
+
+    <div class="figure">
+      <svg viewBox="0 0 660 130" xmlns="http://www.w3.org/2000/svg">
+        <text x="20" y="35" font-family="JetBrains Mono" font-size="16" fill="#20242A">-rw-r--r--  1  kdt  kdt   4096  Aug 26  img_0001.jpg</text>
+        <line x1="24" y1="45" x2="24" y2="70" stroke="#8B9498"/>
+        <line x1="230" y1="45" x2="230" y2="70" stroke="#8B9498"/>
+        <line x1="330" y1="45" x2="330" y2="70" stroke="#8B9498"/>
+        <line x1="420" y1="45" x2="420" y2="70" stroke="#8B9498"/>
+        <text x="24" y="90" text-anchor="middle" font-family="Noto Sans KR" font-size="10.5" fill="#565F63">①종류+권한</text>
+        <text x="230" y="90" text-anchor="middle" font-family="Noto Sans KR" font-size="10.5" fill="#565F63">②소유자</text>
+        <text x="330" y="90" text-anchor="middle" font-family="Noto Sans KR" font-size="10.5" fill="#565F63">③그룹</text>
+        <text x="420" y="90" text-anchor="middle" font-family="Noto Sans KR" font-size="10.5" fill="#565F63">④크기 · 날짜 · 이름</text>
+      </svg>
+    </div>
+
+    <ul class="plain">
+      <li><b>맨 첫 글자</b>: <code>-</code> 일반 파일 / <code>d</code> 디렉토리(폴더) / <code>l</code> 심볼릭 링크(바로가기)</li>
+      <li><b>나머지 9글자(rw-r--r--)</b>: 누가 읽고·쓰고·실행할 수 있는지 나타내는 <b>권한</b> 표시입니다. 자세한 원리는 <b>2일차</b>에서 배웁니다.</li>
+    </ul>
+
+    <p class="ex"><b>확인 미션</b> — 아래 3개를 각각 실행하고 첫 글자가 무엇인지 답해보세요.</p>
+    <span class="env">터미널</span>
+    <div class="term"><div class="term-head"><span class="t">확인 미션</span><button class="copy-btn" data-copy="ls -ld /home
+ls -l /bin/ls
+ls -ld /bin">복사</button></div>
+      <pre><code><span class="prompt">$</span> ls -ld /home          <span class="out"># → ?</span>
+<span class="prompt">$</span> ls -l /bin/ls         <span class="out"># → ?</span>
+<span class="prompt">$</span> ls -ld /bin           <span class="out"># → ? (힌트: Ubuntu에서 /bin은 링크입니다)</span></code></pre></div>
+  </section>
+
+  <!-- 9. 이동 연습 -->
+  <section class="step" id="move">
+    <div class="step-head">
+      <div class="step-num">09</div>
+      <div class="step-title"><h2>여기저기 이동해보기</h2><div class="sub"><span class="kbd">cd</span> (Change Directory) — 방 옮기기 명령어</div></div>
+    </div>
+
+    <span class="env">터미널</span>
+    <div class="term"><div class="term-head"><span class="t">이동 연습</span><button class="copy-btn" data-copy="pwd
+cd /
+pwd
+ls
+cd ~
+pwd">복사</button></div>
+      <pre><code><span class="prompt">$</span> pwd
+<span class="out">/home/kdt</span>
+<span class="prompt">$</span> cd /                 <span class="out"># 대문으로 이동</span>
+<span class="prompt">$</span> pwd
+<span class="out">/</span>
+<span class="prompt">$</span> ls
+<span class="out">bin  etc  home  mnt  usr  var  ...</span>
+<span class="prompt">$</span> cd ~                 <span class="out"># 다시 내 방으로 복귀</span>
+<span class="prompt">$</span> pwd
+<span class="out">/home/kdt</span></code></pre></div>
+
+    <h3 class="sec">이동 단축키 모음</h3>
+    <div class="mini">
+      <div class="row"><code class="cmd">cd /home/kdt/</code><div class="desc">절대경로로 한 번에 이동</div></div>
+      <div class="row"><code class="cmd">cd ..</code><div class="desc">한 단계 위로</div></div>
+      <div class="row"><code class="cmd">cd ../..</code><div class="desc">두 단계 위로</div></div>
+      <div class="row"><code class="cmd">cd -</code><div class="desc">바로 직전에 있던 폴더로 (토글처럼 왔다갔다)</div></div>
+      <div class="row"><code class="cmd">cd</code><div class="desc">아무 것도 안 쓰고 Enter → 무조건 홈으로</div></div>
+    </div>
+
+    <span class="env">터미널</span>
+    <div class="term"><div class="term-head"><span class="t">cd - 실험해보기</span><button class="copy-btn" data-copy="cd /var/log
+pwd
+cd ~
+pwd
+cd -
+pwd">복사</button></div>
+      <pre><code><span class="prompt">$</span> cd /var/log &amp;&amp; pwd
+<span class="out">/var/log</span>
+<span class="prompt">$</span> cd ~ &amp;&amp; pwd
+<span class="out">/home/kdt</span>
+<span class="prompt">$</span> cd - &amp;&amp; pwd            <span class="out"># 직전 위치인 /var/log 로 되돌아감</span>
+<span class="out">/var/log</span></code></pre></div>
+
+    <h3 class="sec">Tab 자동완성 훈련 (매우 중요)</h3>
+    <span class="env">터미널</span>
+    <div class="term"><div class="term-head"><span class="t">Tab 눌러보기 (직접 키보드로)</span></div>
+      <pre><code><span class="prompt">$</span> cd /ho<span class="hl">[Tab]</span>           <span class="out"># → /home/ 자동완성</span>
+<span class="prompt">$</span> cd /home/k<span class="hl">[Tab]</span>       <span class="out"># → /home/kdt/</span>
+<span class="prompt">$</span> ls /et<span class="hl">[Tab][Tab]</span>      <span class="out"># 후보가 여러 개면 목록을 보여줌</span></code></pre></div>
+    <div class="why">
+      <span class="lead">💬 왜 배우나요?</span>
+      <p>실무에서 파일명이 <code>img_20260826_143052_cam01.jpg</code> 같은 긴 형태입니다. Tab 없이는 이런 이름을 매번 다 치기 힘듭니다.</p>
+    </div>
+
+    <div class="check">
+      <span class="lead">✅ 여기까지 확인</span>
+      <label><input type="checkbox"> 홈 → /var/log → 홈으로 절대경로/상대경로 각각으로 이동했다</label>
+      <label><input type="checkbox"> cd - 로 직전 위치로 되돌아가봤다</label>
+      <label><input type="checkbox"> Tab 자동완성으로 /usr/share/doc 까지 이동해봤다</label>
+    </div>
+  </section>
+
+  <!-- 10. 위험 명령어 -->
+  <section class="step" id="danger">
+    <div class="step-head">
+      <div class="step-num">10</div>
+      <div class="step-title"><h2>위험한 명령어 미리 경고</h2><div class="sub">오늘, 지금 눈에 익혀두고 절대 실행하지 마세요.</div></div>
+    </div>
+    <span class="env">터미널</span>
+    <div class="term"><div class="term-head"><span class="t">⚠️ 절대 실행 금지 예시 (설명용, 치지 마세요)</span></div>
+      <pre><code><span class="out">rm -rf /            # 시스템 전체 삭제 — 절대 금지
+rm -rf ~            # 홈 전체 삭제
+rm -rf * .          # 공백 하나로 재앙 ( * 와 . 사이 공백 주의)</span></code></pre></div>
+    <div class="danger">
+      <span class="lead">안전 규칙 3가지</span>
+      <ol style="margin:6px 0 0; padding-left:20px;">
+        <li><code>rm</code> 전에 반드시 <code>ls</code>로 대상 확인</li>
+        <li>처음에는 <code>rm -i</code> (확인 프롬프트) 사용</li>
+        <li>데이터셋 폴더는 <code>chmod -w</code> 로 쓰기 잠금 (2일차에서 배웁니다)</li>
+      </ol>
+    </div>
+  </section>
+
+  <!-- 11. 만들기 -->
+  <section class="step" id="make">
+    <div class="step-head">
+      <div class="step-num">11</div>
+      <div class="step-title"><h2>폴더와 파일 만들어보기</h2><div class="sub"><span class="kbd">mkdir</span>(폴더 만들기), <span class="kbd">touch</span>(빈 파일 만들기)</div></div>
+    </div>
+
+    <span class="env">터미널</span>
+    <div class="term"><div class="term-head"><span class="t">첫 폴더 만들기</span><button class="copy-btn" data-copy="cd ~
+mkdir practice
+cd practice
+touch memo.txt
+ls">복사</button></div>
+      <pre><code><span class="prompt">$</span> cd ~
+<span class="prompt">$</span> mkdir practice
+<span class="prompt">$</span> cd practice
+<span class="prompt">$</span> touch memo.txt
+<span class="prompt">$</span> ls
+<span class="out">memo.txt</span></code></pre></div>
+
+    <p class="ex">폴더 안에 폴더를 여러 개 한 번에 만들고 싶을 땐 <span class="kbd">-p</span> 옵션을, 여러 이름을 한 번에 만들고 싶을 땐 <b>중괄호 확장</b>을 씁니다.</p>
+
+    <span class="env">터미널</span>
+    <div class="term"><div class="term-head"><span class="t">여러 단계 폴더 한 번에 만들기</span><button class="copy-btn" data-copy="mkdir -p photos/train
+mkdir -p albums/{여름,겨울,봄}
+ls albums">복사</button></div>
+      <pre><code><span class="prompt">$</span> mkdir -p photos/train    <span class="out"># photos 폴더와 그 안의 train 폴더를 한 번에</span>
+<span class="prompt">$</span> mkdir -p albums/{여름,겨울,봄}   <span class="out"># 중괄호 안 이름 개수만큼 한 번에 생성</span>
+<span class="prompt">$</span> ls albums
+<span class="out">겨울  봄  여름</span></code></pre></div>
+
+    <div class="danger">
+      <span class="lead">⚠️ 지우기 전엔 항상 먼저 눈으로 확인</span>
+      파일 삭제(<span class="kbd">rm</span>)는 <b>휴지통이 없습니다.</b> 지운 파일은 되돌릴 수 없습니다. 지우기 전엔 반드시 <span class="kbd">ls</span>로 "정말 이걸 지우는 게 맞는지" 눈으로 확인하세요.
+    </div>
+  </section>
+
+  <!-- 실습 1-2 -->
+  <section class="step" id="explore">
+    <div class="step-head">
+      <div class="step-num">1-2</div>
+      <div class="step-title"><h2>실습 · 파일 시스템 탐험 미션</h2><div class="sub">아래 8가지 질문에 명령어로 답을 찾아보세요.</div></div>
+    </div>
+
+    <p class="ex">답을 찾을 때마다 <span class="kbd">~/day1_answers.txt</span> 파일에 기록해두세요.</p>
+
+    <table class="ref">
+      <tr><th>#</th><th>질문</th><th>힌트 명령어</th></tr>
+      <tr><td>Q1</td><td>이 PC의 CPU 코어 수는?</td><td><code>nproc</code></td></tr>
+      <tr><td>Q2</td><td>메모리 총량은?</td><td><code>free -h</code></td></tr>
+      <tr><td>Q3</td><td>/etc 안의 파일·폴더 개수는?</td><td><code>ls /etc | wc -l</code></td></tr>
+      <tr><td>Q4</td><td>카메라 장치 파일이 존재하는가?</td><td><code>ls /dev/video*</code></td></tr>
+      <tr><td>Q5</td><td>python 실행파일의 위치는?</td><td><code>which python3</code></td></tr>
+      <tr><td>Q6</td><td>/var/log 폴더의 총 용량은?</td><td><code>du -sh /var/log</code></td></tr>
+      <tr><td>Q7</td><td>홈 디렉토리의 숨김 파일은 몇 개?</td><td><code>ls -a ~ | wc -l</code></td></tr>
+      <tr><td>Q8</td><td>/bin/ls 파일의 종류는?</td><td><code>file /bin/ls</code></td></tr>
+    </table>
+
+    <span class="env">터미널</span>
+    <div class="term"><div class="term-head"><span class="t">답안 기록 예시</span><button class="copy-btn" data-copy='echo "Q1: nproc → 12" >> ~/day1_answers.txt
+cat ~/day1_answers.txt'>복사</button></div>
+      <pre><code><span class="prompt">$</span> echo &quot;Q1: nproc → 12&quot; &gt;&gt; ~/day1_answers.txt
+<span class="prompt">$</span> cat ~/day1_answers.txt
+<span class="out">Q1: nproc → 12</span></code></pre></div>
+    <div class="output-note"><span class="kbd">&gt;&gt;</span> 는 파일 맨 뒤에 "이어붙이기"입니다. <span class="kbd">&gt;</span> 하나만 쓰면 기존 내용을 지우고 새로 씁니다. 이 차이는 2일차에 더 자세히 배웁니다.</div>
+  </section>
+
+  <!-- 실습 1-3 -->
+  <section class="step" id="dataset">
+    <div class="step-head">
+      <div class="step-num">1-3</div>
+      <div class="step-title"><h2>실습 · 나만의 사진 데이터셋 폴더 만들기 <span style="color:var(--star);">★핵심</span></h2><div class="sub">교과 8·14와 똑같은 표준 구조를 오늘 손으로 만들어봅니다.</div></div>
+    </div>
+
+    <p class="ex">교과 8에서 ㈜비솔이 제공하는 조각김치·이물 데이터는 <b>JPG 약 1,000장 + 라벨 TXT</b>입니다. 교과 14에서는 여러분이 컨베이어에서 <b>최소 500장</b>을 직접 촬영합니다. 이 파일들을 어디에 어떻게 두는지가 프로젝트 성패를 가릅니다.</p>
+
+    <h3 class="sec">Step 1. 표준 구조 설계</h3>
+    <div class="figure">
+      <svg viewBox="0 0 620 240" xmlns="http://www.w3.org/2000/svg">
+        <rect x="10" y="10" width="220" height="40" rx="8" fill="#20302A"/>
+        <text x="120" y="35" text-anchor="middle" fill="#8FE0BA" font-family="JetBrains Mono" font-size="13">kimchi/</text>
+        <line x1="30" y1="50" x2="30" y2="215" stroke="#C7D3CB" stroke-width="1.5"/>
+        <line x1="30" y1="70" x2="55" y2="70" stroke="#C7D3CB" stroke-width="1.5"/>
+        <line x1="30" y1="105" x2="55" y2="105" stroke="#C7D3CB" stroke-width="1.5"/>
+        <line x1="30" y1="140" x2="55" y2="140" stroke="#C7D3CB" stroke-width="1.5"/>
+        <line x1="30" y1="175" x2="55" y2="175" stroke="#C7D3CB" stroke-width="1.5"/>
+        <line x1="30" y1="210" x2="55" y2="210" stroke="#C7D3CB" stroke-width="1.5"/>
+        <text x="60" y="75" font-family="JetBrains Mono" font-size="12" fill="#A3441C">raw/</text><text x="230" y="75" font-family="Noto Sans KR" font-size="11" fill="#565F63">원본 (절대 수정 금지)</text>
+        <text x="60" y="110" font-family="JetBrains Mono" font-size="12" fill="#1F5A40">images/{train,val,test}</text><text x="330" y="110" font-family="Noto Sans KR" font-size="11" fill="#565F63">70:15:15</text>
+        <text x="60" y="145" font-family="JetBrains Mono" font-size="12" fill="#1F5A40">labels/{train,val,test}</text>
+        <text x="60" y="180" font-family="JetBrains Mono" font-size="12" fill="#1C3F70">meta/</text><text x="230" y="180" font-family="Noto Sans KR" font-size="11" fill="#565F63">classes.txt, README.md</text>
+        <text x="60" y="215" font-family="JetBrains Mono" font-size="12" fill="#565F63">backup/</text>
+      </svg>
+      <div class="cap">YOLO 계열 학습 프레임워크가 기대하는 표준 레이아웃</div>
+    </div>
+
+    <h3 class="sec">Step 2. 한 줄로 만들기 — 중괄호 확장</h3>
+    <span class="env">터미널</span>
+    <div class="term"><div class="term-head"><span class="t">중괄호 확장 눈으로 먼저 보기</span><button class="copy-btn" data-copy="echo {images,labels}/{train,val,test}">복사</button></div>
+      <pre><code><span class="prompt">$</span> echo {images,labels}/{train,val,test}
+<span class="out">images/train images/val images/test labels/train labels/val labels/test</span></code></pre></div>
+    <div class="output-note">중괄호 확장은 <b>실행 전에 먼저 글자로 어떻게 펼쳐지는지</b> echo로 미리 확인하는 습관을 들이면 실수를 줄일 수 있습니다.</div>
+
+    <span class="env">터미널</span>
+    <div class="term"><div class="term-head"><span class="t">실제 폴더 생성</span><button class="copy-btn" data-copy="cd ~
+mkdir -p kdt-linux/dataset/kimchi
+cd kdt-linux/dataset/kimchi
+mkdir -p {images,labels}/{train,val,test}
+mkdir -p raw meta backup
+tree">복사</button></div>
+      <pre><code><span class="prompt">$</span> cd ~
+<span class="prompt">$</span> mkdir -p kdt-linux/dataset/kimchi
+<span class="prompt">$</span> cd kdt-linux/dataset/kimchi
+<span class="prompt">$</span> mkdir -p {images,labels}/{train,val,test}
+<span class="prompt">$</span> mkdir -p raw meta backup
+<span class="prompt">$</span> tree
+<span class="out">.
+├── backup
+├── images
+│   ├── train
+│   ├── val
+│   └── test
+├── labels
+│   ├── train
+│   ├── val
+│   └── test
+├── meta
+└── raw</span></code></pre></div>
+    <div class="output-note"><span class="kbd">tree</span>가 안 보이면 <span class="kbd">sudo apt install tree</span>로 설치하세요.</div>
+
+    <h3 class="sec">Step 3. 클래스 파일 만들기</h3>
+    <p class="ex">안내서 교과 8의 이물 분류 6종을 그대로 사용합니다.</p>
+    <span class="env">터미널</span>
+    <div class="term"><div class="term-head"><span class="t">classes.txt 작성</span><button class="copy-btn" data-copy="cat > meta/classes.txt << 'EOF'
+0 leaf
+1 plastic_stone_metal
+2 branch
+3 rubber_glove
+4 disease_browning
+5 green_onion_pepper
+EOF
+cat meta/classes.txt
+wc -l meta/classes.txt">복사</button></div>
+      <pre><code><span class="prompt">$</span> cat &gt; meta/classes.txt &lt;&lt; 'EOF'
+0 leaf
+1 plastic_stone_metal
+2 branch
+3 rubber_glove
+4 disease_browning
+5 green_onion_pepper
+EOF
+<span class="prompt">$</span> cat meta/classes.txt
+<span class="out">0 leaf
+1 plastic_stone_metal
+...</span>
+<span class="prompt">$</span> wc -l meta/classes.txt
+<span class="out">6 meta/classes.txt</span></code></pre></div>
+    <div class="output-note"><span class="kbd">cat &gt; 파일 &lt;&lt; 'EOF' ... EOF</span> 는 <b>히어독(here-doc)</b>이라 부릅니다. 여러 줄을 한 번에 파일로 쓸 때 씁니다. 4일차 스크립트 작성에서 계속 나옵니다.</div>
+
+    <h3 class="sec">Step 4. 더미 데이터셋 1,000장 생성</h3>
+    <p class="ex">실데이터는 9월 중순 제공 예정이므로, <b>구조가 동일한 더미(가짜) 데이터</b>로 먼저 연습합니다.</p>
+    <span class="env">터미널</span>
+    <div class="term"><div class="term-head"><span class="t">스크립트 파일 열기</span><button class="copy-btn" data-copy="cd ~/kdt-linux
+nano make_sample_dataset.sh">복사</button></div>
+      <pre><code><span class="prompt">$</span> cd ~/kdt-linux
+<span class="prompt">$</span> nano make_sample_dataset.sh   <span class="out"># 또는 vi</span></code></pre></div>
+    <p class="ex">아래 내용을 <b>직접 타이핑</b>해서 입력합니다. (오늘의 마지막 타이핑 훈련)</p>
+    <span class="env">터미널</span>
+    <div class="term"><div class="term-head"><span class="t">make_sample_dataset.sh 내용</span></div>
+      <pre><code><span class="out">#!/bin/bash
+# make_sample_dataset.sh
+# 교과 8/14 실데이터와 동일한 구조의 더미 데이터셋 생성
+set -e
+
+ROOT=~/kdt-linux/dataset/kimchi
+N=1000
+
+mkdir -p "$ROOT/raw"
+cd "$ROOT/raw"
+
+echo "[1/3] 이미지 $N 장 생성 중..."
+for i in $(seq -w 1 $N); do
+    printf '\xff\xd8\xff\xe0dummy-jpeg-%s' "$i" &gt; "kimchi_${i}.jpg"
+done
+
+echo "[2/3] 라벨 TXT 생성 중..."
+for i in $(seq -w 1 $N); do
+    CLS=$(( RANDOM % 6 ))
+    X=$(awk -v s=$RANDOM 'BEGIN{srand(s);printf "%.6f", rand()}')
+    Y=$(awk -v s=$RANDOM 'BEGIN{srand(s);printf "%.6f", rand()}')
+    W=$(awk -v s=$RANDOM 'BEGIN{srand(s);printf "%.6f", rand()*0.3+0.05}')
+    H=$(awk -v s=$RANDOM 'BEGIN{srand(s);printf "%.6f", rand()*0.3+0.05}')
+    echo "$CLS $X $Y $W $H" &gt; "kimchi_${i}.txt"
+done
+
+echo "[3/3] 의도적 오류 데이터 주입 (검증 실습용)..."
+rm -f kimchi_0007.txt
+rm -f kimchi_0123.jpg
+echo "9 1.500000 0.400000 0.200000 0.200000" &gt; kimchi_0456.txt
+&gt; kimchi_0789.txt
+touch "kimchi 0999.jpg"
+
+echo "완료: $(ls *.jpg | wc -l) 이미지 / $(ls *.txt | wc -l) 라벨"</span></code></pre></div>
+    <div class="output-note">이 스크립트는 <b>일부러</b> 라벨 누락, 이미지 누락, 범위 초과 값, 빈 파일, 공백 파일명 오류를 5가지 심어둡니다. 실습 1-4에서 이 오류들을 직접 찾아냅니다.</div>
+
+    <span class="env">터미널</span>
+    <div class="term"><div class="term-head"><span class="t">실행 권한 주고 실행</span><button class="copy-btn" data-copy="chmod +x make_sample_dataset.sh
+./make_sample_dataset.sh">복사</button></div>
+      <pre><code><span class="prompt">$</span> chmod +x make_sample_dataset.sh   <span class="out"># "실행 권한 부여" — 자세한 원리는 2일차에</span>
+<span class="prompt">$</span> ./make_sample_dataset.sh
+<span class="out">[1/3] 이미지 1000 장 생성 중...
+[2/3] 라벨 TXT 생성 중...
+[3/3] 의도적 오류 데이터 주입 (검증 실습용)...
+완료: 999 이미지 / 999 라벨</span></code></pre></div>
+
+    <h3 class="sec">Step 5. 결과 확인</h3>
+    <span class="env">터미널</span>
+    <div class="term"><div class="term-head"><span class="t">결과 확인</span><button class="copy-btn" data-copy="cd ~/kdt-linux/dataset/kimchi/raw
+ls | head -5
+ls *.jpg | wc -l
+ls *.txt | wc -l
+du -sh .
+cat kimchi_0001.txt">복사</button></div>
+      <pre><code><span class="prompt">$</span> cd ~/kdt-linux/dataset/kimchi/raw
+<span class="prompt">$</span> ls | head -5
+<span class="prompt">$</span> ls *.jpg | wc -l          <span class="out"># 이미지 개수</span>
+<span class="prompt">$</span> ls *.txt | wc -l          <span class="out"># 라벨 개수</span>
+<span class="prompt">$</span> du -sh .                  <span class="out"># 총 용량</span>
+<span class="prompt">$</span> cat kimchi_0001.txt       <span class="out"># 라벨 내용 확인</span></code></pre></div>
+
+    <div class="check">
+      <span class="lead">✅ 체크포인트 1-3</span>
+      <label><input type="checkbox"> tree ~/kdt-linux/dataset/kimchi -L 2 결과가 설계도와 일치한다</label>
+      <label><input type="checkbox"> 이미지 999개, 라벨 999개 (오류 주입으로 각 1개씩 빠짐)</label>
+      <label><input type="checkbox"> meta/classes.txt가 6줄이다</label>
+    </div>
+  </section>
+
+  <!-- 실습 1-4 -->
+  <section class="step" id="find">
+    <div class="step-head">
+      <div class="step-num">1-4</div>
+      <div class="step-title"><h2>실습 · 와일드카드와 find로 파일 찾기</h2><div class="sub">방금 심어둔 5가지 오류를 명령어로 직접 찾아냅니다.</div></div>
+    </div>
+
+    <h3 class="sec">Step 1. 와일드카드(글로빙) — 이름 패턴으로 찾기</h3>
+    <div class="mini">
+      <div class="row"><code class="cmd">*</code><div class="desc">0글자 이상, 아무 문자나 다 해당</div></div>
+      <div class="row"><code class="cmd">?</code><div class="desc">정확히 한 글자</div></div>
+      <div class="row"><code class="cmd">[1-3]</code><div class="desc">범위 중 한 글자 (1,2,3 중 하나)</div></div>
+    </div>
+    <span class="env">터미널</span>
+    <div class="term"><div class="term-head"><span class="t">와일드카드 연습</span><button class="copy-btn" data-copy="cd ~/kdt-linux/dataset/kimchi/raw
+ls kimchi_000*.jpg
+ls kimchi_000?.jpg
+ls kimchi_00[1-3]0.jpg
+ls *.{jpg,txt} | head">복사</button></div>
+      <pre><code><span class="prompt">$</span> ls kimchi_000*.jpg        <span class="out"># kimchi_000으로 시작하는 모든 jpg</span>
+<span class="prompt">$</span> ls kimchi_000?.jpg        <span class="out"># kimchi_000 뒤에 딱 한 글자만</span>
+<span class="prompt">$</span> ls kimchi_00[1-3]0.jpg    <span class="out"># 1,2,3 중 하나가 그 자리에</span>
+<span class="prompt">$</span> ls *.{jpg,txt} | head     <span class="out"># jpg 또는 txt 확장자</span></code></pre></div>
+
+    <h3 class="sec">Step 2. find — 조건으로 찾기</h3>
+    <span class="env">터미널</span>
+    <div class="term"><div class="term-head"><span class="t">find 다섯 가지 예제</span><button class="copy-btn" data-copy="find . -name "*.jpg" | wc -l
+find . -name "kimchi_01??.jpg" | head
+find . -name "*.txt" -size 0
+find . -mmin -10 | head
+find . -name "* *"">복사</button></div>
+      <pre><code><span class="prompt">$</span> find . -name &quot;*.jpg&quot; | wc -l         <span class="out"># 확장자로 찾아서 개수 세기</span>
+<span class="prompt">$</span> find . -name &quot;kimchi_01??.jpg&quot; | head <span class="out"># 이름 패턴</span>
+<span class="prompt">$</span> find . -name &quot;*.txt&quot; -size 0          <span class="out"># 크기 0인 빈 파일 찾기</span>
+<span class="prompt">$</span> find . -mmin -10 | head               <span class="out"># 최근 10분 내 수정된 파일</span>
+<span class="prompt">$</span> find . -name &quot;* *&quot;                     <span class="out"># 이름에 공백이 있는 파일 찾기 ★ 실무 빈출 사고</span></code></pre></div>
+
+    <h3 class="sec star">Step 3. 실무 미션 — 정합성 1차 점검 <span class="badge">핵심</span></h3>
+    <p class="ex"><b>미션 A. 라벨이 없는 이미지 찾기</b></p>
+    <span class="env">터미널</span>
+    <div class="term"><div class="term-head"><span class="t">이미지-라벨 짝 맞추기</span><button class="copy-btn" data-copy="cd ~/kdt-linux/dataset/kimchi/raw
+ls *.jpg | sed 's/\.jpg$//' | sort > /tmp/imgs.txt
+ls *.txt | sed 's/\.txt$//' | sort > /tmp/lbls.txt
+comm -23 /tmp/imgs.txt /tmp/lbls.txt
+comm -13 /tmp/imgs.txt /tmp/lbls.txt">복사</button></div>
+      <pre><code><span class="prompt">$</span> ls *.jpg | sed 's/\.jpg$//' | sort &gt; /tmp/imgs.txt
+<span class="prompt">$</span> ls *.txt | sed 's/\.txt$//' | sort &gt; /tmp/lbls.txt
+<span class="prompt">$</span> comm -23 /tmp/imgs.txt /tmp/lbls.txt   <span class="out"># 이미지엔 있는데 라벨엔 없는 것 (차집합)</span>
+<span class="out">kimchi_0123</span>
+<span class="prompt">$</span> comm -13 /tmp/imgs.txt /tmp/lbls.txt   <span class="out"># 반대: 라벨엔 있는데 이미지엔 없는 것</span>
+<span class="out">kimchi_0007</span></code></pre></div>
+    <div class="output-note"><span class="kbd">sed 's/\.jpg$//'</span> 는 파일 이름 끝의 ".jpg"를 지워서 이름만 남기는 명령입니다. <span class="kbd">comm</span>은 정렬된 두 목록을 비교해서 "한쪽에만 있는 것"을 찾아줍니다.</div>
+
+    <div class="why">
+      <span class="lead">💬 왜 이게 중요한가</span>
+      <p>YOLO 학습 시 라벨 없는 이미지는 "객체가 하나도 없는 배경 이미지"로 학습됩니다. 의도치 않은 배경 학습은 교과 8·14에서 mAP를 떨어뜨리는 대표 원인입니다. 목표 성능이 <b>mAP@0.5 ≥ 0.7</b>이므로 이 점검은 필수 절차입니다.</p>
+    </div>
+
+    <p class="ex"><b>미션 B. 공백 파일명 정리</b></p>
+    <span class="env">터미널</span>
+    <div class="term"><div class="term-head"><span class="t">공백 파일명 고치기</span><button class="copy-btn" data-copy='mv "kimchi 0999.jpg" "kimchi_0999.jpg"
+find . -name "* *"'>복사</button></div>
+      <pre><code><span class="prompt">$</span> mv &quot;kimchi 0999.jpg&quot; &quot;kimchi_0999.jpg&quot;
+<span class="prompt">$</span> find . -name &quot;* *&quot;        <span class="out"># 이제 아무것도 안 나와야 정상</span></code></pre></div>
+
+    <details class="more">
+      <summary>★ 심화 미션 (전공자용, 선택) — 여러 개를 한 번에 바꾸기</summary>
+      <p class="ex">공백 파일명이 여러 개일 때, 하나씩 고치지 않고 한 번에 바꾸는 방법입니다.</p>
+      <span class="env">터미널</span>
+      <div class="term"><div class="term-head"><span class="t">한 번에 바꾸기</span></div>
+        <pre><code><span class="prompt">$</span> find . -name &quot;* *&quot; -type f | while read -r f; do
+    mv &quot;$f&quot; &quot;$(echo &quot;$f&quot; | tr ' ' '_')&quot;
+done</code></pre></div>
+    </details>
+
+    <div class="check">
+      <span class="lead">✅ 체크포인트 1-4</span>
+      <label><input type="checkbox"> find로 jpg 개수를 세었다</label>
+      <label><input type="checkbox"> 라벨 누락 / 이미지 누락 파일명을 각각 찾아냈다</label>
+      <label><input type="checkbox"> 공백 파일명을 수정했다</label>
+    </div>
+  </section>
+
+  <!-- 실습 1-5 -->
+  <section class="step" id="copy">
+    <div class="step-head">
+      <div class="step-num">1-5</div>
+      <div class="step-title"><h2>실습 · 복사·이동·삭제, 그리고 원격 접속</h2><div class="sub">내 컴퓨터 안에서의 이동뿐 아니라, 다른 컴퓨터로도 옮겨봅니다.</div></div>
+    </div>
+
+    <h3 class="sec">Step 1. cp / mv / rm 세 형제</h3>
+    <span class="env">터미널</span>
+    <div class="term"><div class="term-head"><span class="t">복사 · 이동 · 삭제 연습</span><button class="copy-btn" data-copy="cd ~/kdt-linux/dataset/kimchi/raw
+cp kimchi_0001.jpg ../images/train/
+ls ../images/train/
+
+mkdir -p /tmp/backup_test
+cp -r ../meta /tmp/backup_test/
+ls -R /tmp/backup_test
+
+touch /tmp/old.txt
+mv /tmp/old.txt /tmp/new.txt
+ls /tmp/new.txt
+
+rm -i /tmp/new.txt
+rm -rf /tmp/backup_test">복사</button></div>
+      <pre><code><span class="prompt">$</span> cp kimchi_0001.jpg ../images/train/    <span class="out"># 한 개 복사</span>
+<span class="prompt">$</span> ls ../images/train/
+<span class="out">kimchi_0001.jpg</span>
+
+<span class="prompt">$</span> mkdir -p /tmp/backup_test
+<span class="prompt">$</span> cp -r ../meta /tmp/backup_test/        <span class="out"># 디렉토리 통째 복사는 -r 필수</span>
+<span class="prompt">$</span> ls -R /tmp/backup_test
+
+<span class="prompt">$</span> touch /tmp/old.txt
+<span class="prompt">$</span> mv /tmp/old.txt /tmp/new.txt           <span class="out"># 이동(이름 변경도 mv)</span>
+<span class="prompt">$</span> ls /tmp/new.txt
+
+<span class="prompt">$</span> rm -i /tmp/new.txt                     <span class="out"># 확인 옵션 -i 습관화</span>
+<span class="prompt">$</span> rm -rf /tmp/backup_test</code></pre></div>
+
+    <table class="ref">
+      <tr><th>cp 옵션</th><th>뜻</th></tr>
+      <tr><td><code>-r</code></td><td>디렉토리 재귀 복사</td></tr>
+      <tr><td><code>-p</code></td><td>타임스탬프·권한 보존</td></tr>
+      <tr><td><code>-v</code></td><td>진행 상황 출력</td></tr>
+      <tr><td><code>-n</code></td><td>기존 파일 덮어쓰지 않음</td></tr>
+      <tr><td><code>-a</code></td><td>-rp + 링크 보존 (아카이브)</td></tr>
+    </table>
+
+    <h3 class="sec">Step 2. 데이터셋 원본 보호 ⚠️</h3>
+    <span class="env">터미널</span>
+    <div class="term"><div class="term-head"><span class="t">원본 쓰기 잠그기</span><button class="copy-btn" data-copy="cd ~/kdt-linux/dataset/kimchi
+chmod -R a-w raw
+touch raw/test.txt
+chmod -R u+w raw">복사</button></div>
+      <pre><code><span class="prompt">$</span> chmod -R a-w raw          <span class="out"># raw 폴더 전체 쓰기 금지</span>
+<span class="prompt">$</span> touch raw/test.txt        <span class="out"># → Permission denied 확인</span>
+<span class="prompt">$</span> chmod -R u+w raw          <span class="out"># 필요할 때만 다시 해제</span></code></pre></div>
+    <div class="star-box">
+      <span class="lead">⭐ 현업 규칙</span>
+      <b>raw/</b>는 절대 손대지 않습니다. 모든 전처리는 복사본에서 합니다. 원본을 덮어쓴 순간 그 데이터셋은 재현 불가능해지고, 평가항목 「데이터 품질」에서 감점됩니다.
+    </div>
+
+    <h3 class="sec">Step 3. 원격 접속 (SSH)</h3>
+    <p class="ex">SSH는 <b>다른 컴퓨터에 전화를 걸어, 그 컴퓨터의 터미널을 그대로 내 화면에 띄우는 것</b>이라고 생각하면 됩니다. AWS 학습 서버, 젯슨 보드에 접속할 때 항상 이 방법을 씁니다.</p>
+    <span class="env">터미널</span>
+    <div class="term"><div class="term-head"><span class="t">SSH 접속 연습</span><button class="copy-btn" data-copy="ssh -V
+ssh 사용자명@서버주소
+hostname
+pwd
+exit">복사</button></div>
+      <pre><code><span class="prompt">$</span> ssh -V                     <span class="out"># SSH 클라이언트가 설치돼 있는지 확인</span>
+<span class="prompt">$</span> ssh 사용자명@서버주소        <span class="out"># 예: ssh kdt@192.168.0.10</span>
+<span class="prompt">kdt@server:~$</span> hostname     <span class="out"># 접속 후, 지금 어느 장비에 있는지 꼭 확인</span>
+<span class="prompt">kdt@server:~$</span> pwd
+<span class="prompt">kdt@server:~$</span> exit         <span class="out"># 또는 Ctrl+D 로 나가기</span></code></pre></div>
+
+    <p class="ex"><b>Windows에서 MobaXterm을 쓴다면</b></p>
+    <ol class="plain">
+      <li>Session → SSH 선택</li>
+      <li>Remote host에 강사 안내 IP 입력</li>
+      <li>Specify username 체크 후 계정 입력</li>
+      <li>OK → 비밀번호 입력</li>
+      <li>좌측 SFTP 패널에서 드래그로 파일 전송 가능</li>
+    </ol>
+
+    <h3 class="sec">Step 4. 파일 전송 — scp / rsync</h3>
+    <span class="env">터미널</span>
+    <div class="term"><div class="term-head"><span class="t">scp 로 옮기기</span><button class="copy-btn" data-copy="scp meta/classes.txt kdt@서버주소:~/
+scp kdt@서버주소:~/classes.txt /tmp/
+scp -r meta kdt@서버주소:~/">복사</button></div>
+      <pre><code><span class="prompt">$</span> scp meta/classes.txt kdt@서버주소:~/         <span class="out"># 로컬 → 원격</span>
+<span class="prompt">$</span> scp kdt@서버주소:~/classes.txt /tmp/          <span class="out"># 원격 → 로컬</span>
+<span class="prompt">$</span> scp -r meta kdt@서버주소:~/                   <span class="out"># 폴더 전송</span></code></pre></div>
+
+    <span class="env">터미널</span>
+    <div class="term"><div class="term-head"><span class="t">rsync 로 변경분만 전송 ★</span><button class="copy-btn" data-copy="rsync -avh --progress images/ kdt@서버주소:~/images/">복사</button></div>
+      <pre><code><span class="prompt">$</span> rsync -avh --progress images/ kdt@서버주소:~/images/</code></pre></div>
+
+    <table class="ref">
+      <tr><th>rsync 옵션</th><th>뜻</th></tr>
+      <tr><td><code>-a</code></td><td>아카이브(권한·시간 보존, 재귀)</td></tr>
+      <tr><td><code>-v</code></td><td>상세 출력</td></tr>
+      <tr><td><code>-h</code></td><td>사람이 읽기 좋은 크기 단위</td></tr>
+      <tr><td><code>--progress</code></td><td>진행률 표시</td></tr>
+      <tr><td><code>--dry-run</code></td><td><b>실제로 전송 안 하고 미리보기</b> (항상 먼저 실행)</td></tr>
+    </table>
+
+    <div class="why">
+      <span class="lead">💬 왜 rsync인가</span>
+      <p>이미지 1,000장을 학습 서버에 올렸는데 나중에 50장만 수정했다면, <code>scp</code>는 1,000장을 처음부터 다시 보내지만 <code>rsync</code>는 바뀐 50장만 보냅니다. 클라우드 학습에서 시간과 비용이 직접 차이납니다.</p>
+    </div>
+
+    <div class="danger">
+      <span class="lead">⚠️ 보안 주의</span>
+      ㈜비솔 제공 실데이터는 <b>원내 폐쇄망 전용</b>입니다. 외부 클라우드로의 rsync/scp 전송은 금지되며, 개인별 보안서약서 대상입니다. 오늘 실습은 <b>더미 데이터</b>로만 진행합니다.
+    </div>
+
+    <div class="check">
+      <span class="lead">✅ 체크포인트 1-5</span>
+      <label><input type="checkbox"> cp / mv / rm 을 각각 사용했다</label>
+      <label><input type="checkbox"> raw/ 를 읽기 전용으로 잠갔다</label>
+      <label><input type="checkbox"> SSH로 원격 접속 후 hostname을 확인했다</label>
+      <label><input type="checkbox"> rsync --dry-run 으로 전송 미리보기를 실행했다</label>
+    </div>
+  </section>
+
+  <!-- 실습 1-6 -->
+  <section class="step" id="challenge">
+    <div class="step-head">
+      <div class="step-num">1-6</div>
+      <div class="step-title"><h2>실습 · 종합 챌린지</h2><div class="sub">오늘 배운 걸 다 모아서, 실제 상황처럼 정리해봅니다.</div></div>
+    </div>
+
+    <p class="ex"><b>상황</b>: 교과 14 프로젝트가 시작되었습니다. 컨베이어에서 촬영한 이미지 500장이 <code>~/incoming/</code>에 뒤섞여 들어왔습니다. 표준 구조로 정리해봅시다.</p>
+
+    <h3 class="sec">챌린지 셋업</h3>
+    <span class="env">터미널</span>
+    <div class="term"><div class="term-head"><span class="t">가짜 원본 500장 만들기</span></div>
+      <pre><code><span class="out">mkdir -p ~/incoming &amp;&amp; cd ~/incoming
+for i in $(seq -w 1 500); do
+    printf 'dummy' &gt; "conv_$(date +%Y%m%d)_${i}.jpg"
+    echo "$((RANDOM % 5)) 0.5 0.5 0.2 0.2" &gt; "conv_$(date +%Y%m%d)_${i}.txt"
+done
+mkdir -p ~/incoming/junk &amp;&amp; touch ~/incoming/junk/.DS_Store ~/incoming/Thumbs.db
+ls | head -3</span></code></pre></div>
+
+    <h3 class="sec">요구사항</h3>
+    <ol class="plain">
+      <li><code>~/kdt-linux/dataset/conveyor/</code> 아래 표준 구조 생성 (images·labels × train/val/test, meta, raw, backup)</li>
+      <li>500장을 <code>raw/</code>로 이동</li>
+      <li><code>Thumbs.db</code>, <code>.DS_Store</code> 등 불필요 파일 삭제</li>
+      <li><code>meta/classes.txt</code> 작성 (5종 이상)</li>
+      <li><code>meta/README.md</code>에 수집일·장비·장수 기록</li>
+      <li>이미지/라벨 개수 일치 확인</li>
+      <li><code>raw/</code> 쓰기 잠금</li>
+    </ol>
+
+    <details class="more">
+      <summary>정답 예시 보기 (먼저 직접 풀어본 뒤 확인하세요)</summary>
+      <span class="env">터미널</span>
+      <div class="term"><div class="term-head"><span class="t">정답 예시</span></div>
+        <pre><code><span class="out"># 1
+mkdir -p ~/kdt-linux/dataset/conveyor/{images,labels}/{train,val,test}
+mkdir -p ~/kdt-linux/dataset/conveyor/{raw,meta,backup}
+
+# 2
+mv ~/incoming/*.jpg ~/incoming/*.txt ~/kdt-linux/dataset/conveyor/raw/
+
+# 3
+find ~/incoming -name "Thumbs.db" -o -name ".DS_Store" | xargs rm -f
+rm -rf ~/incoming
+
+# 4
+cd ~/kdt-linux/dataset/conveyor
+cat &gt; meta/classes.txt &lt;&lt; 'EOF'
+0 normal
+1 foreign_leaf
+2 foreign_plastic
+3 foreign_metal
+4 discolored
+EOF
+
+# 5
+cat &gt; meta/README.md &lt;&lt; EOF
+# Conveyor Dataset
+- 수집일: $(date +%Y-%m-%d)
+- 장비: Daheng ME2S-2440-16U3C
+- 조명: 터널타입 돔 LED
+- 장수: $(ls raw/*.jpg | wc -l)
+- 클래스: 5종
+- 주의: raw/ 수정 금지
+EOF
+
+# 6
+echo "images: $(ls raw/*.jpg | wc -l) / labels: $(ls raw/*.txt | wc -l)"
+
+# 7
+chmod -R a-w raw</span></code></pre></div>
+    </details>
+
+    <div class="check">
+      <span class="lead">✅ 최종 체크포인트</span>
+      <label><input type="checkbox"> tree ~/kdt-linux -L 3 출력에 두 데이터셋(kimchi, conveyor)이 표준 구조로 존재한다</label>
+      <label><input type="checkbox"> 각 데이터셋의 이미지/라벨 개수를 명령어로 바로 답할 수 있다</label>
+      <label><input type="checkbox"> README.md에 메타정보를 기록했다</label>
+    </div>
+  </section>
+
+  <!-- 마무리 -->
+  <section class="step" id="wrap">
+    <div class="step-head">
+      <div class="step-num">·</div>
+      <div class="step-title"><h2>마무리 — 오늘의 기록 남기기</h2><div class="sub">오늘 친 명령어와 배운 것을 파일로 남겨둡니다.</div></div>
+    </div>
+    <span class="env">터미널</span>
+    <div class="term"><div class="term-head"><span class="t">기록 남기기</span></div>
+      <pre><code><span class="out">cd ~/kdt-linux
+history | tail -50 &gt; day1_history.txt      # 오늘 친 명령어 기록
+cat &gt; DAY1.md &lt;&lt; 'EOF'
+# Day 1 — 리눅스 시작과 파일 시스템
+## 배운 것
+- FHS, 절대/상대 경로, ls -l 해독
+- mkdir -p, 중괄호 확장으로 데이터셋 구조 생성
+- find / comm 으로 이미지-라벨 정합성 1차 점검
+- scp / rsync 원격 전송
+## 어려웠던 것
+(직접 작성)
+## 내일 확인할 것
+(직접 작성)
+EOF
+ls</span></code></pre></div>
+    <div class="why">
+      <span class="lead">📌 지우지 마세요</span>
+      <p>6일차에 Git을 배우면 이 파일들이 첫 커밋 대상이 됩니다.</p>
+    </div>
+  </section>
+
+  <!-- 과제 -->
+  <section class="step" id="homework">
+    <div class="step-head">
+      <div class="step-num">?</div>
+      <div class="step-title"><h2>과제 (30분 예상)</h2><div class="sub">다음 시간 시작 전 10분 퀴즈에 나옵니다.</div></div>
+    </div>
+    <ol class="plain">
+      <li><code>~/kdt-linux/DAY1.md</code>의 "어려웠던 것" / "내일 확인할 것"을 직접 작성하기</li>
+      <li>오늘 배운 명령어 중 5개를 골라 <code>man</code> 또는 <code>--help</code>를 읽고, 수업에서 안 다룬 옵션 1개씩 찾아 정리하기</li>
+      <li>다음 질문에 답 준비하기 (내일 1교시 퀴즈)
+        <ul class="plain" style="margin-top:6px;">
+          <li>cp와 mv의 차이를 데이터셋 관리 관점에서 설명하기</li>
+          <li>rm -rf를 안전하게 쓰는 방법 3가지</li>
+          <li>절대경로를 코드에 하드코딩하면 안 되는 이유</li>
+        </ul>
+      </li>
+    </ol>
+  </section>
+
+  <!-- 다음시간 -->
+  <section class="step" id="next">
+    <div class="step-head"><div class="step-num">🔭</div><div class="step-title"><h2>다음 시간 예고</h2></div></div>
+    <div class="why">
+      <span class="lead">2일차 미리보기</span>
+      <p>"이 파일을 누가 열어볼 수 있는지"를 정하는 <b>권한(열쇠)</b>과, 명령어끼리 서로 연결해서 쓰는 <b>파이프</b>, 그리고 파일을 압축해서 하나로 묶는 방법을 배웁니다.</p>
+    </div>
+  </section>
+
+  <!-- FAQ -->
+  <section class="step" id="faq">
+    <div class="step-head"><div class="step-num">?</div><div class="step-title"><h2>막혔나요? 자주 겪는 상황</h2></div></div>
+
+    <p class="ex"><b>"command not found" 라고 나와요.</b><br>명령어 철자가 틀렸을 가능성이 큽니다. 띄어쓰기와 대소문자를 다시 확인하세요.</p>
+    <p class="ex"><b>"No such file or directory" 라고 나와요.</b><br>지금 위치에 그 이름의 파일·폴더가 없다는 뜻입니다. <span class="kbd">pwd</span>와 <span class="kbd">ls</span>로 확인하세요.</p>
+    <p class="ex"><b>"Permission denied" 라고 나와요.</b><br>지금 여러분에게 그 작업을 할 권한이 없다는 뜻입니다. 2일차에 자세히 배웁니다. 지금은 강사에게 도움을 요청하세요.</p>
+    <p class="ex"><b>화면이 이상하게 멈췄어요.</b><br><span class="kbd">less</span>나 <span class="kbd">man</span> 같은 "보기 전용" 화면일 수 있습니다. <span class="kbd">q</span>로 나가세요. 안 되면 <span class="kbd">Ctrl</span>+<span class="kbd">C</span>로 강제 중단하세요.</p>
+    <p class="ex"><b>SSH 접속이 안 돼요.</b><br>서버 주소·계정명 오타를 확인하고, 강사가 안내한 서버가 지금 켜져 있는지 먼저 확인하세요.</p>
+
+    <details class="more">
+      <summary>강사 참고 노트 (원본 자료 그대로 남겨둠)</summary>
+      <table class="ref">
+        <tr><th>시점</th><th>주의사항</th></tr>
+        <tr><td>실습 1-1</td><td>Tab 자동완성을 못 쓰는 훈련생이 절반 이상입니다. 개별 순회하며 시켜야 합니다.</td></tr>
+        <tr><td>실습 1-3</td><td>make_sample_dataset.sh 타이핑에서 오타가 대량 발생합니다. set -e 덕분에 첫 오류에서 멈추므로, 에러 메시지 읽는 법을 여기서 가르칩니다.</td></tr>
+        <tr><td>실습 1-4</td><td>comm은 정렬된 입력을 요구합니다. sort를 빠뜨리면 결과가 이상해집니다.</td></tr>
+        <tr><td>실습 1-5</td><td>SSH 서버가 준비 안 됐으면 ssh localhost로 대체 가능 (sudo apt install openssh-server 선행).</td></tr>
+      </table>
+    </details>
+  </section>
+
+</main>
+
+<footer>1일차 · 리눅스와 첫 만남 (쉬운 완전판) · 다음 시간: 권한 · 압축 · 파이프</footer>
+
+<script>
+document.querySelectorAll('.copy-btn').forEach(function(btn){
+  btn.addEventListener('click', function(){
+    navigator.clipboard.writeText(btn.getAttribute('data-copy')).then(function(){
+      var o = btn.textContent; btn.textContent = '복사됨 ✓'; btn.classList.add('copied');
+      setTimeout(function(){ btn.textContent = o; btn.classList.remove('copied'); }, 1400);
+    });
+  });
+});
+</script>
+</body>
+</html>
