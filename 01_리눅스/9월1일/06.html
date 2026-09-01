@@ -1,0 +1,1362 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Git 기초 · 교과 1 · 리눅스</title>
+<link rel="preconnect" href="https://cdn.jsdelivr.net">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fontsource/jetbrains-mono@5.0.20/index.min.css">
+<style>
+/* ============ 토큰 ============ */
+:root{
+  --paper:#FAFAFB; --card:#FFFFFF;
+  --ink:#161B22; --ink2:#495364; --ink3:#828D9E;
+  --rule:#E4E8ED; --rule2:#F0F2F5;
+  --spec:#14539A;          /* 청사진 잉크 — 구조 · 링크 */
+  --spec-soft:#EAF1FA;
+  --warn:#A85408;          /* 신호 앰버 — 경고 · 보안 */
+  --warn-soft:#FDF3E7;
+  --ok:#0B6E5F;            /* 검수 통과 — 체크포인트 */
+  --ok-soft:#E7F3F0;
+  --term:#0E141B; --term-ink:#DCE6F0; --term-rule:#232C38;
+  --mono:"JetBrains Mono",ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+  --sans:"Pretendard Variable",Pretendard,-apple-system,BlinkMacSystemFont,
+         "Segoe UI","Malgun Gothic","Apple SD Gothic Neo","Noto Sans KR",sans-serif;
+  --rail:264px;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth;scroll-padding-top:84px}
+@media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}*{animation:none!important;transition:none!important}}
+body{
+  margin:0;background:var(--paper);color:var(--ink);font-family:var(--sans);
+  font-size:16px;line-height:1.78;-webkit-font-smoothing:antialiased;
+  word-break:keep-all;overflow-wrap:anywhere;
+}
+
+/* ============ 상단 바 ============ */
+.topbar{
+  position:sticky;top:0;z-index:40;background:rgba(250,250,251,.92);
+  backdrop-filter:blur(10px);border-bottom:1px solid var(--rule);
+}
+.topbar .in{max-width:1400px;margin:0 auto;padding:0 24px;height:56px;
+  display:flex;align-items:center;gap:18px}
+.brand{font-family:var(--mono);font-size:11px;letter-spacing:.1em;color:var(--ink3);
+  text-transform:uppercase;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.brand b{color:var(--spec);font-weight:700}
+.navbtns{margin-left:auto;display:flex;gap:8px;flex-shrink:0}
+.navbtns a{font-family:var(--mono);font-size:11px;letter-spacing:.06em;
+  text-decoration:none;color:var(--ink2);border:1px solid var(--rule);
+  border-radius:6px;padding:6px 11px;background:var(--card);transition:.15s}
+.navbtns a:hover{border-color:var(--spec);color:var(--spec)}
+.navbtns a.home{background:var(--spec);color:#fff;border-color:var(--spec)}
+.navbtns a.home:hover{filter:brightness(1.12)}
+
+/* ============ 레이아웃 ============ */
+.wrap{max-width:1400px;margin:0 auto;padding:0 24px;display:grid;
+  grid-template-columns:var(--rail) minmax(0,1fr);gap:44px;align-items:start}
+.rail{position:sticky;top:56px;max-height:calc(100vh - 56px);overflow-y:auto;
+  padding:28px 0 60px;scrollbar-width:thin}
+.rail::-webkit-scrollbar{width:6px}
+.rail::-webkit-scrollbar-thumb{background:var(--rule);border-radius:3px}
+main{padding:36px 0 120px;min-width:0;max-width:920px}
+
+/* ============ 시그니처: 일차 스파인 ============ */
+.spine-h{font-family:var(--mono);font-size:10px;letter-spacing:.14em;
+  color:var(--ink3);text-transform:uppercase;margin:0 0 12px 2px}
+.spine{list-style:none;margin:0 0 30px;padding:0;position:relative}
+.spine::before{content:"";position:absolute;left:19px;top:14px;bottom:14px;
+  width:1px;background:var(--rule)}
+.spine li{position:relative}
+.spine a{display:grid;grid-template-columns:38px 40px minmax(0,1fr);align-items:center;gap:6px;
+  padding:5px 8px 5px 0;text-decoration:none;color:var(--ink2);border-radius:6px}
+.spine a:hover{background:var(--rule2)}
+.spine .dot{position:relative;z-index:1;justify-self:center;width:9px;height:9px;
+  border-radius:50%;background:var(--card);border:1.5px solid var(--rule)}
+.spine .lbl{font-family:var(--mono);font-size:11.5px;letter-spacing:.04em}
+.spine .ttl{font-size:12.5px;line-height:1.35;color:var(--ink3);
+  overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.spine a[aria-current]{background:var(--spec-soft)}
+.spine a[aria-current] .dot{background:var(--spec);border-color:var(--spec);
+  box-shadow:0 0 0 3px rgba(20,83,154,.14)}
+.spine a[aria-current] .lbl{color:var(--spec);font-weight:700}
+.spine a[aria-current] .ttl{color:var(--ink)}
+.spine .done .dot{background:var(--rule);border-color:var(--rule)}
+
+/* ============ 문서 내 목차 ============ */
+.toc-h{font-family:var(--mono);font-size:10px;letter-spacing:.14em;color:var(--ink3);
+  text-transform:uppercase;margin:0 0 10px 2px;padding-top:22px;border-top:1px solid var(--rule)}
+.toc{list-style:none;margin:0;padding:0}
+.toc li{margin:0}
+.toc a{display:block;padding:5px 10px;font-size:13.5px;line-height:1.45;
+  text-decoration:none;color:var(--ink2);border-left:2px solid transparent;border-radius:0 5px 5px 0}
+.toc a:hover{background:var(--rule2);color:var(--ink)}
+.toc .lv1>a{font-weight:700;color:var(--ink);margin-top:12px;font-size:13px;
+  font-family:var(--mono);letter-spacing:.02em}
+.toc .lv2>a{padding-left:16px}
+.toc a.active{border-left-color:var(--spec);background:var(--spec-soft);color:var(--spec);font-weight:600}
+
+/* ============ 문서 헤더 ============ */
+.dochead{margin:0 0 40px;padding-bottom:26px;border-bottom:2px solid var(--ink)}
+.eyebrow{font-family:var(--mono);font-size:11px;letter-spacing:.14em;color:var(--spec);
+  text-transform:uppercase;margin-bottom:12px}
+.dochead h1{margin:0;padding:0;background:none;color:var(--ink);border-radius:0;
+  font-size:clamp(26px,3.3vw,38px);line-height:1.24;font-weight:800;letter-spacing:-.025em}
+.dochead .sub{margin:12px 0 0;color:var(--ink2);font-size:15px}
+/* 진도 트랙 — 60시간 중 현재 위치 */
+.track{margin-top:22px}
+.track .bar{height:5px;background:var(--rule);border-radius:3px;overflow:hidden;display:flex}
+.track .bar i{display:block;height:100%}
+.track .bar .past{background:var(--rule)}
+.track .bar .now{background:var(--spec)}
+.track .cap{display:flex;justify-content:space-between;margin-top:8px;max-width:640px;
+  font-family:var(--mono);font-size:10.5px;color:var(--ink3);letter-spacing:.04em}
+.track .bar{max-width:640px}
+
+/* ============ 본문 타이포 ============ */
+main h1{font-size:22px;font-weight:800;letter-spacing:-.01em;margin:64px 0 20px;
+  padding:14px 18px;background:var(--ink);color:#fff;border-radius:8px}
+main h1:first-of-type{margin-top:8px}
+main h2{font-size:19.5px;font-weight:750;margin:48px 0 14px;padding-bottom:9px;
+  border-bottom:1px solid var(--rule);letter-spacing:-.01em;scroll-margin-top:80px}
+main h3{font-size:16.5px;font-weight:700;margin:34px 0 10px;color:var(--ink);
+  scroll-margin-top:80px}
+main h4{font-size:15px;font-weight:700;margin:24px 0 8px;color:var(--ink2)}
+main p{margin:0 0 15px}
+main ul,main ol{margin:0 0 16px;padding-left:22px}
+main li{margin:5px 0}
+main li>ul,main li>ol{margin:6px 0}
+main hr{border:0;border-top:1px solid var(--rule);margin:46px 0}
+main strong{font-weight:700}
+main a{color:var(--spec);text-underline-offset:3px}
+
+/* 체크포인트 · 경고 헤딩 */
+main h3.cp,main h4.cp{background:var(--ok-soft);color:var(--ok);border-left:3px solid var(--ok);
+  padding:9px 14px;border-radius:0 7px 7px 0;font-size:15px}
+main h3.warn,main h4.warn,main h2.warn{background:var(--warn-soft);color:var(--warn);
+  border-left:3px solid var(--warn);border-bottom:0;padding:9px 14px;border-radius:0 7px 7px 0;font-size:15px}
+
+/* ============ 코드 ============ */
+main :not(pre)>code{font-family:var(--mono);font-size:.855em;background:var(--spec-soft);
+  color:#0F3F76;padding:1.5px 5px;border-radius:4px;word-break:break-all}
+main pre{background:var(--term);color:var(--term-ink);border-radius:10px;
+  padding:16px 18px;overflow-x:auto;margin:0 0 18px;font-size:13.5px;line-height:1.7;
+  border:1px solid var(--term-rule)}
+main pre code{font-family:var(--mono);background:none;color:inherit;padding:0;font-size:inherit}
+main pre::-webkit-scrollbar{height:8px}
+main pre::-webkit-scrollbar-thumb{background:#2C3846;border-radius:4px}
+
+/* ============ 표 ============ */
+.tw{overflow-x:auto;margin:0 0 20px;border:1px solid var(--rule);border-radius:9px;background:var(--card)}
+main table{border-collapse:collapse;width:100%;font-size:14px;min-width:min(100%,420px)}
+main th,main td{padding:9px 13px;border-bottom:1px solid var(--rule2);
+  text-align:left;vertical-align:top;line-height:1.6}
+main th{background:#F5F7F9;font-weight:700;font-size:12.5px;letter-spacing:.02em;
+  color:var(--ink2);white-space:nowrap;border-bottom:1px solid var(--rule)}
+main tbody tr:last-child td{border-bottom:0}
+main tbody tr:hover{background:#FBFCFD}
+main td code{white-space:nowrap}
+
+/* ============ 인용 ============ */
+main blockquote{margin:0 0 18px;padding:13px 18px;background:var(--card);
+  border:1px solid var(--rule);border-left:3px solid var(--spec);border-radius:0 8px 8px 0;
+  color:var(--ink2);font-size:14.5px}
+main blockquote p:last-child{margin-bottom:0}
+
+/* ============ 하단 이동 ============ */
+.pager{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:70px;
+  padding-top:26px;border-top:1px solid var(--rule)}
+.pager a{display:block;padding:15px 18px;border:1px solid var(--rule);border-radius:10px;
+  text-decoration:none;background:var(--card);transition:.15s}
+.pager a:hover{border-color:var(--spec);box-shadow:0 2px 10px rgba(20,83,154,.07)}
+.pager .k{font-family:var(--mono);font-size:10px;letter-spacing:.12em;color:var(--ink3);
+  text-transform:uppercase;display:block;margin-bottom:5px}
+.pager .v{font-size:14.5px;font-weight:650;color:var(--ink);line-height:1.4}
+.pager .next{text-align:right}
+.pager .empty{border-style:dashed;opacity:.4;pointer-events:none}
+
+/* ============ 색인 페이지 ============ */
+.hero{padding:56px 0 40px;border-bottom:2px solid var(--ink);margin-bottom:44px}
+.hero h1{margin:14px 0 0;padding:0;background:none;color:var(--ink);border-radius:0;
+  font-size:clamp(30px,4.4vw,48px);line-height:1.18;font-weight:800;letter-spacing:-.03em}
+.hero .eyebrow{margin-bottom:0}
+.hero .lede{margin:20px 0 0;font-size:16.5px;line-height:1.68;color:var(--ink2);max-width:60ch}
+.stats{display:flex;flex-wrap:wrap;gap:36px;margin-top:34px}
+.stat .n{font-family:var(--mono);font-size:27px;font-weight:700;color:var(--spec);
+  letter-spacing:-.02em;line-height:1}
+.stat .l{font-family:var(--mono);font-size:10.5px;letter-spacing:.12em;color:var(--ink3);
+  text-transform:uppercase;margin-top:7px}
+.cards{display:grid;gap:12px;margin-bottom:60px}
+.card{display:grid;grid-template-columns:74px 1fr auto;align-items:center;gap:20px;
+  padding:17px 22px;background:var(--card);border:1px solid var(--rule);border-radius:11px;
+  text-decoration:none;color:inherit;transition:.15s}
+.card:hover{border-color:var(--spec);transform:translateX(3px);
+  box-shadow:0 3px 14px rgba(20,83,154,.08)}
+.card .key{font-family:var(--mono);font-size:15px;font-weight:700;color:var(--spec);
+  letter-spacing:.02em}
+.card .key small{display:block;font-size:9.5px;color:var(--ink3);font-weight:400;
+  letter-spacing:.1em;margin-top:3px}
+.card .t{font-size:16px;font-weight:700;line-height:1.35}
+.card .d{font-size:13.5px;color:#78818E;margin-top:4px;line-height:1.55}
+.card .h{font-family:var(--mono);font-size:11px;color:var(--ink3);white-space:nowrap;
+  letter-spacing:.04em}
+.idx-sec{font-family:var(--mono);font-size:10.5px;letter-spacing:.14em;color:var(--ink3);
+  text-transform:uppercase;margin:34px 0 12px}
+.idx-sec:first-child{margin-top:0}
+.note{background:var(--warn-soft);border:1px solid #F0DFC6;border-left:3px solid var(--warn);
+  border-radius:0 10px 10px 0;padding:18px 22px;margin-bottom:56px;font-size:14.5px;color:#6B3A08}
+.note b{color:var(--warn)}
+.note ul{margin:9px 0 0;padding-left:20px}
+
+/* ============ 반응형 ============ */
+@media (max-width:1080px){
+  .wrap{grid-template-columns:1fr;gap:0}
+  .rail{position:static;max-height:none;overflow:visible;padding:22px 0 0;
+    border-bottom:1px solid var(--rule);margin-bottom:8px}
+  .spine{display:flex;flex-wrap:wrap;gap:5px;margin-bottom:20px}
+  .spine::before{display:none}
+  .spine a{grid-template-columns:auto;padding:6px 11px;border:1px solid var(--rule);border-radius:7px}
+  .spine .dot,.spine .ttl{display:none}
+  .toc-h{padding-top:16px}
+  .toc{columns:2;column-gap:20px;max-height:230px;overflow-y:auto;
+    border:1px solid var(--rule);border-radius:9px;padding:8px;background:var(--card)}
+  .toc .lv1>a{margin-top:0}
+  main{padding:22px 0 80px}
+}
+@media (max-width:620px){
+  body{font-size:15.5px}
+  .wrap,.topbar .in{padding:0 15px}
+  .toc{columns:1;max-height:200px}
+  .pager{grid-template-columns:1fr}
+  .pager .next{text-align:left}
+  .card{grid-template-columns:56px 1fr;gap:14px}
+  .card .h{grid-column:2;margin-top:5px}
+  main h1{font-size:19px;padding:12px 14px}
+  main pre{font-size:12.5px;padding:13px 14px}
+}
+
+/* ============ 인쇄 ============ */
+@media print{
+  :root{--paper:#fff}
+  .topbar,.rail,.pager,.track{display:none!important}
+  .wrap{display:block;max-width:none;padding:0}
+  main{padding:0}
+  body{font-size:10.5pt;line-height:1.62}
+  main h1{background:none;color:#000;border:1.5pt solid #000;padding:7pt 10pt;
+    font-size:15pt;margin:22pt 0 11pt;page-break-after:avoid}
+  main h2,main h3,main h4{page-break-after:avoid}
+  main h2{font-size:13pt;margin:16pt 0 7pt}
+  main h3{font-size:11.5pt}
+  main pre{background:#F6F7F9;color:#111;border:.5pt solid #CBD2DA;
+    font-size:8.6pt;page-break-inside:avoid;white-space:pre-wrap;word-break:break-all}
+  main pre code{color:#111}
+  main :not(pre)>code{background:#EFF2F5;color:#111}
+  main table{font-size:9pt;page-break-inside:avoid}
+  .tw{overflow:visible;border-color:#CBD2DA}
+  main blockquote{page-break-inside:avoid}
+  a{color:#000;text-decoration:none}
+  .dochead{page-break-after:avoid}
+  @page{margin:15mm 14mm}
+}
+</style>
+</head>
+<body>
+<header class="topbar"><div class="in">
+  <div class="brand">KDT · AI 캠퍼스 [비솔] Vision AI &amp; 산업분야 Vertical AI 융합 전문가 양성 · <b>교과 1 · 리눅스</b></div>
+  <nav class="navbtns">
+    <a class="home" href="index.html">전체 목차</a>
+    <a href="#" onclick="window.print();return false;">인쇄 / PDF</a>
+  </nav>
+</div></header>
+
+<div class="wrap">
+  <aside class="rail">
+    <p class="spine-h">교과 1 · 60H 전체</p>
+    <ul class="spine"><li><a class="done" href="00.html"><span class="dot"></span><span class="lbl">PLAN</span><span class="ttl">강의 기획서</span></a></li>
+<li><a class="done" href="01.html"><span class="dot"></span><span class="lbl">D1</span><span class="ttl">리눅스 시작과 파일 시스템</span></a></li>
+<li><a class="done" href="01-2.html"><span class="dot"></span><span class="lbl">D1+</span><span class="ttl">OS 개론 · 시스템 구조와 시스템콜</span></a></li>
+<li><a class="done" href="02.html"><span class="dot"></span><span class="lbl">D2</span><span class="ttl">권한 · 아카이브 · 텍스트 스트림</span></a></li>
+<li><a class="done" href="03.html"><span class="dot"></span><span class="lbl">D3</span><span class="ttl">편집기와 텍스트 처리</span></a></li>
+<li><a class="done" href="04.html"><span class="dot"></span><span class="lbl">D4</span><span class="ttl">셸 스크립트 · 프로세스 · 자동화</span></a></li>
+<li><a class="done" href="05.html"><span class="dot"></span><span class="lbl">D5</span><span class="ttl">Anaconda 환경과 데이터셋 구조화</span></a></li>
+<li><a class="" href="06.html" aria-current="page"><span class="dot"></span><span class="lbl">D6</span><span class="ttl">Git 기초</span></a></li>
+<li><a class="" href="07.html"><span class="dot"></span><span class="lbl">D7</span><span class="ttl">GitHub 협업과 데이터 보안</span></a></li>
+<li><a class="" href="08.html"><span class="dot"></span><span class="lbl">D8</span><span class="ttl">부분 파이널 프로젝트</span></a></li>
+<li><a class="" href="99.html"><span class="dot"></span><span class="lbl">APX</span><span class="ttl">부록 · 치트시트 &amp; 트러블슈팅</span></a></li></ul>
+    <p class="toc-h">이 문서 안에서</p>
+    <ul class="toc"><li class="lv2"><a href="#학습-목표">학습 목표</a></li>
+<li class="lv2"><a href="#0교시-전일-복습-퀴즈-10분">0교시 · 전일 복습 퀴즈</a></li>
+<li class="lv1"><a href="#part-1-이론-4h">PART 1. 이론</a></li>
+<li class="lv2"><a href="#1교시-왜-git인가-50분">1교시 · 왜 Git인가</a></li>
+<li class="lv2"><a href="#2교시-기본-워크플로우-50분">2교시 · 기본 워크플로우</a></li>
+<li class="lv2"><a href="#3교시-커밋-메시지와-브랜치-50분">3교시 · 커밋 메시지와 브랜치</a></li>
+<li class="lv2"><a href="#4교시-전반-브랜치-전략과-팀-규칙-30분">4교시 · 브랜치 전략과 팀 규칙</a></li>
+<li class="lv1"><a href="#part-2-실습-4h">PART 2. 실습</a></li>
+<li class="lv2"><a href="#실습-6-1-저장소-시작과-첫-커밋-50분">실습 6-1 · 저장소 시작과 첫 커밋</a></li>
+<li class="lv2"><a href="#실습-6-2-수정조회되돌리기-60분">실습 6-2 · 수정·조회·되돌리기</a></li>
+<li class="lv2"><a href="#실습-6-3-gitignore-실전-40분">실습 6-3 · .gitignore 실전</a></li>
+<li class="lv2"><a href="#실습-6-4-브랜치와-충돌-60분-핵심">실습 6-4 · 브랜치와 충돌 ★핵심</a></li>
+<li class="lv2"><a href="#실습-6-5-종합-챌린지-30분">실습 6-5 · 종합 챌린지</a></li>
+<li class="lv2"><a href="#마무리-10분">마무리</a></li>
+<li class="lv2"><a href="#과제">과제</a></li>
+</ul>
+  </aside>
+
+  <main>
+    <div class="dochead">
+      <div class="eyebrow">D6 &nbsp;/&nbsp; 교과 1 · 리눅스</div>
+      <h1>6일차 · Git 기초 — 초기화와 커밋 관리</h1>
+      <p class="sub">3영역 · 의미 단위 커밋 · 되돌리기 · 브랜치 충돌</p>
+    </div>
+    <blockquote>
+<p><strong>오늘의 한 문장:</strong> "평가항목 「코드 품질 10점」은 오늘 만드는 커밋 히스토리로 측정된다."</p>
+</blockquote>
+<hr />
+<h2 id="학습-목표">학습 목표</h2>
+<div class="tw"><table>
+<thead>
+<tr>
+<th>코드</th>
+<th>목표</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>D6-1</td>
+<td>버전관리의 필요성과 Git의 3영역 구조를 설명한다</td>
+</tr>
+<tr>
+<td>D6-2</td>
+<td>저장소를 초기화하고 사용자 설정을 완료한다</td>
+</tr>
+<tr>
+<td>D6-3</td>
+<td>add/commit 사이클로 의미 단위 커밋을 만든다</td>
+</tr>
+<tr>
+<td>D6-4</td>
+<td>log/diff/show 로 이력을 조회한다</td>
+</tr>
+<tr>
+<td>D6-5</td>
+<td>restore/reset/revert 로 되돌린다</td>
+</tr>
+<tr>
+<td>D6-6</td>
+<td>.gitignore 로 추적 대상을 제어한다</td>
+</tr>
+<tr>
+<td>D6-7</td>
+<td>브랜치를 만들고 머지하며 충돌을 해결한다</td>
+</tr>
+<tr>
+<td>D6-8</td>
+<td>Conventional Commits 규칙으로 메시지를 작성한다</td>
+</tr>
+</tbody>
+</table></div>
+<hr />
+<h2 id="0교시-전일-복습-퀴즈-10분">0교시 · 전일 복습 퀴즈</h2>
+<ol>
+<li><code>conda env export --from-history</code> 와 일반 export의 차이는?</li>
+<li>conda와 pip를 함께 쓸 때의 규칙 2가지는?</li>
+<li>데이터셋 분할에 시드를 고정하는 이유는?</li>
+<li><code>.gitignore</code> 에 이미지를 넣어야 하는 이유 2가지는? (용량 + ______)</li>
+</ol>
+<hr />
+<h1 id="part-1-이론-4h">PART 1. 이론</h1>
+<h2 id="1교시-왜-git인가-50분">1교시 · 왜 Git인가</h2>
+<h3 id="11-git-없이-프로젝트를-하면">1.1 Git 없이 프로젝트를 하면</h3>
+<pre><code>project_final.py
+project_final_v2.py
+project_final_진짜최종.py
+project_final_진짜최종_수정본.py
+project_final_이걸로제출.py
+</code></pre>
+<p>여기서 발생하는 문제:
+- 어느 게 최신인지 모른다
+- 어제 잘 되던 버전으로 못 돌아간다
+- 4~5명 팀에서 서로 파일을 덮어쓴다
+- 누가 뭘 언제 왜 바꿨는지 모른다</p>
+<h3 id="12-이-과정에서-git이-갖는-위치">1.2 이 과정에서 Git이 갖는 위치 ★</h3>
+<p>안내서 「교과 1 · 어디로 이어지는가」:</p>
+<blockquote>
+<p>Git/GitHub는 <strong>교과 7 이후 모든 프로젝트의 산출물 제출·평가 경로(코드 품질 KPI 측정도구)</strong> 로 그대로 쓰임</p>
+</blockquote>
+<p>안내서 「5.3 평가 항목」:</p>
+<div class="tw"><table>
+<thead>
+<tr>
+<th>평가 항목</th>
+<th>측정 방법</th>
+<th>측정 도구</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>코드 품질 (10)</strong></td>
+<td>코드 구조 · 가독성 · 재사용성 및 <strong>버전관리 상태</strong></td>
+<td><strong>GitHub</strong>, 코드 리뷰 체크리스트</td>
+</tr>
+<tr>
+<td>프로젝트 수행 역량 (20)</td>
+<td>일정 준수 · 협업 참여도</td>
+<td>Notion, <strong>Git Commit 기록</strong>, 발표 평가표</td>
+</tr>
+</tbody>
+</table></div>
+<p><strong>합계 30점이 Git 기록으로 측정됩니다.</strong></p>
+<p>안내서 「5.3 운영 포인트」:</p>
+<blockquote>
+<p>여섯 항목 중 세 항목(코드 품질 · 데이터 품질 · 수행 역량, 합계 40점)은 GitHub · Notion · 라벨링 검수표 등 <strong>평소 기록물</strong>로 측정됩니다. 프로젝트 초반에 기록 규칙을 정해 두면 평가 준비가 함께 진행됩니다.</p>
+<p><strong>기억할 문장</strong>: "오늘 배우는 건 도구가 아니라, 6개월 뒤 여러분 성적표의 30점입니다."</p>
+</blockquote>
+<h3 id="13-git의-3영역-1">1.3 Git의 3영역 + 1</h3>
+<pre><code> ┌─────────────┐  git add   ┌──────────────┐  git commit  ┌──────────────┐
+ │ Working Dir  │──────────▶│ Staging Area  │────────────▶│  Repository   │
+ │  (작업 폴더)   │            │   (인덱스)     │              │  (.git 저장소) │
+ └─────────────┘◀──────────└──────────────┘◀────────────└──────────────┘
+      git restore              git restore --staged           git reset
+                                                                   │
+                                                          git push │ (7일차)
+                                                                   ▼
+                                                            ┌─────────────┐
+                                                            │Remote(GitHub)│
+                                                            └─────────────┘
+</code></pre>
+<div class="tw"><table>
+<thead>
+<tr>
+<th>영역</th>
+<th>설명</th>
+<th>비유</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Working Directory</td>
+<td>실제 파일이 있는 폴더</td>
+<td>작업대</td>
+</tr>
+<tr>
+<td>Staging Area</td>
+<td>커밋할 것들을 담아 두는 곳</td>
+<td>장바구니</td>
+</tr>
+<tr>
+<td>Repository</td>
+<td>확정된 이력이 저장된 곳</td>
+<td>영수증 보관함</td>
+</tr>
+</tbody>
+</table></div>
+<blockquote>
+<p><strong>왜 Staging이 있나</strong>: 한 번에 10개 파일을 수정했어도, 관련된 3개만 골라 하나의 의미 있는 커밋으로 만들 수 있습니다. <strong>의미 단위 커밋</strong>의 기반입니다.</p>
+</blockquote>
+<h3 id="14-파일의-상태">1.4 파일의 상태</h3>
+<pre><code>Untracked ──git add──▶ Staged ──git commit──▶ Committed(Unmodified)
+                          ▲                         │
+                          │                    파일 수정
+                          └────git add──── Modified ◀┘
+</code></pre>
+<pre><code class="language-bash">git status              # 현재 상태 확인 (가장 자주 쓰는 명령)
+git status -s           # 짧게
+</code></pre>
+<hr />
+<h2 id="2교시-기본-워크플로우-50분">2교시 · 기본 워크플로우</h2>
+<h3 id="21-초기-설정-최초-1회">2.1 초기 설정 (최초 1회)</h3>
+<pre><code class="language-bash">git config --global user.name  &quot;홍길동&quot;
+git config --global user.email &quot;hong@example.com&quot;
+git config --global core.editor &quot;vim&quot;        # 또는 nano
+git config --global init.defaultBranch main
+git config --global core.autocrlf input      # 리눅스/맥
+git config --global core.quotepath false     # 한글 파일명 깨짐 방지 ★
+git config --list
+</code></pre>
+<blockquote>
+<p><code>core.quotepath false</code> 를 안 하면 한글 파일명이 <code>\355\225\234\352\270\200</code> 처럼 보입니다.</p>
+</blockquote>
+<h3 id="22-저장소-시작">2.2 저장소 시작</h3>
+<pre><code class="language-bash">git init                 # 현재 폴더를 저장소로
+ls -a                    # .git 폴더 생성 확인
+git status
+</code></pre>
+<h3 id="23-add-commit">2.3 add / commit</h3>
+<pre><code class="language-bash">git add 파일명
+git add .                # 현재 폴더 이하 전부
+git add *.sh             # 패턴
+git add -p               # 변경 조각(hunk) 단위 선택 ★고급
+
+git commit -m &quot;메시지&quot;
+git commit               # 편집기 열림 (여러 줄 메시지)
+git commit -am &quot;메시지&quot;  # 추적 중인 파일 add+commit (신규 파일은 안 됨)
+git commit --amend       # 직전 커밋 수정 ⚠️ push 후엔 금지
+</code></pre>
+<h3 id="24-이력-조회">2.4 이력 조회</h3>
+<pre><code class="language-bash">git log
+git log --oneline                       # 한 줄로
+git log --oneline --graph --all         # 그래프 ★
+git log -3                              # 최근 3개
+git log --stat                          # 변경 파일 통계
+git log -p                              # 변경 내용 포함
+git log --author=&quot;홍길동&quot;
+git log --since=&quot;2 days ago&quot;
+git log --oneline -- scripts/           # 특정 경로 이력
+
+git show &lt;해시&gt;                          # 특정 커밋 상세
+git diff                                # 작업폴더 vs 스테이징
+git diff --staged                       # 스테이징 vs 최근커밋
+git diff HEAD                           # 작업폴더 vs 최근커밋
+git diff &lt;해시1&gt; &lt;해시2&gt;
+</code></pre>
+<h3 id="25-되돌리기-3단계-구분">2.5 되돌리기 — 3단계 구분 ★</h3>
+<div class="tw"><table>
+<thead>
+<tr>
+<th>상황</th>
+<th>명령</th>
+<th>위험도</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>작업 폴더 수정 취소</td>
+<td><code>git restore 파일</code></td>
+<td>중 (변경 소실)</td>
+</tr>
+<tr>
+<td>스테이징 취소</td>
+<td><code>git restore --staged 파일</code></td>
+<td>낮음</td>
+</tr>
+<tr>
+<td>직전 커밋 취소(변경 유지)</td>
+<td><code>git reset --soft HEAD~1</code></td>
+<td>낮음</td>
+</tr>
+<tr>
+<td>직전 커밋 취소(스테이징도 해제)</td>
+<td><code>git reset HEAD~1</code></td>
+<td>낮음</td>
+</tr>
+<tr>
+<td>직전 커밋 완전 삭제</td>
+<td><code>git reset --hard HEAD~1</code></td>
+<td><strong>높음 ⚠️</strong></td>
+</tr>
+<tr>
+<td>커밋 되돌리는 새 커밋 생성</td>
+<td><code>git revert &lt;해시&gt;</code></td>
+<td>낮음 (<strong>공유 이력에는 이것</strong>)</td>
+</tr>
+</tbody>
+</table></div>
+<pre><code class="language-bash">git reflog              # 모든 HEAD 이동 기록 — reset 사고 시 구조선 ★
+</code></pre>
+<blockquote>
+<p><strong>철칙</strong>: 이미 push한 커밋은 <code>reset</code> 대신 <code>revert</code>. <code>reset --hard</code> 후 push하면 팀원의 이력이 깨집니다.</p>
+</blockquote>
+<h3 id="26-gitignore">2.6 .gitignore</h3>
+<pre><code class="language-bash"># 패턴 규칙
+*.pt              # 확장자
+logs/             # 디렉토리
+/build            # 루트의 build만
+!important.pt     # 예외(무시하지 않음)
+**/temp           # 모든 깊이의 temp
+</code></pre>
+<pre><code class="language-bash">git check-ignore -v 파일명       # 어느 규칙에 걸렸는지 확인 ★
+git rm --cached 파일명           # 이미 추적 중인 파일 제외
+git status --ignored             # 무시된 파일 표시
+</code></pre>
+<blockquote>
+<p>⚠️ <strong><code>.gitignore</code>는 이미 추적 중인 파일에는 소용없습니다.</strong> 실수로 커밋한 이미지는 <code>git rm --cached</code>로 빼야 합니다. 그래도 <strong>이력에는 남습니다</strong> → 7일차에서 다룹니다.</p>
+</blockquote>
+<hr />
+<h2 id="3교시-커밋-메시지와-브랜치-50분">3교시 · 커밋 메시지와 브랜치</h2>
+<h3 id="31-좋은-커밋-좋은-점수">3.1 좋은 커밋 = 좋은 점수</h3>
+<p><strong>나쁜 예</strong></p>
+<pre><code>수정
+ㅁㄴㅇㄹ
+final
+update
+작업
+</code></pre>
+<p><strong>좋은 예 (Conventional Commits)</strong></p>
+<pre><code>feat(dataset): 이미지-라벨 정합성 검증 기능 추가
+fix(split): 시드 고정 시 재현되지 않던 버그 수정
+docs(readme): 설치 절차 및 실행 예시 보강
+refactor(check): 검증 로직을 함수 단위로 분리
+</code></pre>
+<h3 id="32-conventional-commits-규격">3.2 Conventional Commits 규격</h3>
+<pre><code>&lt;type&gt;(&lt;scope&gt;): &lt;subject&gt;
+
+&lt;body&gt;
+
+&lt;footer&gt;
+</code></pre>
+<div class="tw"><table>
+<thead>
+<tr>
+<th>type</th>
+<th>용도</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>feat</code></td>
+<td>새 기능</td>
+</tr>
+<tr>
+<td><code>fix</code></td>
+<td>버그 수정</td>
+</tr>
+<tr>
+<td><code>docs</code></td>
+<td>문서</td>
+</tr>
+<tr>
+<td><code>style</code></td>
+<td>포맷팅(로직 변경 없음)</td>
+</tr>
+<tr>
+<td><code>refactor</code></td>
+<td>리팩터링</td>
+</tr>
+<tr>
+<td><code>test</code></td>
+<td>테스트</td>
+</tr>
+<tr>
+<td><code>chore</code></td>
+<td>빌드·설정·잡무</td>
+</tr>
+<tr>
+<td><code>data</code></td>
+<td>(본 과정 추가) 데이터셋 구성 변경</td>
+</tr>
+</tbody>
+</table></div>
+<p><strong>subject 규칙</strong>
+- 50자 이내
+- 명령형 또는 명사형 (한국어는 "~추가", "~수정")
+- 마침표 없음
+- <strong>무엇을 왜 바꿨는지</strong>가 드러날 것</p>
+<h3 id="33-커밋-단위-실무-기준">3.3 커밋 단위 — 실무 기준</h3>
+<div class="tw"><table>
+<thead>
+<tr>
+<th>원칙</th>
+<th>설명</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>하나의 커밋 = 하나의 논리적 변경</td>
+<td>기능 추가와 오타 수정을 섞지 않음</td>
+</tr>
+<tr>
+<td>되돌릴 수 있는 단위</td>
+<td>이 커밋만 취소해도 말이 되는가?</td>
+</tr>
+<tr>
+<td>커밋 후 항상 동작</td>
+<td>깨진 상태를 커밋하지 않음</td>
+</tr>
+<tr>
+<td>너무 크지도 작지도</td>
+<td>파일 1~5개, 변경 200줄 이내 권장</td>
+</tr>
+</tbody>
+</table></div>
+<blockquote>
+<p><strong>평가 관점</strong>: 심사자가 <code>git log --oneline</code>을 봤을 때 <strong>프로젝트의 진행 과정이 이야기로 읽히면</strong> 만점, <code>수정</code>만 50줄이면 감점입니다.</p>
+</blockquote>
+<h3 id="34-브랜치">3.4 브랜치</h3>
+<pre><code class="language-bash">git branch                       # 목록
+git branch &lt;이름&gt;                 # 생성
+git switch &lt;이름&gt;                 # 이동 (신버전)
+git checkout &lt;이름&gt;               # 이동 (구버전)
+git switch -c &lt;이름&gt;              # 생성+이동 ★
+git branch -d &lt;이름&gt;              # 삭제 (머지된 것만)
+git branch -D &lt;이름&gt;              # 강제 삭제
+git branch -m 새이름              # 이름 변경
+</code></pre>
+<h3 id="35-머지">3.5 머지</h3>
+<pre><code class="language-bash">git switch main
+git merge feature/dataset-check
+</code></pre>
+<p><strong>Fast-forward vs 3-way merge</strong></p>
+<pre><code>[FF] main이 뒤처져 있고 갈라지지 않은 경우 — 포인터만 이동
+main:    A---B
+feature:      \---C---D    →  main: A---B---C---D
+
+[3-way] 양쪽이 각각 진행된 경우 — 머지 커밋 생성
+main:    A---B---E
+feature:      \---C---D    →  main: A---B---E---M
+                                          \---C---D---/
+</code></pre>
+<pre><code class="language-bash">git merge --no-ff feature/x     # 항상 머지 커밋 생성 (이력이 명확)
+</code></pre>
+<h3 id="36-충돌conflict">3.6 충돌(Conflict)</h3>
+<p>같은 파일의 <strong>같은 줄</strong>을 양쪽에서 다르게 고치면 발생합니다.</p>
+<pre><code>&lt;&lt;&lt;&lt;&lt;&lt;&lt; HEAD
+MIN_IMAGES=500
+=======
+MIN_IMAGES=1000
+&gt;&gt;&gt;&gt;&gt;&gt;&gt; feature/threshold
+</code></pre>
+<p><strong>해결 절차</strong>
+1. <code>git status</code> 로 충돌 파일 확인
+2. 편집기로 열어 <code>&lt;&lt;&lt;&lt;&lt;&lt;&lt;</code>, <code>=======</code>, <code>&gt;&gt;&gt;&gt;&gt;&gt;&gt;</code> 를 <strong>모두 제거</strong>하고 원하는 내용만 남김
+3. <code>git add 파일</code>
+4. <code>git commit</code> (메시지 자동 제안됨)</p>
+<pre><code class="language-bash">git merge --abort         # 머지 취소하고 이전 상태로
+</code></pre>
+<h3 id="37-태그">3.7 태그</h3>
+<pre><code class="language-bash">git tag v1.0
+git tag -a v1.0 -m &quot;교과1 최종 산출물&quot;
+git tag
+git show v1.0
+</code></pre>
+<blockquote>
+<p>프로젝트 마일스톤(중간발표, 최종발표)마다 태그를 달아 두면 심사자가 특정 시점을 바로 확인할 수 있습니다.</p>
+</blockquote>
+<hr />
+<h2 id="4교시-전반-브랜치-전략과-팀-규칙-30분">4교시 · 브랜치 전략과 팀 규칙</h2>
+<h3 id="41-본-과정-권장-브랜치-전략-github-flow-단순화">4.1 본 과정 권장 브랜치 전략 (GitHub Flow 단순화)</h3>
+<pre><code>main            ●───●───────●───────●        항상 동작하는 상태
+                 \         /       /
+feature/xxx       ●───●───●       /          기능 단위 작업
+                                 /
+fix/yyy                    ●────●            버그 수정
+</code></pre>
+<div class="tw"><table>
+<thead>
+<tr>
+<th>브랜치</th>
+<th>명명 규칙</th>
+<th>용도</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>main</code></td>
+<td>—</td>
+<td>항상 배포/시연 가능한 상태</td>
+</tr>
+<tr>
+<td><code>feature/&lt;기능&gt;</code></td>
+<td><code>feature/label-tool</code></td>
+<td>새 기능</td>
+</tr>
+<tr>
+<td><code>fix/&lt;버그&gt;</code></td>
+<td><code>fix/split-seed</code></td>
+<td>버그 수정</td>
+</tr>
+<tr>
+<td><code>docs/&lt;문서&gt;</code></td>
+<td><code>docs/readme</code></td>
+<td>문서</td>
+</tr>
+</tbody>
+</table></div>
+<p><strong>규칙</strong>
+1. <code>main</code>에 직접 커밋 금지 (7일차 PR로 강제)
+2. 브랜치는 짧게 유지 (1~3일 내 머지)
+3. 머지 전 <code>main</code>을 최신으로 받아 충돌 미리 해결</p>
+<h3 id="42-팀-프로젝트-대비-교과-1415-예고">4.2 팀 프로젝트 대비 (교과 14·15 예고)</h3>
+<p>안내서 교과 14 운영 포인트:</p>
+<blockquote>
+<p>팀 구성은 4~5명이며 팀장과 역할을 구분합니다. 산출물은 수행계획서 · UML · 데이터 정의서 · 설계산출물 · 테스트산출물 · 최종제품 및 성능보고서</p>
+</blockquote>
+<p>4~5명이 동시에 코드를 고칩니다. 브랜치 전략이 없으면 <strong>매일 충돌</strong>합니다.</p>
+<hr />
+<h1 id="part-2-실습-4h">PART 2. 실습</h1>
+<h2 id="실습-6-1-저장소-시작과-첫-커밋-50분">실습 6-1 · 저장소 시작과 첫 커밋</h2>
+<h3 id="step-1-설정">Step 1. 설정</h3>
+<pre><code class="language-bash">git config --global user.name  &quot;본인이름&quot;
+git config --global user.email &quot;본인이메일&quot;
+git config --global core.editor &quot;vim&quot;
+git config --global init.defaultBranch main
+git config --global core.quotepath false
+git config --global alias.st status
+git config --global alias.lg &quot;log --oneline --graph --all --decorate&quot;
+git config --list | grep -E &quot;user|alias&quot;
+</code></pre>
+<h3 id="step-2-저장소-초기화">Step 2. 저장소 초기화</h3>
+<pre><code class="language-bash">cd ~/kdt-linux
+git init
+git status
+ls -a
+</code></pre>
+<h3 id="step-3-gitignore-먼저-확인">Step 3. .gitignore 먼저 확인 ★</h3>
+<pre><code class="language-bash">cat .gitignore                 # 5일차에 만든 것
+git status                     # 이미지가 안 보이는지 확인
+git status --ignored | head -20
+</code></pre>
+<blockquote>
+<p><strong>순서가 중요합니다.</strong> <code>.gitignore</code> 없이 <code>git add .</code> 를 하면 이미지 999장이 스테이징됩니다. 그리고 그건 <strong>이력에 영구히 남습니다.</strong></p>
+</blockquote>
+<h3 id="step-4-첫-커밋">Step 4. 첫 커밋</h3>
+<pre><code class="language-bash">git add .gitignore
+git status
+git commit -m &quot;chore: 프로젝트 초기 .gitignore 추가&quot;
+git log
+</code></pre>
+<h3 id="step-5-의미-단위-커밋-연습">Step 5. 의미 단위 커밋 연습 ★</h3>
+<p>한 번에 <code>git add .</code> 하지 않고, <strong>주제별로 나눠서</strong> 커밋합니다.</p>
+<pre><code class="language-bash"># 커밋 2: 스크립트
+git add scripts/dataset_check.sh
+git commit -m &quot;feat(check): 데이터셋 정합성 검증 스크립트 추가
+
+- 이미지-라벨 짝 검증
+- 빈 라벨/필드수/좌표범위/클래스ID 검사
+- --fix 자동 수정, --min 최소 장수 옵션
+- 종료코드 0(PASS)/1(FAIL)/2(사용법)&quot;
+
+# 커밋 3: 분할 스크립트
+git add scripts/split_dataset.sh
+git commit -m &quot;feat(split): 시드 고정 재현 가능한 데이터셋 분할 스크립트 추가&quot;
+
+# 커밋 4: 백업/파이프라인
+git add scripts/auto_backup.sh scripts/run_pipeline.sh scripts/list_datasets.sh
+git commit -m &quot;feat(ops): 백업 및 통합 파이프라인 스크립트 추가&quot;
+
+# 커밋 5: 환경
+git add env/
+git commit -m &quot;chore(env): conda 환경 정의 파일 추가&quot;
+
+# 커밋 6: 데이터 메타
+git add dataset/*/meta/
+git commit -m &quot;docs(dataset): 데이터셋 메타 문서 및 클래스 정의 추가&quot;
+
+# 커밋 7: 학습 기록
+git add DAY*.md
+git commit -m &quot;docs: 1~5일차 학습 정리 추가&quot;
+
+git log --oneline
+git lg
+</code></pre>
+<h3 id="step-6-상태-확인">Step 6. 상태 확인</h3>
+<pre><code class="language-bash">git status
+git log --stat -1
+git show HEAD --stat
+</code></pre>
+<p><strong>검증</strong>: <code>git log --stat</code> 결과에 <code>.jpg</code> 파일이 하나도 없어야 합니다.</p>
+<pre><code class="language-bash">git log --stat | grep -c &quot;\.jpg&quot; || echo &quot;이미지 미포함 확인 ✔&quot;
+</code></pre>
+<h3 id="체크포인트-6-1" class="cp">✅ 체크포인트 6-1</h3>
+<ul>
+<li>[ ] <code>git config</code> 사용자 정보 설정 완료</li>
+<li>[ ] 커밋 6개 이상, 각각 Conventional Commits 형식</li>
+<li>[ ] 커밋 히스토리에 이미지 파일 없음</li>
+<li>[ ] <code>git lg</code> 별칭 동작</li>
+</ul>
+<hr />
+<h2 id="실습-6-2-수정조회되돌리기-60분">실습 6-2 · 수정·조회·되돌리기</h2>
+<h3 id="step-1-수정과-diff">Step 1. 수정과 diff</h3>
+<pre><code class="language-bash">cd ~/kdt-linux
+vim scripts/dataset_check.sh
+# MIN_IMAGES=500 → MIN_IMAGES=300 으로 변경 후 저장
+
+git status
+git diff                       # 무엇이 바뀌었나
+git diff --stat
+</code></pre>
+<p><code>git diff</code> 출력 읽기:</p>
+<pre><code>-MIN_IMAGES=500        ← 빨강 / - : 삭제된 줄
++MIN_IMAGES=300        ← 초록 / + : 추가된 줄
+</code></pre>
+<h3 id="step-2-스테이징과-diff의-차이">Step 2. 스테이징과 diff의 차이</h3>
+<pre><code class="language-bash">git add scripts/dataset_check.sh
+git diff                       # 아무것도 안 나옴 (작업폴더 = 스테이징)
+git diff --staged              # 여기서 보임
+git status -s                  # M 이 왼쪽 열에 표시
+</code></pre>
+<h3 id="step-3-되돌리기-3단계-실습">Step 3. 되돌리기 3단계 실습 ★</h3>
+<p><strong>① 작업 폴더 수정 취소</strong></p>
+<pre><code class="language-bash">git restore --staged scripts/dataset_check.sh   # 먼저 언스테이징
+git status
+git restore scripts/dataset_check.sh            # 수정 취소
+grep &quot;MIN_IMAGES=&quot; scripts/dataset_check.sh     # 500 으로 복원 확인
+</code></pre>
+<p><strong>② 커밋 취소 (변경은 유지)</strong></p>
+<pre><code class="language-bash">echo &quot;# 임시 메모&quot; &gt;&gt; scripts/dataset_check.sh
+git add . &amp;&amp; git commit -m &quot;temp: 임시 커밋&quot;
+git log --oneline -3
+
+git reset --soft HEAD~1        # 커밋만 취소, 스테이징 유지
+git status                     # 스테이징 상태
+git log --oneline -3
+
+git reset HEAD~0               # (mixed) 스테이징 해제
+git restore scripts/dataset_check.sh
+</code></pre>
+<p><strong>③ reflog로 구조 (사고 복구) ★</strong></p>
+<pre><code class="language-bash">echo &quot;실수&quot; &gt;&gt; DAY5.md
+git add . &amp;&amp; git commit -m &quot;temp: 실수 커밋&quot;
+HASH=$(git rev-parse HEAD)
+echo &quot;이 해시를 기억: $HASH&quot;
+
+git reset --hard HEAD~1        # ⚠️ 커밋 완전 삭제
+git log --oneline -3           # 사라짐
+
+git reflog                     # 모든 이동 기록에는 남아 있음 ★
+git reset --hard $HASH         # 복구
+git log --oneline -3           # 돌아옴
+
+# 정리
+git reset --hard HEAD~1
+git restore DAY5.md 2&gt;/dev/null || true
+</code></pre>
+<blockquote>
+<p><strong><code>git reflog</code> 는 Git의 안전망입니다.</strong> <code>reset --hard</code> 로 날린 커밋도 기본 90일간 복구 가능합니다. 이걸 모르면 사고 시 프로젝트를 통째로 잃습니다.</p>
+</blockquote>
+<h3 id="step-4-revert">Step 4. revert</h3>
+<pre><code class="language-bash">echo &quot;# 되돌릴 변경&quot; &gt;&gt; DAY4.md
+git add . &amp;&amp; git commit -m &quot;docs: 되돌릴 변경 테스트&quot;
+git log --oneline -2
+
+git revert HEAD --no-edit      # 취소하는 새 커밋 생성
+git log --oneline -3
+cat DAY4.md | tail -2          # 변경이 취소됨
+</code></pre>
+<p><strong>reset vs revert 정리 (노트 작성)</strong></p>
+<div class="tw"><table>
+<thead>
+<tr>
+<th></th>
+<th>reset</th>
+<th>revert</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>이력</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>공유 저장소</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>사용 시점</td>
+<td></td>
+<td></td>
+</tr>
+</tbody>
+</table></div>
+<h3 id="step-5-이력-조회-미션">Step 5. 이력 조회 미션</h3>
+<pre><code class="language-bash">git log --oneline
+git log --oneline --graph --all
+git log --stat -2
+git log -p -1
+git log --oneline -- scripts/
+git log --oneline --grep=&quot;feat&quot;
+git show HEAD~2
+git diff HEAD~3 HEAD --stat
+</code></pre>
+<h3 id="step-6-실무-확장-미션-현장에서-매일-쓰는-git-유틸리티-6종">Step 6. 실무 확장 미션 — 현장에서 매일 쓰는 Git 유틸리티 6종 ★취업 현장 빈출</h3>
+<p>면접·실무 온보딩에서 가장 자주 나오는 Git 명령들입니다. "커밋 이력을 조회하는 것"을 넘어, <strong>작업을 임시로 미뤄두거나, 특정 시점 파일을 되돌아보는</strong> 상황을 다룹니다.</p>
+<pre><code class="language-bash">cd ~/kdt-linux
+
+# M1. [목적] 작업 중이던 코드를 커밋하지 않고 잠깐 치워두고, 급한 다른 브랜치 작업을 먼저 처리한다
+# [설명] git stash는 "커밋할 준비는 안 됐지만 지금 당장 브랜치를 바꿔야 하는" 실무 상황의 표준 해법입니다.
+#        면접에서 "커밋 전 임시저장 방법은?"이라는 질문에 바로 나오는 답입니다.
+echo "# 작업 중" >> scripts/dataset_check.sh
+git stash                      # 변경사항을 임시 저장하고 작업 디렉토리를 깨끗하게
+git status                     # → clean 상태 확인
+git stash list                 # 저장된 stash 목록
+git stash pop                  # 다시 꺼내오기 (목록에서 제거됨)
+git checkout -- scripts/dataset_check.sh   # 실습용 변경 취소
+
+# M2. [목적] 전체 커밋 이력을 브랜치 구조까지 한눈에 보이는 그래프로 확인한다
+# [설명] --graph --oneline --all을 조합한 형태는 실무에서 "지금 브랜치가 어떻게 갈라졌는지"
+#        확인할 때 가장 많이 쓰는 조합입니다. alias로 등록해 두면 매일 씁니다.
+git log --graph --oneline --all --decorate
+
+# M3. [목적] 특정 파일이 "언제, 누가, 왜" 그 줄을 그렇게 작성했는지 추적한다 (버그 원인 추적의 시작점)
+# [설명] git blame은 한 줄 한 줄에 커밋 해시와 작성자를 표시합니다.
+#        협업 중 "이 코드 왜 이렇게 짰지?"라는 질문의 답을 커밋 메시지에서 찾을 수 있습니다.
+git blame scripts/dataset_check.sh | head -10
+
+# M4. [목적] 지금은 삭제된 과거 버전의 파일 내용을 현재 브랜치를 건드리지 않고 확인한다
+# [설명] git show 커밋:경로 형태로 "그 시점의 파일 스냅샷"만 조회할 수 있습니다.
+#        전체를 되돌리지(reset) 않고 "내용만 살짝 보고 싶을 때" 쓰는 안전한 방법입니다.
+FIRST_COMMIT=$(git log --oneline | tail -1 | awk '{print $1}')
+git show "$FIRST_COMMIT:README.md" 2>/dev/null | head -5 || echo "(해당 파일 없음 — 존재하는 파일명으로 재시도)"
+
+# M5. [목적] 서로 다른 두 브랜치(혹은 시점) 사이에 정확히 어떤 파일이 바뀌었는지만 빠르게 파악한다
+# [설명] --stat 옵션은 변경 내용 전체가 아니라 "어떤 파일이 몇 줄 바뀌었는지" 요약만 보여줘
+#        코드 리뷰 전 변경 범위를 가늠할 때 유용합니다.
+git diff main feature/demo --stat 2>/dev/null || echo "(feature 브랜치 생성 후 재시도 — 실습 6-4에서 진행)"
+
+# M6. [목적] 여러 파일을 수정했지만 그중 일부만 골라 커밋에 포함시킨다 (의미 단위 커밋 원칙 실천)
+# [설명] git add -p는 파일 전체가 아니라 "덩어리(hunk) 단위"로 스테이징 여부를 물어봅니다.
+#        3.3절의 "커밋 단위 원칙"을 실제로 지키기 위한 도구입니다.
+echo "# temp1" >> DAY5.md 2>/dev/null; echo "# temp2" >> DAY6.md 2>/dev/null
+git add -p 2>/dev/null || echo "(대화형 모드 — 실습 환경에서 y/n/s로 직접 진행)"
+git checkout -- DAY5.md DAY6.md 2>/dev/null   # 실습용 변경 취소
+</code></pre>
+<h3 id="체크포인트-6-2" class="cp">✅ 체크포인트 6-2</h3>
+<ul>
+<li>[ ] <code>git diff</code> 와 <code>git diff --staged</code> 의 차이를 설명한다</li>
+<li>[ ] restore / reset --soft / reset --hard / revert 를 각각 실행했다</li>
+<li>[ ] <code>git reflog</code> 로 삭제한 커밋을 복구했다</li>
+</ul>
+<hr />
+<h2 id="실습-6-3-gitignore-실전-40분">실습 6-3 · .gitignore 실전</h2>
+<h3 id="step-1-실수-재현-이미지를-커밋해-보기">Step 1. 실수 재현 — 이미지를 커밋해 보기</h3>
+<pre><code class="language-bash">cd ~/kdt-linux
+mkdir -p tmp_test
+cp dataset/kimchi/raw/images/kimchi_0001.jpg tmp_test/ 2&gt;/dev/null || \
+  cp dataset/kimchi/raw/kimchi_0001.jpg tmp_test/
+
+git status                     # .gitignore의 *.jpg 규칙에 걸려 안 보임
+git check-ignore -v tmp_test/kimchi_0001.jpg     # 어느 규칙인지 확인 ★
+
+git add -f tmp_test/kimchi_0001.jpg              # 강제 추가 (실수 재현)
+git status
+git commit -m &quot;chore: 실수로 이미지 커밋&quot;
+git log --stat -1
+</code></pre>
+<h3 id="step-2-되돌리기">Step 2. 되돌리기</h3>
+<pre><code class="language-bash">git rm --cached tmp_test/kimchi_0001.jpg
+git commit -m &quot;fix: 실수로 커밋된 이미지 제거&quot;
+git status
+
+# 그러나 이력에는 여전히 남아 있음 ★
+git log --all --oneline -- &quot;*.jpg&quot;
+git show HEAD~1 --stat
+</code></pre>
+<blockquote>
+<p>⚠️ <strong>핵심 교훈</strong>: <code>git rm --cached</code> 는 앞으로만 제외할 뿐, <strong>과거 이력에서는 지워지지 않습니다.</strong>
+㈜비솔 실데이터를 실수로 커밋하면 <code>git rm --cached</code> 로 해결되지 않고, 이력 재작성(<code>git filter-repo</code>) 또는 <strong>저장소 폐기</strong>가 필요합니다.
+→ <strong>7일차에 이를 원천 차단하는 pre-commit 훅을 만듭니다.</strong></p>
+</blockquote>
+<pre><code class="language-bash">rm -rf tmp_test
+git add . &amp;&amp; git commit -m &quot;chore: 테스트 파일 정리&quot; 2&gt;/dev/null || true
+</code></pre>
+<h3 id="step-3-gitignore-규칙-실험">Step 3. .gitignore 규칙 실험</h3>
+<pre><code class="language-bash">mkdir -p ignore_test &amp;&amp; cd ignore_test
+touch a.jpg b.pt c.log d.md
+mkdir sub &amp;&amp; touch sub/e.jpg
+
+cat &gt; .gitignore &lt;&lt; 'EOF'
+*.jpg
+*.pt
+*.log
+!important.log
+EOF
+
+touch important.log
+cd ~/kdt-linux
+git status --short ignore_test/
+git check-ignore -v ignore_test/a.jpg
+git check-ignore -v ignore_test/sub/e.jpg
+git check-ignore -v ignore_test/important.log ; echo &quot;exit=$?&quot;
+
+rm -rf ignore_test
+</code></pre>
+<h3 id="step-4-최종-gitignore-정비">Step 4. 최종 .gitignore 정비</h3>
+<pre><code class="language-bash">cd ~/kdt-linux
+cat &gt;&gt; .gitignore &lt;&lt; 'EOF'
+
+# ===== 보안: 자격증명 (절대 커밋 금지) =====
+*.pem
+*.key
+.env
+secrets/
+credentials.json
+aws_credentials
+EOF
+
+git add .gitignore
+git commit -m &quot;chore(security): 자격증명 파일 제외 규칙 추가&quot;
+</code></pre>
+<h3 id="체크포인트-6-3" class="cp">✅ 체크포인트 6-3</h3>
+<ul>
+<li>[ ] <code>git check-ignore -v</code> 로 무시 규칙을 확인했다</li>
+<li>[ ] <code>git rm --cached</code> 로 추적 제외했다</li>
+<li>[ ] 이력에는 남는다는 것을 <code>git show HEAD~1 --stat</code> 으로 확인했다</li>
+</ul>
+<hr />
+<h2 id="실습-6-4-브랜치와-충돌-60분-핵심">실습 6-4 · 브랜치와 충돌 ★핵심</h2>
+<h3 id="step-1-브랜치-생성-및-작업">Step 1. 브랜치 생성 및 작업</h3>
+<pre><code class="language-bash">cd ~/kdt-linux
+git switch -c feature/resolution-check
+git branch
+</code></pre>
+<p><code>dataset_check.sh</code> 에 해상도 검증 기능을 추가합니다.</p>
+<pre><code class="language-bash">vim scripts/dataset_check.sh
+</code></pre>
+<p><code>check_volume()</code> 함수 아래에 추가:</p>
+<pre><code class="language-bash">check_resolution () {
+    section 7 &quot;이미지 해상도&quot;
+    local raw=&quot;$DATASET_DIR/raw&quot;
+    if ! command -v identify &gt; /dev/null 2&gt;&amp;1; then
+        warn &quot;ImageMagick 미설치 - 해상도 검증 생략&quot;
+        return
+    fi
+    local small
+    small=$(find &quot;$raw&quot; -name &quot;*.jpg&quot; | head -100 | while read -r f; do
+        identify -format &quot;%w %h\n&quot; &quot;$f&quot; 2&gt;/dev/null
+    done | awk '$1&lt;640 || $2&lt;640 {c++} END {print c+0}')
+    if [ &quot;$small&quot; -eq 0 ]; then ok &quot;해상도 640 이상&quot;
+    else warn &quot;640 미만 이미지 ${small}건 (샘플 100장 기준)&quot;; fi
+}
+</code></pre>
+<p><code>main()</code> 안 <code>show_distribution</code> 앞에 <code>check_resolution</code> 호출 추가.</p>
+<pre><code class="language-bash">bash -n scripts/dataset_check.sh          # 문법 검사
+git add scripts/dataset_check.sh
+git commit -m &quot;feat(check): 이미지 해상도 검증 기능 추가
+
+교과 14 목표 성능 요건(입력 640x640 이상)에 대응하기 위해
+해상도 미달 이미지를 사전에 탐지한다.&quot;
+git log --oneline
+</code></pre>
+<h3 id="step-2-main에서-다른-작업-충돌-유발">Step 2. main에서 다른 작업 (충돌 유발)</h3>
+<pre><code class="language-bash">git switch main
+git log --oneline -2
+
+vim scripts/dataset_check.sh
+# MIN_IMAGES=500 → MIN_IMAGES=1000 으로 변경
+git add . &amp;&amp; git commit -m &quot;chore(check): 최소 이미지 요건을 1000장으로 상향&quot;
+</code></pre>
+<p>동시에 feature 브랜치에서도 같은 줄을 고칩니다.</p>
+<pre><code class="language-bash">git switch feature/resolution-check
+vim scripts/dataset_check.sh
+# MIN_IMAGES=500 → MIN_IMAGES=300 으로 변경
+git add . &amp;&amp; git commit -m &quot;chore(check): 최소 이미지 요건을 300장으로 완화&quot;
+</code></pre>
+<h3 id="step-3-머지와-충돌-해결">Step 3. 머지와 충돌 해결</h3>
+<pre><code class="language-bash">git switch main
+git log --oneline --graph --all
+git merge feature/resolution-check
+</code></pre>
+<p>충돌 발생:</p>
+<pre><code>CONFLICT (content): Merge conflict in scripts/dataset_check.sh
+Automatic merge failed; fix conflicts and then commit the result.
+</code></pre>
+<pre><code class="language-bash">git status
+vim scripts/dataset_check.sh
+</code></pre>
+<pre><code>&lt;&lt;&lt;&lt;&lt;&lt;&lt; HEAD
+MIN_IMAGES=1000
+=======
+MIN_IMAGES=300
+&gt;&gt;&gt;&gt;&gt;&gt;&gt; feature/resolution-check
+</code></pre>
+<p><strong>해결</strong>: 마커를 전부 지우고 팀 합의 값(예: 500)만 남깁니다.</p>
+<pre><code class="language-bash">MIN_IMAGES=500
+</code></pre>
+<pre><code class="language-bash">bash -n scripts/dataset_check.sh
+git add scripts/dataset_check.sh
+git status
+git commit -m &quot;merge: feature/resolution-check 병합 (MIN_IMAGES=500 합의)&quot;
+git log --oneline --graph --all
+</code></pre>
+<h3 id="step-4-검증-및-정리">Step 4. 검증 및 정리</h3>
+<pre><code class="language-bash">./scripts/dataset_check.sh ~/kdt-linux/dataset/kimchi | head -30
+git branch -d feature/resolution-check
+git branch
+</code></pre>
+<h3 id="step-5-머지-취소-연습">Step 5. 머지 취소 연습</h3>
+<pre><code class="language-bash">git switch -c feature/temp
+echo &quot;MIN_IMAGES=9999&quot; &gt;&gt; scripts/dataset_check.sh
+git add . &amp;&amp; git commit -m &quot;test: 충돌 유발용&quot;
+
+git switch main
+git merge feature/temp
+# 충돌이 나면
+git merge --abort              # 머지 취소, 이전 상태로 복귀
+git status
+git branch -D feature/temp
+</code></pre>
+<h3 id="step-6-태그">Step 6. 태그</h3>
+<pre><code class="language-bash">git tag -a v1.0-day6 -m &quot;교과1 6일차 — Git 기초 완료
+
+산출물:
+- dataset_check.sh (정합성 검증)
+- split_dataset.sh (재현 가능 분할)
+- auto_backup.sh (백업 자동화)
+- environment.yml (환경 정의)&quot;
+
+git tag
+git show v1.0-day6 | head -20
+</code></pre>
+<h3 id="step-7-실무-확장-미션-cherry-pick과-rebase-언제-쓰는가">Step 7. 실무 확장 미션 — cherry-pick과 rebase, 언제 쓰는가 ★취업 현장 빈출</h3>
+<p>merge만으로 부족한 상황이 실무에는 반드시 옵니다. "다른 브랜치의 커밋 하나만 필요할 때", "커밋 이력을 깔끔하게 정리해서 올리고 싶을 때"의 표준 도구입니다.</p>
+<pre><code class="language-bash"># M7. [목적] feature 브랜치의 커밋 10개 중 딱 1개(버그 수정)만 급하게 main에도 반영한다
+# [설명] cherry-pick은 "브랜치 전체를 합치지 않고, 커밋 하나만 콕 집어 복사"합니다.
+#        운영 서버에 긴급 패치만 먼저 반영해야 하는 실무 상황에서 매일 쓰입니다.
+git switch -c feature/hotfix-demo
+echo "# hotfix: 오탈자 수정" >> DATASET_NOTE.md 2>/dev/null || echo "# hotfix" >> README.md
+git add . && git commit -m "fix: 문서 오탈자 수정"
+HOTFIX_HASH=$(git rev-parse HEAD)
+git switch main
+git cherry-pick "$HOTFIX_HASH"
+git log --oneline -3
+git branch -D feature/hotfix-demo
+
+# M8. [목적] 팀 규칙상 "커밋 이력은 한 줄로 깔끔하게" 요구받았을 때 여러 커밋을 하나로 합친다
+# [설명] rebase -i(interactive)는 커밋들을 편집기 화면에서 squash(합치기)·reword(메시지 수정)할 수 있게 해줍니다.
+#        merge는 이력을 "있는 그대로 합치고", rebase는 이력을 "재작성"한다는 근본적 차이를 기억하십시오.
+git switch -c feature/squash-demo
+echo "1" >> temp_notes.txt && git add . && git commit -m "wip: 1단계"
+echo "2" >> temp_notes.txt && git add . && git commit -m "wip: 2단계"
+echo "3" >> temp_notes.txt && git add . && git commit -m "wip: 3단계"
+git log --oneline -3
+# 아래 명령 실행 시 에디터가 열립니다. 3개 커밋 중 위 1개만 pick, 나머지 2개는 squash(s)로 변경 후 저장
+git rebase -i HEAD~3
+git log --oneline -3          # 커밋 3개가 1개로 합쳐졌는지 확인
+git switch main && git branch -D feature/squash-demo
+rm -f temp_notes.txt
+
+# M9. [목적] merge와 rebase 중 언제 무엇을 써야 하는지 팀 규칙으로 정리한다
+# [설명] 아래는 정답이 아니라 "현업에서 가장 흔히 채택하는 기준"입니다. 정답을 외우기보다
+#        "왜 이런 기준이 필요한가"를 이해하는 것이 면접 답변의 핵심입니다.
+cat << 'EOF'
+| 상황                                   | 권장      |
+|----------------------------------------|-----------|
+| main으로 기능 브랜치 합치기(공개 이력)  | merge     |
+| 개인 작업 브랜치를 올리기 전 정리       | rebase -i |
+| 이미 원격에 공유된 커밋                 | 절대 rebase 금지 (이력 충돌 유발) |
+EOF
+</code></pre>
+<blockquote>
+<p>⚠️ <strong>rebase의 황금 규칙</strong>: 이미 다른 사람과 공유한(원격에 push한) 커밋은 rebase하지 않습니다. 이력이 바뀌면 그 커밋을 이미 받아간 동료의 저장소와 충돌이 발생합니다. 이 규칙은 교과 7에서 원격 저장소를 다루기 시작하면 실제로 체감하게 됩니다.</p>
+</blockquote>
+<h3 id="체크포인트-6-4" class="cp">✅ 체크포인트 6-4</h3>
+<ul>
+<li>[ ] 브랜치 생성 → 작업 → 머지 사이클 완료</li>
+<li>[ ] 충돌을 직접 해결하고 커밋했다</li>
+<li>[ ] <code>git merge --abort</code> 를 사용했다</li>
+<li>[ ] <code>git log --graph --all</code> 에서 브랜치 갈라짐이 보인다</li>
+<li>[ ] 태그 생성</li>
+</ul>
+<hr />
+<h2 id="실습-6-5-종합-챌린지-30분">실습 6-5 · 종합 챌린지</h2>
+<p><strong>미션</strong>: 아래 시나리오를 브랜치 전략에 따라 수행하고, 최종 <code>git log --oneline --graph --all</code> 결과를 캡처하시오.</p>
+<div class="tw"><table>
+<thead>
+<tr>
+<th>#</th>
+<th>작업</th>
+<th>브랜치</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td><code>README.md</code> 작성 (프로젝트 소개·설치·사용법)</td>
+<td><code>docs/readme</code></td>
+</tr>
+<tr>
+<td>2</td>
+<td><code>split_dataset.sh</code> 에 <code>--stratify</code> 옵션 추가</td>
+<td><code>feature/stratify</code></td>
+</tr>
+<tr>
+<td>3</td>
+<td><code>auto_backup.sh</code> 의 로그 경로 버그 수정</td>
+<td><code>fix/backup-log</code></td>
+</tr>
+<tr>
+<td>4</td>
+<td>세 브랜치를 <code>main</code>에 순차 머지</td>
+<td>—</td>
+</tr>
+<tr>
+<td>5</td>
+<td>태그 <code>v1.1-day6</code> 부착</td>
+<td>—</td>
+</tr>
+</tbody>
+</table></div>
+<h3 id="readmemd-필수-항목">README.md 필수 항목</h3>
+<pre><code class="language-markdown"># KDT Vision AI — Linux 데이터셋 운영 툴킷
+
+## 개요
+## 요구 환경
+## 설치
+## 사용법
+### dataset_check.sh
+### split_dataset.sh
+### auto_backup.sh
+## 디렉토리 구조
+## 라이선스 / 데이터 사용 제한 ⚠️
+</code></pre>
+<h3 id="최종-체크포인트" class="cp">✅ 최종 체크포인트</h3>
+<ul>
+<li>[ ] 브랜치 3개 생성 및 머지 완료</li>
+<li>[ ] 커밋 메시지가 전부 Conventional Commits 형식</li>
+<li>[ ] <code>git log --oneline</code> 이 프로젝트 진행 이야기로 읽힌다</li>
+<li>[ ] README.md에 데이터 사용 제한 명시</li>
+</ul>
+<hr />
+<h2 id="마무리-10분">마무리</h2>
+<pre><code class="language-bash">cd ~/kdt-linux
+git log --oneline --graph --all &gt; COMMIT_HISTORY.txt
+cat &gt; DAY6.md &lt;&lt; 'EOF'
+# Day 6 — Git 기초
+## 핵심
+- 3영역: Working Dir / Staging / Repository
+- add → commit, status/log/diff/show
+- restore(작업폴더) / reset(커밋) / revert(공유이력) / reflog(구조선)
+- .gitignore 는 이미 추적 중인 파일에 무효 → rm --cached, 이력엔 남음
+- 브랜치: switch -c → 작업 → merge → 충돌해결 → branch -d
+- Conventional Commits: feat/fix/docs/refactor/chore/data
+## 평가 연계
+- 코드 품질 10점 + 수행 역량 20점 = 커밋 기록으로 측정
+EOF
+git add DAY6.md COMMIT_HISTORY.txt
+git commit -m &quot;docs: 6일차 학습 정리 및 커밋 히스토리 기록&quot;
+</code></pre>
+<hr />
+<h2 id="과제">과제</h2>
+<ol>
+<li>오늘 만든 저장소의 <code>git log --oneline</code> 을 보고, <strong>다른 사람이 읽었을 때 이해되는지</strong> 스스로 점검. 안 되는 메시지 3개를 골라 개선안 작성</li>
+<li><code>git commit --amend</code> 로 직전 커밋 메시지 수정 실습</li>
+<li><code>git stash</code> 를 조사해 사용 시나리오 3개 작성 (7일차에 사용)</li>
+<li>아래 상황의 대처법을 쓰시오
+   - 실수로 <code>git reset --hard</code> 를 했다
+   - <code>main</code>에 직접 커밋했는데 브랜치에서 했어야 했다
+   - <code>.gitignore</code>를 만들기 전에 이미지 1,000장을 커밋했다</li>
+</ol>
+<nav class="pager"><a href="05.html"><span class="k">← 이전 · D5</span><span class="v">Anaconda 환경과 데이터셋 구조화</span></a><a class="next" href="07.html"><span class="k">다음 · D7 →</span><span class="v">GitHub 협업과 데이터 보안</span></a></nav>
+  </main>
+</div>
+<script>
+(function(){
+  var links=[].slice.call(document.querySelectorAll('.toc a'));
+  if(!links.length)return;
+  var map={},targets=[];
+  links.forEach(function(a){
+    var el=document.getElementById(decodeURIComponent(a.getAttribute('href').slice(1)));
+    if(el){map[el.id]=a;targets.push(el);}
+  });
+  var cur=null;
+  var io=new IntersectionObserver(function(es){
+    es.forEach(function(e){
+      if(e.isIntersecting){
+        if(cur)cur.classList.remove('active');
+        cur=map[e.target.id];
+        if(cur){cur.classList.add('active');
+          var r=document.querySelector('.rail');
+          if(r&&r.scrollHeight>r.clientHeight){
+            var t=cur.offsetTop-r.clientHeight/2;
+            if(Math.abs(r.scrollTop-t)>90)r.scrollTop=t;
+          }
+        }
+      }
+    });
+  },{rootMargin:'-76px 0px -72% 0px',threshold:0});
+  targets.forEach(function(t){io.observe(t);});
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,1637 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>셸 스크립트 · 프로세스 · 자동화 · 교과 1 · 리눅스</title>
+<link rel="preconnect" href="https://cdn.jsdelivr.net">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fontsource/jetbrains-mono@5.0.20/index.min.css">
+<style>
+/* ============ 토큰 ============ */
+:root{
+  --paper:#FAFAFB; --card:#FFFFFF;
+  --ink:#161B22; --ink2:#495364; --ink3:#828D9E;
+  --rule:#E4E8ED; --rule2:#F0F2F5;
+  --spec:#14539A;          /* 청사진 잉크 — 구조 · 링크 */
+  --spec-soft:#EAF1FA;
+  --warn:#A85408;          /* 신호 앰버 — 경고 · 보안 */
+  --warn-soft:#FDF3E7;
+  --ok:#0B6E5F;            /* 검수 통과 — 체크포인트 */
+  --ok-soft:#E7F3F0;
+  --term:#0E141B; --term-ink:#DCE6F0; --term-rule:#232C38;
+  --mono:"JetBrains Mono",ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+  --sans:"Pretendard Variable",Pretendard,-apple-system,BlinkMacSystemFont,
+         "Segoe UI","Malgun Gothic","Apple SD Gothic Neo","Noto Sans KR",sans-serif;
+  --rail:264px;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth;scroll-padding-top:84px}
+@media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}*{animation:none!important;transition:none!important}}
+body{
+  margin:0;background:var(--paper);color:var(--ink);font-family:var(--sans);
+  font-size:16px;line-height:1.78;-webkit-font-smoothing:antialiased;
+  word-break:keep-all;overflow-wrap:anywhere;
+}
+
+/* ============ 상단 바 ============ */
+.topbar{
+  position:sticky;top:0;z-index:40;background:rgba(250,250,251,.92);
+  backdrop-filter:blur(10px);border-bottom:1px solid var(--rule);
+}
+.topbar .in{max-width:1400px;margin:0 auto;padding:0 24px;height:56px;
+  display:flex;align-items:center;gap:18px}
+.brand{font-family:var(--mono);font-size:11px;letter-spacing:.1em;color:var(--ink3);
+  text-transform:uppercase;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.brand b{color:var(--spec);font-weight:700}
+.navbtns{margin-left:auto;display:flex;gap:8px;flex-shrink:0}
+.navbtns a{font-family:var(--mono);font-size:11px;letter-spacing:.06em;
+  text-decoration:none;color:var(--ink2);border:1px solid var(--rule);
+  border-radius:6px;padding:6px 11px;background:var(--card);transition:.15s}
+.navbtns a:hover{border-color:var(--spec);color:var(--spec)}
+.navbtns a.home{background:var(--spec);color:#fff;border-color:var(--spec)}
+.navbtns a.home:hover{filter:brightness(1.12)}
+
+/* ============ 레이아웃 ============ */
+.wrap{max-width:1400px;margin:0 auto;padding:0 24px;display:grid;
+  grid-template-columns:var(--rail) minmax(0,1fr);gap:44px;align-items:start}
+.rail{position:sticky;top:56px;max-height:calc(100vh - 56px);overflow-y:auto;
+  padding:28px 0 60px;scrollbar-width:thin}
+.rail::-webkit-scrollbar{width:6px}
+.rail::-webkit-scrollbar-thumb{background:var(--rule);border-radius:3px}
+main{padding:36px 0 120px;min-width:0;max-width:920px}
+
+/* ============ 시그니처: 일차 스파인 ============ */
+.spine-h{font-family:var(--mono);font-size:10px;letter-spacing:.14em;
+  color:var(--ink3);text-transform:uppercase;margin:0 0 12px 2px}
+.spine{list-style:none;margin:0 0 30px;padding:0;position:relative}
+.spine::before{content:"";position:absolute;left:19px;top:14px;bottom:14px;
+  width:1px;background:var(--rule)}
+.spine li{position:relative}
+.spine a{display:grid;grid-template-columns:38px 40px minmax(0,1fr);align-items:center;gap:6px;
+  padding:5px 8px 5px 0;text-decoration:none;color:var(--ink2);border-radius:6px}
+.spine a:hover{background:var(--rule2)}
+.spine .dot{position:relative;z-index:1;justify-self:center;width:9px;height:9px;
+  border-radius:50%;background:var(--card);border:1.5px solid var(--rule)}
+.spine .lbl{font-family:var(--mono);font-size:11.5px;letter-spacing:.04em}
+.spine .ttl{font-size:12.5px;line-height:1.35;color:var(--ink3);
+  overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.spine a[aria-current]{background:var(--spec-soft)}
+.spine a[aria-current] .dot{background:var(--spec);border-color:var(--spec);
+  box-shadow:0 0 0 3px rgba(20,83,154,.14)}
+.spine a[aria-current] .lbl{color:var(--spec);font-weight:700}
+.spine a[aria-current] .ttl{color:var(--ink)}
+.spine .done .dot{background:var(--rule);border-color:var(--rule)}
+
+/* ============ 문서 내 목차 ============ */
+.toc-h{font-family:var(--mono);font-size:10px;letter-spacing:.14em;color:var(--ink3);
+  text-transform:uppercase;margin:0 0 10px 2px;padding-top:22px;border-top:1px solid var(--rule)}
+.toc{list-style:none;margin:0;padding:0}
+.toc li{margin:0}
+.toc a{display:block;padding:5px 10px;font-size:13.5px;line-height:1.45;
+  text-decoration:none;color:var(--ink2);border-left:2px solid transparent;border-radius:0 5px 5px 0}
+.toc a:hover{background:var(--rule2);color:var(--ink)}
+.toc .lv1>a{font-weight:700;color:var(--ink);margin-top:12px;font-size:13px;
+  font-family:var(--mono);letter-spacing:.02em}
+.toc .lv2>a{padding-left:16px}
+.toc a.active{border-left-color:var(--spec);background:var(--spec-soft);color:var(--spec);font-weight:600}
+
+/* ============ 문서 헤더 ============ */
+.dochead{margin:0 0 40px;padding-bottom:26px;border-bottom:2px solid var(--ink)}
+.eyebrow{font-family:var(--mono);font-size:11px;letter-spacing:.14em;color:var(--spec);
+  text-transform:uppercase;margin-bottom:12px}
+.dochead h1{margin:0;padding:0;background:none;color:var(--ink);border-radius:0;
+  font-size:clamp(26px,3.3vw,38px);line-height:1.24;font-weight:800;letter-spacing:-.025em}
+.dochead .sub{margin:12px 0 0;color:var(--ink2);font-size:15px}
+/* 진도 트랙 — 60시간 중 현재 위치 */
+.track{margin-top:22px}
+.track .bar{height:5px;background:var(--rule);border-radius:3px;overflow:hidden;display:flex}
+.track .bar i{display:block;height:100%}
+.track .bar .past{background:var(--rule)}
+.track .bar .now{background:var(--spec)}
+.track .cap{display:flex;justify-content:space-between;margin-top:8px;max-width:640px;
+  font-family:var(--mono);font-size:10.5px;color:var(--ink3);letter-spacing:.04em}
+.track .bar{max-width:640px}
+
+/* ============ 본문 타이포 ============ */
+main h1{font-size:22px;font-weight:800;letter-spacing:-.01em;margin:64px 0 20px;
+  padding:14px 18px;background:var(--ink);color:#fff;border-radius:8px}
+main h1:first-of-type{margin-top:8px}
+main h2{font-size:19.5px;font-weight:750;margin:48px 0 14px;padding-bottom:9px;
+  border-bottom:1px solid var(--rule);letter-spacing:-.01em;scroll-margin-top:80px}
+main h3{font-size:16.5px;font-weight:700;margin:34px 0 10px;color:var(--ink);
+  scroll-margin-top:80px}
+main h4{font-size:15px;font-weight:700;margin:24px 0 8px;color:var(--ink2)}
+main p{margin:0 0 15px}
+main ul,main ol{margin:0 0 16px;padding-left:22px}
+main li{margin:5px 0}
+main li>ul,main li>ol{margin:6px 0}
+main hr{border:0;border-top:1px solid var(--rule);margin:46px 0}
+main strong{font-weight:700}
+main a{color:var(--spec);text-underline-offset:3px}
+
+/* 체크포인트 · 경고 헤딩 */
+main h3.cp,main h4.cp{background:var(--ok-soft);color:var(--ok);border-left:3px solid var(--ok);
+  padding:9px 14px;border-radius:0 7px 7px 0;font-size:15px}
+main h3.warn,main h4.warn,main h2.warn{background:var(--warn-soft);color:var(--warn);
+  border-left:3px solid var(--warn);border-bottom:0;padding:9px 14px;border-radius:0 7px 7px 0;font-size:15px}
+
+/* ============ 코드 ============ */
+main :not(pre)>code{font-family:var(--mono);font-size:.855em;background:var(--spec-soft);
+  color:#0F3F76;padding:1.5px 5px;border-radius:4px;word-break:break-all}
+main pre{background:var(--term);color:var(--term-ink);border-radius:10px;
+  padding:16px 18px;overflow-x:auto;margin:0 0 18px;font-size:13.5px;line-height:1.7;
+  border:1px solid var(--term-rule)}
+main pre code{font-family:var(--mono);background:none;color:inherit;padding:0;font-size:inherit}
+main pre::-webkit-scrollbar{height:8px}
+main pre::-webkit-scrollbar-thumb{background:#2C3846;border-radius:4px}
+
+/* ============ 표 ============ */
+.tw{overflow-x:auto;margin:0 0 20px;border:1px solid var(--rule);border-radius:9px;background:var(--card)}
+main table{border-collapse:collapse;width:100%;font-size:14px;min-width:min(100%,420px)}
+main th,main td{padding:9px 13px;border-bottom:1px solid var(--rule2);
+  text-align:left;vertical-align:top;line-height:1.6}
+main th{background:#F5F7F9;font-weight:700;font-size:12.5px;letter-spacing:.02em;
+  color:var(--ink2);white-space:nowrap;border-bottom:1px solid var(--rule)}
+main tbody tr:last-child td{border-bottom:0}
+main tbody tr:hover{background:#FBFCFD}
+main td code{white-space:nowrap}
+
+/* ============ 인용 ============ */
+main blockquote{margin:0 0 18px;padding:13px 18px;background:var(--card);
+  border:1px solid var(--rule);border-left:3px solid var(--spec);border-radius:0 8px 8px 0;
+  color:var(--ink2);font-size:14.5px}
+main blockquote p:last-child{margin-bottom:0}
+
+/* ============ 하단 이동 ============ */
+.pager{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:70px;
+  padding-top:26px;border-top:1px solid var(--rule)}
+.pager a{display:block;padding:15px 18px;border:1px solid var(--rule);border-radius:10px;
+  text-decoration:none;background:var(--card);transition:.15s}
+.pager a:hover{border-color:var(--spec);box-shadow:0 2px 10px rgba(20,83,154,.07)}
+.pager .k{font-family:var(--mono);font-size:10px;letter-spacing:.12em;color:var(--ink3);
+  text-transform:uppercase;display:block;margin-bottom:5px}
+.pager .v{font-size:14.5px;font-weight:650;color:var(--ink);line-height:1.4}
+.pager .next{text-align:right}
+.pager .empty{border-style:dashed;opacity:.4;pointer-events:none}
+
+/* ============ 색인 페이지 ============ */
+.hero{padding:56px 0 40px;border-bottom:2px solid var(--ink);margin-bottom:44px}
+.hero h1{margin:14px 0 0;padding:0;background:none;color:var(--ink);border-radius:0;
+  font-size:clamp(30px,4.4vw,48px);line-height:1.18;font-weight:800;letter-spacing:-.03em}
+.hero .eyebrow{margin-bottom:0}
+.hero .lede{margin:20px 0 0;font-size:16.5px;line-height:1.68;color:var(--ink2);max-width:60ch}
+.stats{display:flex;flex-wrap:wrap;gap:36px;margin-top:34px}
+.stat .n{font-family:var(--mono);font-size:27px;font-weight:700;color:var(--spec);
+  letter-spacing:-.02em;line-height:1}
+.stat .l{font-family:var(--mono);font-size:10.5px;letter-spacing:.12em;color:var(--ink3);
+  text-transform:uppercase;margin-top:7px}
+.cards{display:grid;gap:12px;margin-bottom:60px}
+.card{display:grid;grid-template-columns:74px 1fr auto;align-items:center;gap:20px;
+  padding:17px 22px;background:var(--card);border:1px solid var(--rule);border-radius:11px;
+  text-decoration:none;color:inherit;transition:.15s}
+.card:hover{border-color:var(--spec);transform:translateX(3px);
+  box-shadow:0 3px 14px rgba(20,83,154,.08)}
+.card .key{font-family:var(--mono);font-size:15px;font-weight:700;color:var(--spec);
+  letter-spacing:.02em}
+.card .key small{display:block;font-size:9.5px;color:var(--ink3);font-weight:400;
+  letter-spacing:.1em;margin-top:3px}
+.card .t{font-size:16px;font-weight:700;line-height:1.35}
+.card .d{font-size:13.5px;color:#78818E;margin-top:4px;line-height:1.55}
+.card .h{font-family:var(--mono);font-size:11px;color:var(--ink3);white-space:nowrap;
+  letter-spacing:.04em}
+.idx-sec{font-family:var(--mono);font-size:10.5px;letter-spacing:.14em;color:var(--ink3);
+  text-transform:uppercase;margin:34px 0 12px}
+.idx-sec:first-child{margin-top:0}
+.note{background:var(--warn-soft);border:1px solid #F0DFC6;border-left:3px solid var(--warn);
+  border-radius:0 10px 10px 0;padding:18px 22px;margin-bottom:56px;font-size:14.5px;color:#6B3A08}
+.note b{color:var(--warn)}
+.note ul{margin:9px 0 0;padding-left:20px}
+
+/* ============ 반응형 ============ */
+@media (max-width:1080px){
+  .wrap{grid-template-columns:1fr;gap:0}
+  .rail{position:static;max-height:none;overflow:visible;padding:22px 0 0;
+    border-bottom:1px solid var(--rule);margin-bottom:8px}
+  .spine{display:flex;flex-wrap:wrap;gap:5px;margin-bottom:20px}
+  .spine::before{display:none}
+  .spine a{grid-template-columns:auto;padding:6px 11px;border:1px solid var(--rule);border-radius:7px}
+  .spine .dot,.spine .ttl{display:none}
+  .toc-h{padding-top:16px}
+  .toc{columns:2;column-gap:20px;max-height:230px;overflow-y:auto;
+    border:1px solid var(--rule);border-radius:9px;padding:8px;background:var(--card)}
+  .toc .lv1>a{margin-top:0}
+  main{padding:22px 0 80px}
+}
+@media (max-width:620px){
+  body{font-size:15.5px}
+  .wrap,.topbar .in{padding:0 15px}
+  .toc{columns:1;max-height:200px}
+  .pager{grid-template-columns:1fr}
+  .pager .next{text-align:left}
+  .card{grid-template-columns:56px 1fr;gap:14px}
+  .card .h{grid-column:2;margin-top:5px}
+  main h1{font-size:19px;padding:12px 14px}
+  main pre{font-size:12.5px;padding:13px 14px}
+}
+
+/* ============ 인쇄 ============ */
+@media print{
+  :root{--paper:#fff}
+  .topbar,.rail,.pager,.track{display:none!important}
+  .wrap{display:block;max-width:none;padding:0}
+  main{padding:0}
+  body{font-size:10.5pt;line-height:1.62}
+  main h1{background:none;color:#000;border:1.5pt solid #000;padding:7pt 10pt;
+    font-size:15pt;margin:22pt 0 11pt;page-break-after:avoid}
+  main h2,main h3,main h4{page-break-after:avoid}
+  main h2{font-size:13pt;margin:16pt 0 7pt}
+  main h3{font-size:11.5pt}
+  main pre{background:#F6F7F9;color:#111;border:.5pt solid #CBD2DA;
+    font-size:8.6pt;page-break-inside:avoid;white-space:pre-wrap;word-break:break-all}
+  main pre code{color:#111}
+  main :not(pre)>code{background:#EFF2F5;color:#111}
+  main table{font-size:9pt;page-break-inside:avoid}
+  .tw{overflow:visible;border-color:#CBD2DA}
+  main blockquote{page-break-inside:avoid}
+  a{color:#000;text-decoration:none}
+  .dochead{page-break-after:avoid}
+  @page{margin:15mm 14mm}
+}
+</style>
+</head>
+<body>
+<header class="topbar"><div class="in">
+  <div class="brand">KDT · AI 캠퍼스 [비솔] Vision AI &amp; 산업분야 Vertical AI 융합 전문가 양성 · <b>교과 1 · 리눅스</b></div>
+  <nav class="navbtns">
+    <a class="home" href="index.html">전체 목차</a>
+    <a href="#" onclick="window.print();return false;">인쇄 / PDF</a>
+  </nav>
+</div></header>
+
+<div class="wrap">
+  <aside class="rail">
+    <p class="spine-h">교과 1 · 60H 전체</p>
+    <ul class="spine"><li><a class="done" href="00.html"><span class="dot"></span><span class="lbl">PLAN</span><span class="ttl">강의 기획서</span></a></li>
+<li><a class="done" href="01.html"><span class="dot"></span><span class="lbl">D1</span><span class="ttl">리눅스 시작과 파일 시스템</span></a></li>
+<li><a class="done" href="01-2.html"><span class="dot"></span><span class="lbl">D1+</span><span class="ttl">OS 개론 · 시스템 구조와 시스템콜</span></a></li>
+<li><a class="done" href="02.html"><span class="dot"></span><span class="lbl">D2</span><span class="ttl">권한 · 아카이브 · 텍스트 스트림</span></a></li>
+<li><a class="done" href="03.html"><span class="dot"></span><span class="lbl">D3</span><span class="ttl">편집기와 텍스트 처리</span></a></li>
+<li><a class="" href="04.html" aria-current="page"><span class="dot"></span><span class="lbl">D4</span><span class="ttl">셸 스크립트 · 프로세스 · 자동화</span></a></li>
+<li><a class="" href="05.html"><span class="dot"></span><span class="lbl">D5</span><span class="ttl">Anaconda 환경과 데이터셋 구조화</span></a></li>
+<li><a class="" href="06.html"><span class="dot"></span><span class="lbl">D6</span><span class="ttl">Git 기초</span></a></li>
+<li><a class="" href="07.html"><span class="dot"></span><span class="lbl">D7</span><span class="ttl">GitHub 협업과 데이터 보안</span></a></li>
+<li><a class="" href="08.html"><span class="dot"></span><span class="lbl">D8</span><span class="ttl">부분 파이널 프로젝트</span></a></li>
+<li><a class="" href="99.html"><span class="dot"></span><span class="lbl">APX</span><span class="ttl">부록 · 치트시트 &amp; 트러블슈팅</span></a></li></ul>
+    <p class="toc-h">이 문서 안에서</p>
+    <ul class="toc"><li class="lv2"><a href="#학습-목표">학습 목표</a></li>
+<li class="lv2"><a href="#0교시-전일-복습-퀴즈-10분">0교시 · 전일 복습 퀴즈 (10분)</a></li>
+<li class="lv1"><a href="#part-1-이론-35h">PART 1. 이론 (3.5H)</a></li>
+<li class="lv2"><a href="#1교시-셸-스크립트-기초-50분">1교시 · 셸 스크립트 기초 (50분)</a></li>
+<li class="lv2"><a href="#2교시-조건반복함수-50분">2교시 · 조건·반복·함수 (50분)</a></li>
+<li class="lv2"><a href="#3교시-프로세스와-장시간-작업-50분">3교시 · 프로세스와 장시간 작업 (50분)</a></li>
+<li class="lv2"><a href="#4교시-전반-스크립트-작성-규칙-30분">4교시 (전반) · 스크립트 작성 규칙 (30분)</a></li>
+<li class="lv1"><a href="#part-2-실습-45h">PART 2. 실습 (4.5H)</a></li>
+<li class="lv2"><a href="#실습-4-1-첫-스크립트-40분">실습 4-1 · 첫 스크립트 (40분)</a></li>
+<li class="lv2"><a href="#실습-4-2-dataset_checksh-완성-80분-핵심-산출물">실습 4-2 · dataset_check.sh 완성 (80분) ★핵심 산출물</a></li>
+<li class="lv2"><a href="#실습-4-3-프로세스와-tmux-60분">실습 4-3 · 프로세스와 tmux (60분)</a></li>
+<li class="lv2"><a href="#실습-4-4-cron-자동화-40분">실습 4-4 · cron 자동화 (40분)</a></li>
+<li class="lv2"><a href="#실습-4-5-종합-챌린지-30분">실습 4-5 · 종합 챌린지 (30분)</a></li>
+<li class="lv2"><a href="#마무리-10분">마무리 (10분)</a></li>
+<li class="lv2"><a href="#과제">과제</a></li>
+<li class="lv2"><a href="#강사-운영-노트">강사 운영 노트</a></li></ul>
+  </aside>
+
+  <main>
+    <div class="dochead">
+      <div class="eyebrow">D4 &nbsp;/&nbsp; 교과 1 · 리눅스 &nbsp;/&nbsp; 8시간</div>
+      <h1>4일차 · 셸 스크립트 · 프로세스 · 작업 자동화 (8H)</h1>
+      <p class="sub">dataset_check.sh · tmux · cron 백업</p>
+      <div class="track"><div class="bar"><i class="past" style="width:40.00%"></i><i class="now" style="width:13.33%"></i></div><div class="cap"><span>24H 누적</span><span>이 문서 8H</span><span>전체 60H</span></div></div>
+    </div>
+    <blockquote>
+<p>이론 3.5H · 실습 4.5H
+<strong>오늘의 한 문장:</strong> "데이터셋 검증을 스크립트 한 개로 자동화하고, 12시간짜리 학습을 끊기지 않게 돌린다."</p>
+</blockquote>
+<hr />
+<h2 id="학습-목표">학습 목표</h2>
+<div class="tw"><table>
+<thead>
+<tr>
+<th>코드</th>
+<th>목표</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>D4-1</td>
+<td>셸 스크립트의 기본 구조(shebang, 변수, 인자)를 작성한다</td>
+</tr>
+<tr>
+<td>D4-2</td>
+<td>조건문·반복문·함수로 로직을 구현한다</td>
+</tr>
+<tr>
+<td>D4-3</td>
+<td>종료 코드와 에러 처리를 적용한다</td>
+</tr>
+<tr>
+<td>D4-4</td>
+<td>프로세스를 조회·제어하고 백그라운드로 실행한다</td>
+</tr>
+<tr>
+<td>D4-5</td>
+<td>tmux로 SSH 끊김에도 살아있는 학습 세션을 운영한다</td>
+</tr>
+<tr>
+<td>D4-6</td>
+<td>cron으로 반복 작업을 스케줄링한다</td>
+</tr>
+<tr>
+<td>D4-7</td>
+<td>데이터셋 정합성 검증 CLI <code>dataset_check.sh</code>를 완성한다</td>
+</tr>
+</tbody>
+</table></div>
+<hr />
+<h2 id="0교시-전일-복습-퀴즈-10분">0교시 · 전일 복습 퀴즈 (10분)</h2>
+<ol>
+<li>Vim에서 저장 없이 강제 종료하는 명령은?</li>
+<li><code>grep -v "INFO" log.txt</code> 는 무엇을 출력하는가?</li>
+<li><code>sed -i</code> 대신 <code>sed -i.bak</code> 을 쓰는 이유는?</li>
+<li>awk에서 <code>NF</code> 와 <code>NR</code> 의 차이는?</li>
+</ol>
+<hr />
+<h1 id="part-1-이론-35h">PART 1. 이론 (3.5H)</h1>
+<h2 id="1교시-셸-스크립트-기초-50분">1교시 · 셸 스크립트 기초 (50분)</h2>
+<h3 id="11-왜-스크립트를-짜는가">1.1 왜 스크립트를 짜는가</h3>
+<p>3일차에 우리가 친 명령을 떠올려 봅시다.</p>
+<pre><code class="language-bash">ls *.jpg | sed 's/\.jpg$//' | sort &gt; /tmp/imgs.txt
+ls *.txt | sed 's/\.txt$//' | sort &gt; /tmp/lbls.txt
+comm -23 /tmp/imgs.txt /tmp/lbls.txt
+awk 'NF!=5 &amp;&amp; NF!=0 {print FILENAME}' *.txt
+find . -name &quot;*.txt&quot; -size 0
+...
+</code></pre>
+<p>교과 8에서 한 번, 교과 14에서 팀마다 한 번, 데이터 갱신할 때마다 또 한 번.
+<strong>같은 명령을 20번 치는 대신 한 번 만들어 20번 실행합니다.</strong></p>
+<blockquote>
+<p>평가항목 「코드 품질 — 재사용성」이 여기서 갈립니다.</p>
+</blockquote>
+<h3 id="12-최소-골격">1.2 최소 골격</h3>
+<pre><code class="language-bash">#!/bin/bash
+# 설명 주석
+set -euo pipefail
+
+echo &quot;Hello&quot;
+</code></pre>
+<div class="tw"><table>
+<thead>
+<tr>
+<th>요소</th>
+<th>의미</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>#!/bin/bash</code></td>
+<td>shebang. 이 파일을 bash로 실행하라</td>
+</tr>
+<tr>
+<td><code>set -e</code></td>
+<td>명령이 실패하면 즉시 중단</td>
+</tr>
+<tr>
+<td><code>set -u</code></td>
+<td>정의 안 된 변수 사용 시 에러</td>
+</tr>
+<tr>
+<td><code>set -o pipefail</code></td>
+<td>파이프 중간 실패도 감지</td>
+</tr>
+</tbody>
+</table></div>
+<blockquote>
+<p><code>set -euo pipefail</code> 은 셸 스크립트의 "안전벨트"입니다. 없으면 에러가 나도 스크립트가 계속 진행해서 잘못된 결과를 만듭니다.</p>
+</blockquote>
+<h3 id="13-변수">1.3 변수</h3>
+<pre><code class="language-bash">NAME=&quot;kdt&quot;                # = 앞뒤 공백 금지 ★
+echo &quot;$NAME&quot;              # 큰따옴표 권장
+echo &quot;${NAME}_dataset&quot;    # 중괄호로 경계 명확히
+
+COUNT=$(ls *.jpg | wc -l) # 명령 결과를 변수로 ★
+echo &quot;이미지 $COUNT 장&quot;
+
+readonly ROOT=~/kdt-linux # 상수
+</code></pre>
+<p><strong>따옴표 규칙</strong></p>
+<div class="tw"><table>
+<thead>
+<tr>
+<th>표기</th>
+<th>변수 치환</th>
+<th>용도</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>"$VAR"</code></td>
+<td>O</td>
+<td><strong>기본 (공백 안전)</strong></td>
+</tr>
+<tr>
+<td><code>'$VAR'</code></td>
+<td>X</td>
+<td>문자 그대로</td>
+</tr>
+<tr>
+<td><code>$VAR</code></td>
+<td>O</td>
+<td>공백 있으면 깨짐 ⚠️</td>
+</tr>
+</tbody>
+</table></div>
+<h3 id="14-인자-처리">1.4 인자 처리</h3>
+<pre><code class="language-bash">#!/bin/bash
+echo &quot;스크립트명: $0&quot;
+echo &quot;1번 인자: $1&quot;
+echo &quot;인자 개수: $#&quot;
+echo &quot;전체 인자: $@&quot;
+</code></pre>
+<pre><code class="language-bash">./script.sh kimchi train
+# $0=./script.sh  $1=kimchi  $2=train  $#=2
+</code></pre>
+<p><strong>기본값 지정</strong></p>
+<pre><code class="language-bash">DATASET=&quot;${1:-kimchi}&quot;          # 인자 없으면 kimchi
+SPLIT=&quot;${2:-train}&quot;
+</code></pre>
+<h3 id="15-특수-변수">1.5 특수 변수</h3>
+<div class="tw"><table>
+<thead>
+<tr>
+<th>변수</th>
+<th>의미</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>$?</code></td>
+<td>직전 명령의 종료 코드 (0=성공)</td>
+</tr>
+<tr>
+<td><code>$$</code></td>
+<td>현재 프로세스 ID</td>
+</tr>
+<tr>
+<td><code>$!</code></td>
+<td>마지막 백그라운드 프로세스 ID</td>
+</tr>
+</tbody>
+</table></div>
+<hr />
+<h2 id="2교시-조건반복함수-50분">2교시 · 조건·반복·함수 (50분)</h2>
+<h3 id="21-조건문">2.1 조건문</h3>
+<pre><code class="language-bash">if [ 조건 ]; then
+    ...
+elif [ 조건 ]; then
+    ...
+else
+    ...
+fi
+</code></pre>
+<p><strong>파일 테스트 (실무 최다 사용)</strong></p>
+<div class="tw"><table>
+<thead>
+<tr>
+<th>연산자</th>
+<th>의미</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>-f 파일</code></td>
+<td>일반 파일로 존재</td>
+</tr>
+<tr>
+<td><code>-d 경로</code></td>
+<td>디렉토리로 존재</td>
+</tr>
+<tr>
+<td><code>-e 경로</code></td>
+<td>존재 (종류 무관)</td>
+</tr>
+<tr>
+<td><code>-s 파일</code></td>
+<td>존재하고 크기 &gt; 0</td>
+</tr>
+<tr>
+<td><code>-r</code> <code>-w</code> <code>-x</code></td>
+<td>읽기/쓰기/실행 가능</td>
+</tr>
+<tr>
+<td><code>-L</code></td>
+<td>심볼릭 링크</td>
+</tr>
+</tbody>
+</table></div>
+<p><strong>숫자/문자열 비교</strong></p>
+<div class="tw"><table>
+<thead>
+<tr>
+<th>숫자</th>
+<th>문자열</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>-eq</code> <code>-ne</code></td>
+<td><code>=</code> <code>!=</code></td>
+</tr>
+<tr>
+<td><code>-lt</code> <code>-le</code></td>
+<td><code>&lt;</code> (<code>\&lt;</code>)</td>
+</tr>
+<tr>
+<td><code>-gt</code> <code>-ge</code></td>
+<td><code>&gt;</code> (<code>\&gt;</code>)</td>
+</tr>
+<tr>
+<td></td>
+<td><code>-z</code> 비어있음 / <code>-n</code> 안 비어있음</td>
+</tr>
+</tbody>
+</table></div>
+<pre><code class="language-bash">if [ ! -d &quot;$DATA_DIR&quot; ]; then
+    echo &quot;ERROR: $DATA_DIR 없음&quot; &gt;&amp;2
+    exit 1
+fi
+
+if [ &quot;$COUNT&quot; -lt 500 ]; then
+    echo &quot;WARN: 최소 500장 요건 미달 ($COUNT장)&quot;
+fi
+</code></pre>
+<blockquote>
+<p><code>[[ ]]</code> 는 bash 확장으로 더 안전합니다(<code>&amp;&amp;</code>, <code>||</code>, 패턴 매칭 지원). 본 과정은 <code>[ ]</code> 기본형과 <code>[[ ]]</code>를 병행 소개합니다.</p>
+</blockquote>
+<h3 id="22-반복문">2.2 반복문</h3>
+<pre><code class="language-bash"># for — 목록
+for f in *.txt; do
+    echo &quot;$f&quot;
+done
+
+# for — 범위
+for i in {1..5}; do echo &quot;$i&quot;; done
+for i in $(seq -w 1 100); do echo &quot;img_$i&quot;; done
+
+# while — 파일 한 줄씩 읽기 ★
+while read -r line; do
+    echo &quot;[$line]&quot;
+done &lt; list.txt
+
+# 무한 루프 + break
+while true; do
+    ...
+    [ 조건 ] &amp;&amp; break
+done
+</code></pre>
+<blockquote>
+<p><code>read -r</code> 의 <code>-r</code> 은 백슬래시를 그대로 읽으라는 뜻입니다. 경로에 <code>\</code>가 들어갈 수 있으므로 항상 붙입니다.</p>
+</blockquote>
+<h3 id="23-case">2.3 case</h3>
+<pre><code class="language-bash">case &quot;$1&quot; in
+    check)  do_check ;;
+    split)  do_split ;;
+    report) do_report ;;
+    *)      echo &quot;사용법: $0 {check|split|report}&quot;; exit 1 ;;
+esac
+</code></pre>
+<h3 id="24-함수">2.4 함수</h3>
+<pre><code class="language-bash">log_info () {
+    echo &quot;[INFO] $(date '+%H:%M:%S') $*&quot;
+}
+
+count_files () {
+    local dir=&quot;$1&quot;
+    local ext=&quot;$2&quot;
+    find &quot;$dir&quot; -name &quot;*.$ext&quot; | wc -l
+}
+
+n=$(count_files &quot;raw&quot; &quot;jpg&quot;)
+log_info &quot;이미지 $n 장&quot;
+</code></pre>
+<blockquote>
+<p><code>local</code> 을 안 쓰면 함수 안 변수가 전역이 되어 다른 함수와 충돌합니다. 반드시 습관화.</p>
+</blockquote>
+<h3 id="25-종료-코드와-에러-출력">2.5 종료 코드와 에러 출력</h3>
+<pre><code class="language-bash">exit 0        # 성공
+exit 1        # 일반 실패
+exit 2        # 사용법 오류 (관례)
+
+echo &quot;에러 메시지&quot; &gt;&amp;2      # stderr로 출력 ★
+</code></pre>
+<blockquote>
+<p>종료 코드는 4일차 cron, 7일차 GitHub Actions CI에서 <strong>성공/실패 판정 기준</strong>으로 쓰입니다.</p>
+</blockquote>
+<hr />
+<h2 id="3교시-프로세스와-장시간-작업-50분">3교시 · 프로세스와 장시간 작업 (50분)</h2>
+<h3 id="31-프로세스-조회">3.1 프로세스 조회</h3>
+<pre><code class="language-bash">ps aux                    # 전체 프로세스
+ps aux | grep python      # 파이썬 프로세스만
+ps -ef --forest           # 트리 형태
+top                       # 실시간 (q 종료)
+htop                      # 개선판 (sudo apt install htop)
+pgrep -f train.py         # 이름으로 PID 찾기
+</code></pre>
+<h3 id="32-프로세스-제어">3.2 프로세스 제어</h3>
+<pre><code class="language-bash">kill PID                  # 정상 종료 요청 (SIGTERM, 15)
+kill -9 PID               # 강제 종료 (SIGKILL) ⚠️ 최후 수단
+pkill -f train.py         # 이름으로 종료
+</code></pre>
+<div class="tw"><table>
+<thead>
+<tr>
+<th>시그널</th>
+<th>번호</th>
+<th>의미</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>SIGINT</td>
+<td>2</td>
+<td>Ctrl+C</td>
+</tr>
+<tr>
+<td>SIGTERM</td>
+<td>15</td>
+<td>정상 종료 요청 (기본)</td>
+</tr>
+<tr>
+<td>SIGKILL</td>
+<td>9</td>
+<td>강제 종료 (정리 작업 못 함)</td>
+</tr>
+</tbody>
+</table></div>
+<blockquote>
+<p>⚠️ 학습 중인 프로세스를 <code>kill -9</code> 하면 체크포인트 저장 없이 죽습니다. 반드시 <code>kill</code>(15)을 먼저 시도하십시오.</p>
+</blockquote>
+<h3 id="33-잡-제어">3.3 잡 제어</h3>
+<pre><code class="language-bash">python train.py &amp;         # 백그라운드 실행
+jobs                      # 잡 목록
+fg %1                     # 포그라운드로
+bg %1                     # 백그라운드로
+Ctrl+Z                    # 일시정지
+</code></pre>
+<h3 id="34-nohup-로그아웃해도-계속">3.4 nohup — 로그아웃해도 계속</h3>
+<pre><code class="language-bash">nohup python train.py &gt; train.log 2&gt;&amp;1 &amp;
+echo $!                   # PID 기록
+tail -f train.log         # 실시간 로그 확인 (Ctrl+C로 보기만 종료)
+</code></pre>
+<h3 id="35-tmux-현업-표준">3.5 tmux — 현업 표준 ★★</h3>
+<p><strong>문제 상황</strong>: AWS GPU 서버에 SSH로 붙어 12시간짜리 학습을 시작했는데, 노트북을 닫거나 네트워크가 끊기면 → <strong>학습이 죽습니다.</strong></p>
+<p><strong>해결</strong>: tmux는 서버 안에서 세션을 유지합니다. 접속이 끊겨도 세션은 계속 돌아갑니다.</p>
+<pre><code class="language-bash">sudo apt install tmux
+
+tmux new -s train         # 'train' 세션 생성
+# ... 학습 실행 ...
+# Ctrl+b 누른 뒤 d      → detach (세션 유지하고 나가기)
+
+tmux ls                   # 세션 목록
+tmux attach -t train      # 다시 붙기
+tmux kill-session -t train
+</code></pre>
+<div class="tw"><table>
+<thead>
+<tr>
+<th>키 (Ctrl+b 후)</th>
+<th>기능</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>d</code></td>
+<td>detach</td>
+</tr>
+<tr>
+<td><code>%</code></td>
+<td>세로 분할</td>
+</tr>
+<tr>
+<td><code>"</code></td>
+<td>가로 분할</td>
+</tr>
+<tr>
+<td><code>방향키</code></td>
+<td>창 이동</td>
+</tr>
+<tr>
+<td><code>c</code></td>
+<td>새 윈도우</td>
+</tr>
+<tr>
+<td><code>n</code> / <code>p</code></td>
+<td>다음/이전 윈도우</td>
+</tr>
+<tr>
+<td><code>[</code></td>
+<td>스크롤 모드 (q로 종료)</td>
+</tr>
+</tbody>
+</table></div>
+<blockquote>
+<p><strong>현업 사용법</strong>: 왼쪽 창에서 학습 실행, 오른쪽 창에서 <code>watch -n1 nvidia-smi</code>로 GPU 모니터링. 교과 5·8·10·11의 모든 장시간 학습이 이 형태입니다.</p>
+</blockquote>
+<h3 id="36-시스템-모니터링">3.6 시스템 모니터링</h3>
+<pre><code class="language-bash">free -h                   # 메모리
+df -h                     # 디스크
+du -sh */ | sort -rh      # 폴더별 용량
+uptime                    # 부하
+watch -n 1 'free -h'      # 1초마다 갱신
+
+nvidia-smi                # GPU 상태 (GPU 있는 장비에서)
+watch -n 1 nvidia-smi
+</code></pre>
+<blockquote>
+<p>학생 PC에는 GPU가 없습니다(안내서 6.2절). <code>nvidia-smi</code>는 AWS 인스턴스 또는 교과 14 Jetson에서 실습합니다. Jetson에서는 <code>tegrastats</code>도 씁니다.</p>
+</blockquote>
+<h3 id="37-cron-스케줄링">3.7 cron — 스케줄링</h3>
+<pre><code class="language-bash">crontab -e                # 편집
+crontab -l                # 목록
+</code></pre>
+<pre><code>분 시 일 월 요일  명령
+*  *  *  *  *    실행할명령
+
+0  2  *  *  *    /home/kdt/backup.sh          # 매일 새벽 2시
+*/10 * * * *     /home/kdt/check.sh           # 10분마다
+0  9  *  *  1    /home/kdt/weekly_report.sh   # 매주 월요일 9시
+</code></pre>
+<blockquote>
+<p>⚠️ cron은 사용자의 <code>.bashrc</code>를 읽지 않습니다. <strong>PATH와 경로를 스크립트 안에서 절대경로로 지정</strong>해야 합니다. 실무에서 "수동으로는 되는데 cron에서는 안 돼요"의 99% 원인입니다.</p>
+</blockquote>
+<hr />
+<h2 id="4교시-전반-스크립트-작성-규칙-30분">4교시 (전반) · 스크립트 작성 규칙 (30분)</h2>
+<h3 id="41-좋은-스크립트의-조건-평가-연계">4.1 좋은 스크립트의 조건 (평가 연계)</h3>
+<p>안내서 평가항목 「코드 품질(10점) — 코드 구조·가독성·재사용성」 기준입니다.</p>
+<div class="tw"><table>
+<thead>
+<tr>
+<th>항목</th>
+<th>좋은 예</th>
+<th>나쁜 예</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>헤더 주석</td>
+<td>목적·사용법·작성자·일자 기재</td>
+<td>없음</td>
+</tr>
+<tr>
+<td>안전 옵션</td>
+<td><code>set -euo pipefail</code></td>
+<td>없음</td>
+</tr>
+<tr>
+<td>변수명</td>
+<td><code>DATASET_ROOT</code></td>
+<td><code>d</code>, <code>tmp1</code></td>
+</tr>
+<tr>
+<td>하드코딩</td>
+<td>인자/변수로 분리</td>
+<td><code>/home/kdt/...</code> 박아넣기</td>
+</tr>
+<tr>
+<td>사용법</td>
+<td><code>usage()</code> 함수 제공</td>
+<td>없음</td>
+</tr>
+<tr>
+<td>로깅</td>
+<td><code>[INFO]/[WARN]/[ERROR]</code> 구분</td>
+<td><code>echo</code> 남발</td>
+</tr>
+<tr>
+<td>종료 코드</td>
+<td>상황별 구분</td>
+<td>항상 0</td>
+</tr>
+<tr>
+<td>함수화</td>
+<td>기능 단위 분리</td>
+<td>200줄 일직선</td>
+</tr>
+</tbody>
+</table></div>
+<h3 id="42-표준-템플릿">4.2 표준 템플릿</h3>
+<pre><code class="language-bash">#!/bin/bash
+#===============================================================
+# 파일명 : dataset_check.sh
+# 목적   : Vision AI 데이터셋 정합성 검증
+# 사용법 : ./dataset_check.sh &lt;dataset_dir&gt; [--fix]
+# 작성자 : 홍길동
+# 작성일 : 2026-08-29
+#===============================================================
+set -euo pipefail
+
+#--- 상수 -----------------------------------------------------
+readonly SCRIPT_NAME=$(basename &quot;$0&quot;)
+readonly MIN_IMAGES=500
+
+#--- 함수 -----------------------------------------------------
+usage () {
+    cat &lt;&lt; EOF
+사용법: $SCRIPT_NAME &lt;dataset_dir&gt; [옵션]
+옵션:
+  --fix       발견된 문제를 자동 수정
+  -h, --help  도움말
+EOF
+    exit 2
+}
+
+log ()   { echo &quot;[$(date '+%H:%M:%S')] $*&quot;; }
+warn ()  { echo &quot;[WARN] $*&quot; &gt;&amp;2; }
+error () { echo &quot;[ERROR] $*&quot; &gt;&amp;2; exit 1; }
+
+#--- 메인 -----------------------------------------------------
+main () {
+    ...
+}
+
+main &quot;$@&quot;
+</code></pre>
+<h3 id="43-문법-검사-도구">4.3 문법 검사 도구</h3>
+<pre><code class="language-bash">bash -n script.sh              # 실행 없이 문법 검사
+bash -x script.sh              # 한 줄씩 추적 실행 (디버깅) ★
+sudo apt install shellcheck
+shellcheck script.sh           # 정적 분석 (권장)
+</code></pre>
+<blockquote>
+<p><code>shellcheck</code>는 7일차 GitHub Actions CI에 넣습니다. 자동 코드 리뷰 도구가 됩니다.</p>
+</blockquote>
+<hr />
+<h1 id="part-2-실습-45h">PART 2. 실습 (4.5H)</h1>
+<h2 id="실습-4-1-첫-스크립트-40분">실습 4-1 · 첫 스크립트 (40분)</h2>
+<h3 id="step-1-hello-스크립트">Step 1. Hello 스크립트</h3>
+<pre><code class="language-bash">mkdir -p ~/kdt-linux/scripts &amp;&amp; cd ~/kdt-linux/scripts
+vim hello.sh
+</code></pre>
+<pre><code class="language-bash">#!/bin/bash
+set -euo pipefail
+
+NAME=&quot;${1:-훈련생}&quot;
+echo &quot;안녕하세요, ${NAME}님&quot;
+echo &quot;오늘은 $(date '+%Y년 %m월 %d일') 입니다&quot;
+echo &quot;현재 위치: $(pwd)&quot;
+echo &quot;인자 개수: $#&quot;
+</code></pre>
+<pre><code class="language-bash">chmod +x hello.sh
+./hello.sh
+./hello.sh 홍길동
+bash -x ./hello.sh 홍길동     # 추적 실행
+</code></pre>
+<h3 id="step-2-조건문-연습">Step 2. 조건문 연습</h3>
+<pre><code class="language-bash">vim check_dir.sh
+</code></pre>
+<pre><code class="language-bash">#!/bin/bash
+set -euo pipefail
+
+TARGET=&quot;${1:-}&quot;
+
+if [ -z &quot;$TARGET&quot; ]; then
+    echo &quot;사용법: $0 &lt;경로&gt;&quot; &gt;&amp;2
+    exit 2
+fi
+
+if [ -d &quot;$TARGET&quot; ]; then
+    echo &quot;[OK] 디렉토리입니다&quot;
+    echo &quot;  파일 수: $(ls -1 &quot;$TARGET&quot; | wc -l)&quot;
+    echo &quot;  용량:   $(du -sh &quot;$TARGET&quot; | cut -f1)&quot;
+elif [ -f &quot;$TARGET&quot; ]; then
+    echo &quot;[OK] 파일입니다&quot;
+    echo &quot;  크기: $(stat -c%s &quot;$TARGET&quot;) bytes&quot;
+    echo &quot;  권한: $(stat -c%A &quot;$TARGET&quot;)&quot;
+else
+    echo &quot;[ERROR] 존재하지 않습니다: $TARGET&quot; &gt;&amp;2
+    exit 1
+fi
+</code></pre>
+<pre><code class="language-bash">chmod +x check_dir.sh
+./check_dir.sh ~/kdt-linux/dataset/kimchi
+./check_dir.sh ~/kdt-linux/scripts/hello.sh
+./check_dir.sh /없는경로 ; echo &quot;종료코드=$?&quot;
+./check_dir.sh ; echo &quot;종료코드=$?&quot;
+</code></pre>
+<h3 id="step-3-반복문-연습">Step 3. 반복문 연습</h3>
+<pre><code class="language-bash">vim list_datasets.sh
+</code></pre>
+<pre><code class="language-bash">#!/bin/bash
+set -euo pipefail
+readonly ROOT=~/kdt-linux/dataset
+
+printf &quot;%-15s %8s %8s %10s\n&quot; &quot;DATASET&quot; &quot;IMAGES&quot; &quot;LABELS&quot; &quot;SIZE&quot;
+printf &quot;%-15s %8s %8s %10s\n&quot; &quot;-------&quot; &quot;------&quot; &quot;------&quot; &quot;----&quot;
+
+for ds in &quot;$ROOT&quot;/*/; do
+    [ -d &quot;$ds&quot; ] || continue
+    name=$(basename &quot;$ds&quot;)
+    imgs=$(find &quot;$ds&quot; -name &quot;*.jpg&quot; 2&gt;/dev/null | wc -l)
+    lbls=$(find &quot;$ds&quot; -name &quot;*.txt&quot; 2&gt;/dev/null | wc -l)
+    size=$(du -sh &quot;$ds&quot; 2&gt;/dev/null | cut -f1)
+    printf &quot;%-15s %8d %8d %10s\n&quot; &quot;$name&quot; &quot;$imgs&quot; &quot;$lbls&quot; &quot;$size&quot;
+done
+</code></pre>
+<pre><code class="language-bash">chmod +x list_datasets.sh &amp;&amp; ./list_datasets.sh
+</code></pre>
+<h3 id="체크포인트-4-1" class="cp">✅ 체크포인트 4-1</h3>
+<ul>
+<li>[ ] shebang과 <code>set -euo pipefail</code>을 포함한 스크립트 3개 작성</li>
+<li>[ ] <code>$1</code>, <code>${1:-기본값}</code>, <code>$#</code>, <code>$?</code> 를 각각 사용</li>
+<li>[ ] <code>bash -x</code> 로 추적 실행해 보았다</li>
+</ul>
+<hr />
+<h2 id="실습-4-2-dataset_checksh-완성-80분-핵심-산출물">실습 4-2 · <code>dataset_check.sh</code> 완성 (80분) ★핵심 산출물</h2>
+<h3 id="배경">배경</h3>
+<p>3일차에 손으로 하던 검증을 CLI 도구로 만듭니다. 이 스크립트는 <strong>8일차 파이널 프로젝트의 핵심 모듈</strong>이 되고, 교과 8·14·15에서 계속 씁니다.</p>
+<h3 id="요구-기능">요구 기능</h3>
+<div class="tw"><table>
+<thead>
+<tr>
+<th>기능</th>
+<th>설명</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>F1</td>
+<td>디렉토리 구조 존재 확인</td>
+</tr>
+<tr>
+<td>F2</td>
+<td>이미지/라벨 개수 및 짝 검증</td>
+</tr>
+<tr>
+<td>F3</td>
+<td>빈 라벨 파일 검출</td>
+</tr>
+<tr>
+<td>F4</td>
+<td>필드 개수(5개) 검증</td>
+</tr>
+<tr>
+<td>F5</td>
+<td>좌표 범위(0~1) 검증</td>
+</tr>
+<tr>
+<td>F6</td>
+<td>클래스 ID 유효성 검증</td>
+</tr>
+<tr>
+<td>F7</td>
+<td>최소 장수 요건 확인 (교과 14: 500장)</td>
+</tr>
+<tr>
+<td>F8</td>
+<td>클래스 분포 출력</td>
+</tr>
+<tr>
+<td>F9</td>
+<td>종합 판정 (PASS/FAIL) 및 종료 코드</td>
+</tr>
+<tr>
+<td>F10</td>
+<td><code>--fix</code> 옵션으로 자동 수정</td>
+</tr>
+</tbody>
+</table></div>
+<h3 id="step-1-뼈대-작성">Step 1. 뼈대 작성</h3>
+<pre><code class="language-bash">cd ~/kdt-linux/scripts
+vim dataset_check.sh
+</code></pre>
+<pre><code class="language-bash">#!/bin/bash
+#===============================================================
+# 파일명 : dataset_check.sh
+# 목적   : Vision AI 데이터셋(YOLO 포맷) 정합성 검증
+# 사용법 : ./dataset_check.sh &lt;dataset_dir&gt; [--fix] [--min N]
+# 작성일 : 2026-08-29
+#===============================================================
+set -uo pipefail       # -e 는 검사 중 중단되면 안 되므로 제외
+
+readonly SCRIPT_NAME=$(basename &quot;$0&quot;)
+MIN_IMAGES=500
+DO_FIX=0
+ERRORS=0
+WARNINGS=0
+
+#---------------------------------------------------------------
+usage () {
+    cat &lt;&lt; EOF
+사용법: $SCRIPT_NAME &lt;dataset_dir&gt; [옵션]
+
+인자:
+  dataset_dir   검사할 데이터셋 루트 (raw/, meta/classes.txt 포함)
+
+옵션:
+  --fix         자동 수정 (빈 라벨 삭제, 공백 파일명 변경)
+  --min N       최소 이미지 장수 (기본 $MIN_IMAGES)
+  -h, --help    도움말
+
+종료 코드:
+  0  PASS
+  1  FAIL (오류 발견)
+  2  사용법 오류
+EOF
+}
+
+log ()  { echo &quot;  $*&quot;; }
+ok ()   { echo &quot;  [OK]   $*&quot;; }
+warn () { echo &quot;  [WARN] $*&quot;; WARNINGS=$((WARNINGS+1)); }
+err ()  { echo &quot;  [FAIL] $*&quot;; ERRORS=$((ERRORS+1)); }
+section () { echo &quot;&quot;; echo &quot;[$1] $2&quot;; }
+
+#---------------------------------------------------------------
+parse_args () {
+    [ $# -eq 0 ] &amp;&amp; { usage; exit 2; }
+    DATASET_DIR=&quot;$1&quot;; shift
+    while [ $# -gt 0 ]; do
+        case &quot;$1&quot; in
+            --fix)  DO_FIX=1 ;;
+            --min)  shift; MIN_IMAGES=&quot;$1&quot; ;;
+            -h|--help) usage; exit 0 ;;
+            *) echo &quot;알 수 없는 옵션: $1&quot; &gt;&amp;2; usage; exit 2 ;;
+        esac
+        shift
+    done
+}
+</code></pre>
+<h3 id="step-2-검사-함수-작성">Step 2. 검사 함수 작성</h3>
+<pre><code class="language-bash">#---------------------------------------------------------------
+check_structure () {
+    section 1 &quot;디렉토리 구조&quot;
+    for d in raw meta; do
+        if [ -d &quot;$DATASET_DIR/$d&quot; ]; then ok &quot;$d/ 존재&quot;
+        else err &quot;$d/ 없음&quot;; fi
+    done
+    if [ -f &quot;$DATASET_DIR/meta/classes.txt&quot; ]; then
+        NUM_CLASSES=$(grep -c . &quot;$DATASET_DIR/meta/classes.txt&quot;)
+        ok &quot;classes.txt 존재 (${NUM_CLASSES}종)&quot;
+    else
+        err &quot;meta/classes.txt 없음&quot;
+        NUM_CLASSES=0
+    fi
+}
+
+check_pairing () {
+    section 2 &quot;이미지-라벨 짝 검증&quot;
+    local raw=&quot;$DATASET_DIR/raw&quot;
+    IMG_COUNT=$(find &quot;$raw&quot; -maxdepth 1 -name &quot;*.jpg&quot; | wc -l)
+    LBL_COUNT=$(find &quot;$raw&quot; -maxdepth 1 -name &quot;*.txt&quot; | wc -l)
+    log &quot;이미지 ${IMG_COUNT}장 / 라벨 ${LBL_COUNT}개&quot;
+
+    find &quot;$raw&quot; -maxdepth 1 -name &quot;*.jpg&quot; -exec basename {} .jpg \; | sort &gt; /tmp/_i.$$
+    find &quot;$raw&quot; -maxdepth 1 -name &quot;*.txt&quot; -exec basename {} .txt \; | sort &gt; /tmp/_l.$$
+
+    local no_lbl no_img
+    no_lbl=$(comm -23 /tmp/_i.$$ /tmp/_l.$$ | wc -l)
+    no_img=$(comm -13 /tmp/_i.$$ /tmp/_l.$$ | wc -l)
+
+    if [ &quot;$no_lbl&quot; -eq 0 ]; then ok &quot;라벨 누락 없음&quot;
+    else
+        warn &quot;라벨 없는 이미지 ${no_lbl}건&quot;
+        comm -23 /tmp/_i.$$ /tmp/_l.$$ | head -5 | sed 's/^/         - /'
+    fi
+
+    if [ &quot;$no_img&quot; -eq 0 ]; then ok &quot;이미지 누락 없음&quot;
+    else
+        err &quot;이미지 없는 라벨 ${no_img}건&quot;
+        comm -13 /tmp/_i.$$ /tmp/_l.$$ | head -5 | sed 's/^/         - /'
+    fi
+    rm -f /tmp/_i.$$ /tmp/_l.$$
+}
+
+check_label_format () {
+    section 3 &quot;라벨 포맷 검증&quot;
+    local raw=&quot;$DATASET_DIR/raw&quot;
+
+    # 빈 파일
+    local empty
+    empty=$(find &quot;$raw&quot; -maxdepth 1 -name &quot;*.txt&quot; -size 0 | wc -l)
+    if [ &quot;$empty&quot; -eq 0 ]; then ok &quot;빈 라벨 없음&quot;
+    else
+        warn &quot;빈 라벨 파일 ${empty}건&quot;
+        if [ &quot;$DO_FIX&quot; -eq 1 ]; then
+            find &quot;$raw&quot; -maxdepth 1 -name &quot;*.txt&quot; -size 0 -delete
+            log &quot;     → --fix: 삭제 완료&quot;
+        fi
+    fi
+
+    # 필드 개수
+    local badnf
+    badnf=$(awk 'NF!=5 &amp;&amp; NF!=0 {print FILENAME}' &quot;$raw&quot;/*.txt 2&gt;/dev/null | sort -u | wc -l)
+    if [ &quot;$badnf&quot; -eq 0 ]; then ok &quot;필드 개수(5) 정상&quot;
+    else err &quot;필드 개수 오류 ${badnf}개 파일&quot;; fi
+
+    # 좌표 범위
+    local badrange
+    badrange=$(awk '{for(i=2;i&lt;=5;i++) if($i&lt;0||$i&gt;1){print FILENAME; next}}' \
+               &quot;$raw&quot;/*.txt 2&gt;/dev/null | sort -u | wc -l)
+    if [ &quot;$badrange&quot; -eq 0 ]; then ok &quot;좌표 범위(0~1) 정상&quot;
+    else
+        err &quot;좌표 범위 초과 ${badrange}개 파일&quot;
+        awk '{for(i=2;i&lt;=5;i++) if($i&lt;0||$i&gt;1){print &quot;         - &quot;FILENAME&quot;: &quot;$0; next}}' \
+            &quot;$raw&quot;/*.txt 2&gt;/dev/null | head -3
+    fi
+
+    # 클래스 ID
+    if [ &quot;$NUM_CLASSES&quot; -gt 0 ]; then
+        local maxc badcls
+        maxc=$((NUM_CLASSES-1))
+        badcls=$(awk -v m=&quot;$maxc&quot; '$1&lt;0 || $1&gt;m {print FILENAME}' \
+                 &quot;$raw&quot;/*.txt 2&gt;/dev/null | sort -u | wc -l)
+        if [ &quot;$badcls&quot; -eq 0 ]; then ok &quot;클래스 ID(0~${maxc}) 정상&quot;
+        else err &quot;미정의 클래스 사용 ${badcls}개 파일&quot;; fi
+    fi
+}
+
+check_filename () {
+    section 4 &quot;파일명 규칙&quot;
+    local spaced
+    spaced=$(find &quot;$DATASET_DIR/raw&quot; -maxdepth 1 -name &quot;* *&quot; | wc -l)
+    if [ &quot;$spaced&quot; -eq 0 ]; then ok &quot;공백 포함 파일명 없음&quot;
+    else
+        warn &quot;공백 포함 파일명 ${spaced}건&quot;
+        if [ &quot;$DO_FIX&quot; -eq 1 ]; then
+            find &quot;$DATASET_DIR/raw&quot; -maxdepth 1 -name &quot;* *&quot; | while read -r f; do
+                mv &quot;$f&quot; &quot;$(echo &quot;$f&quot; | tr ' ' '_')&quot;
+            done
+            log &quot;     → --fix: 변경 완료&quot;
+        fi
+    fi
+}
+
+check_volume () {
+    section 5 &quot;데이터 규모 요건&quot;
+    log &quot;요건: 최소 ${MIN_IMAGES}장&quot;
+    if [ &quot;$IMG_COUNT&quot; -ge &quot;$MIN_IMAGES&quot; ]; then ok &quot;충족 (${IMG_COUNT}장)&quot;
+    else err &quot;미달 (${IMG_COUNT}장 / ${MIN_IMAGES}장)&quot;; fi
+}
+
+show_distribution () {
+    section 6 &quot;클래스 분포&quot;
+    local raw=&quot;$DATASET_DIR/raw&quot;
+    local cls=&quot;$DATASET_DIR/meta/classes.txt&quot;
+    [ -f &quot;$cls&quot; ] || { log &quot;(classes.txt 없음)&quot;; return; }
+
+    awk 'NR==FNR {name[$1]=$2; next} {c[$1]++}
+         END {
+           for (k=0; k&lt;length(name); k++)
+             printf &quot;  %-24s %6d\n&quot;, (name[k]?name[k]:&quot;class_&quot;k), (c[k]?c[k]:0)
+         }' &quot;$cls&quot; &quot;$raw&quot;/*.txt 2&gt;/dev/null
+
+    local total
+    total=$(cat &quot;$raw&quot;/*.txt 2&gt;/dev/null | wc -l)
+    log &quot;  ----------------------------------&quot;
+    printf &quot;  %-24s %6d\n&quot; &quot;TOTAL bbox&quot; &quot;$total&quot;
+}
+
+summary () {
+    echo &quot;&quot;
+    echo &quot;==============================================&quot;
+    printf &quot;  결과: 오류 %d건 / 경고 %d건\n&quot; &quot;$ERRORS&quot; &quot;$WARNINGS&quot;
+    if [ &quot;$ERRORS&quot; -eq 0 ]; then
+        echo &quot;  판정: PASS ✔&quot;
+        echo &quot;==============================================&quot;
+        return 0
+    else
+        echo &quot;  판정: FAIL ✘&quot;
+        echo &quot;==============================================&quot;
+        return 1
+    fi
+}
+
+#---------------------------------------------------------------
+main () {
+    parse_args &quot;$@&quot;
+    [ -d &quot;$DATASET_DIR&quot; ] || { echo &quot;경로 없음: $DATASET_DIR&quot; &gt;&amp;2; exit 2; }
+
+    echo &quot;==============================================&quot;
+    echo &quot;  Dataset Check :: $(basename &quot;$DATASET_DIR&quot;)&quot;
+    echo &quot;  $(date '+%Y-%m-%d %H:%M:%S')&quot;
+    echo &quot;==============================================&quot;
+
+    check_structure
+    check_pairing
+    check_label_format
+    check_filename
+    check_volume
+    show_distribution
+    summary
+}
+
+main &quot;$@&quot;
+</code></pre>
+<h3 id="step-3-실행-및-검증">Step 3. 실행 및 검증</h3>
+<pre><code class="language-bash">chmod +x dataset_check.sh
+
+# 도움말
+./dataset_check.sh --help
+
+# 사용법 오류 (종료코드 2)
+./dataset_check.sh ; echo &quot;exit=$?&quot;
+
+# 검사 실행
+cd ~/kdt-linux/dataset/kimchi &amp;&amp; chmod 755 raw &amp;&amp; chmod 644 raw/* ; cd -
+./dataset_check.sh ~/kdt-linux/dataset/kimchi ; echo &quot;exit=$?&quot;
+
+# 자동 수정
+./dataset_check.sh ~/kdt-linux/dataset/kimchi --fix ; echo &quot;exit=$?&quot;
+
+# 재검사 (오류가 줄어야 함)
+./dataset_check.sh ~/kdt-linux/dataset/kimchi ; echo &quot;exit=$?&quot;
+
+# 교과 14 기준으로 conveyor 검사
+./dataset_check.sh ~/kdt-linux/dataset/conveyor --min 500
+</code></pre>
+<h3 id="step-4-결과-저장">Step 4. 결과 저장</h3>
+<pre><code class="language-bash">./dataset_check.sh ~/kdt-linux/dataset/kimchi \
+  | tee ~/kdt-linux/dataset/kimchi/meta/check_$(date +%Y%m%d).log
+</code></pre>
+<h3 id="step-5-실무-확장-미션-검사-스크립트를-로그-기반-리포트로-확장">Step 5. 실무 확장 미션 — 검사 스크립트를 "로그 기반 리포트"로 확장 ★취업 현장 빈출</h3>
+<p>현업에서 데이터 검증 스크립트는 한 번 돌리고 끝나는 것이 아니라, <strong>매일 반복 실행되며 이력을 남기는 형태</strong>로 씁니다. 아래 미션으로 <code>dataset_check.sh</code>를 실제 운영 스크립트에 가깝게 확장합니다.</p>
+<pre><code class="language-bash">cd ~/kdt-linux/dataset/kimchi
+
+# M1. [목적] 매일 실행한 검사 결과를 날짜별로 쌓아, 데이터 품질이 개선되는지 추이를 추적한다
+# [설명] 로그 파일명에 날짜를 넣고 tee로 화면 출력과 파일 저장을 동시에 하면,
+#        평가표의 "데이터 품질 — Dataset Log" 항목을 자동으로 축적할 수 있습니다.
+mkdir -p meta/history
+../../scripts/dataset_check.sh . | tee "meta/history/check_$(date +%Y%m%d_%H%M).log"
+
+# M2. [목적] 지난 1주일간의 검사 이력에서 "오류 건수" 추이만 뽑아 개선 여부를 확인한다
+# [설명] grep으로 각 로그 파일의 요약 줄만 뽑고, 파일명(날짜)과 함께 출력하면
+#        데이터 정제 작업이 실제로 효과가 있었는지 숫자로 보여줄 수 있습니다.
+grep -H "결과: 오류" meta/history/*.log | sed 's#meta/history/##'
+
+# M3. [목적] 여러 조(팀)가 각자 만든 dataset_check.sh 실행 결과를 한 화면에서 비교한다
+# [설명] find로 여러 팀 폴더의 로그를 모으고, awk로 "팀명, PASS/FAIL"만 요약하면
+#        강사가 전체 반의 진행 상황을 빠르게 파악할 수 있는 대시보드 역할을 합니다.
+for d in ~/kdt-linux/dataset/*/; do
+    name=$(basename "$d")
+    result=$(../../scripts/dataset_check.sh "$d" 2>/dev/null | grep "판정:" | awk '{print $2}')
+    printf "%-20s %s\n" "$name" "${result:-N/A}"
+done
+
+# M4. [목적] 검사 결과가 FAIL이면 담당자에게 알림 메시지를 만들어 슬랙/이메일에 바로 붙여넣을 수 있게 한다
+# [설명] 스크립트의 종료 코드($?)를 즉시 활용해 조건 분기하는 것은 자동화 파이프라인의 핵심 패턴입니다.
+#        실제 현업에서는 이 자리에 curl로 슬랙 웹훅을 호출하는 코드가 들어갑니다(교과 7 이후 확장 가능).
+if ! ../../scripts/dataset_check.sh . > /tmp/check_result.log 2>&1; then
+    echo "[알림 초안] 데이터 검증 실패 — $(date '+%Y-%m-%d %H:%M') 확인 필요"
+    tail -5 /tmp/check_result.log
+fi
+</code></pre>
+<h3 id="체크포인트-4-2" class="cp">✅ 체크포인트 4-2</h3>
+<ul>
+<li>[ ] <code>--help</code>, <code>--fix</code>, <code>--min</code> 옵션이 모두 동작</li>
+<li>[ ] 종료 코드가 0/1/2로 구분된다</li>
+<li>[ ] <code>--fix</code> 후 경고 건수가 감소한다</li>
+<li>[ ] <code>shellcheck dataset_check.sh</code> 실행 (경고 확인)</li>
+</ul>
+<hr />
+<h2 id="실습-4-3-프로세스와-tmux-60분">실습 4-3 · 프로세스와 tmux (60분)</h2>
+<h3 id="step-1-가짜-학습-프로세스-만들기">Step 1. 가짜 학습 프로세스 만들기</h3>
+<pre><code class="language-bash">cd ~/kdt-linux/scripts
+vim fake_train.sh
+</code></pre>
+<pre><code class="language-bash">#!/bin/bash
+# 장시간 학습 시뮬레이터
+set -u
+EPOCHS=&quot;${1:-20}&quot;
+DELAY=&quot;${2:-3}&quot;
+
+echo &quot;[$(date '+%H:%M:%S')] Training started (PID=$$)&quot;
+for e in $(seq 1 &quot;$EPOCHS&quot;); do
+    loss=$(awk -v e=&quot;$e&quot; 'BEGIN{printf &quot;%.4f&quot;, 2.5/(1+e*0.3)}')
+    map=$(awk -v e=&quot;$e&quot; 'BEGIN{printf &quot;%.4f&quot;, 0.75*(1-exp(-e*0.25))}')
+    echo &quot;[$(date '+%H:%M:%S')] Epoch $e/$EPOCHS loss=$loss mAP50=$map&quot;
+    sleep &quot;$DELAY&quot;
+done
+echo &quot;[$(date '+%H:%M:%S')] Training finished&quot;
+</code></pre>
+<pre><code class="language-bash">chmod +x fake_train.sh
+</code></pre>
+<h3 id="step-2-포그라운드-백그라운드">Step 2. 포그라운드 / 백그라운드</h3>
+<pre><code class="language-bash">./fake_train.sh 5 1                    # 포그라운드 (Ctrl+C로 중단)
+
+./fake_train.sh 30 2 &amp;                 # 백그라운드
+jobs
+ps aux | grep fake_train
+pgrep -f fake_train.sh
+
+kill %1                                # 잡 번호로 종료
+jobs
+</code></pre>
+<h3 id="step-3-nohup-로그">Step 3. nohup + 로그</h3>
+<pre><code class="language-bash">nohup ./fake_train.sh 30 2 &gt; ~/kdt-linux/logs/fake_train.log 2&gt;&amp;1 &amp;
+PID=$!
+echo &quot;PID=$PID&quot;
+
+tail -f ~/kdt-linux/logs/fake_train.log     # Ctrl+C (프로세스는 계속 실행)
+ps -p $PID
+kill $PID
+</code></pre>
+<h3 id="step-4-tmux-실전">Step 4. tmux 실전 ★</h3>
+<pre><code class="language-bash">tmux new -s train
+</code></pre>
+<p>세션 안에서:</p>
+<pre><code class="language-bash"># 1) 화면 세로 분할: Ctrl+b 후 %
+# 2) 왼쪽 창에서 학습 실행
+./fake_train.sh 100 3
+# 3) Ctrl+b 후 방향키(→)로 오른쪽 이동
+# 4) 오른쪽 창에서 모니터링
+watch -n 1 'free -h; echo; uptime'
+</code></pre>
+<p>detach &amp; 복귀:</p>
+<pre><code>Ctrl+b 후 d          # detach
+</code></pre>
+<pre><code class="language-bash">tmux ls
+tmux attach -t train      # 학습이 계속 돌고 있음 확인
+</code></pre>
+<p><strong>끊김 시뮬레이션</strong>: 터미널 창을 완전히 닫았다가 새로 열고 <code>tmux attach -t train</code> — 세션이 살아있음을 확인합니다.</p>
+<pre><code class="language-bash">tmux kill-session -t train
+</code></pre>
+<h3 id="step-5-로그-실시간-분석">Step 5. 로그 실시간 분석</h3>
+<pre><code class="language-bash"># 다른 터미널에서 실행 중인 로그를 실시간 필터링
+tail -f ~/kdt-linux/logs/fake_train.log | grep --line-buffered &quot;mAP50&quot;
+
+# mAP가 0.7 넘으면 알림
+tail -f ~/kdt-linux/logs/fake_train.log | \
+  awk -F'mAP50=' '/mAP50=/{if ($2+0 &gt;= 0.7) print &quot;★ 목표 달성: &quot;$0}'
+</code></pre>
+<blockquote>
+<p><strong>의미</strong>: 교과 14 목표 성능(mAP@0.5 ≥ 0.7) 달성 시점을 자동 감지합니다.</p>
+</blockquote>
+<h3 id="step-6-실무-확장-미션-여러-실험을-동시에-운영하는-법">Step 6. 실무 확장 미션 — 여러 실험을 동시에 운영하는 법 ★취업 현장 빈출</h3>
+<p>실무에서는 학습 프로세스 1개만 돌리는 경우가 드뭅니다. <strong>배치 크기·러닝레이트를 바꿔가며 여러 실험을 동시에 굴리고, 그중 자원을 많이 쓰는 것부터 관리</strong>하는 상황이 일상입니다.</p>
+<pre><code class="language-bash">cd ~/kdt-linux/scripts
+
+# M1. [목적] 서로 다른 설정(exp001~exp003)으로 3개의 실험을 동시에 백그라운드 실행한다
+# [설명] 셸의 for문과 &amp;를 조합하면 "설정만 다르고 로직은 같은" 여러 실험을
+#        스크립트 한 번 실행으로 동시에 띄울 수 있습니다. 이름에 실험 번호를 넣어 로그를 구분합니다.
+for exp in exp001 exp002 exp003; do
+    nohup ./fake_train.sh 15 1 > ~/kdt-linux/logs/${exp}.log 2>&1 &
+    echo "$exp 시작: PID=$!"
+done
+jobs
+
+# M2. [목적] 지금 돌아가는 실험이 몇 개인지, 각각 얼마나 CPU를 쓰는지 한눈에 확인한다
+# [설명] ps에 -o(출력 컬럼 지정) 옵션을 쓰면 필요한 정보만 골라 보기 좋게 정렬할 수 있습니다.
+#        면접에서 "리눅스에서 특정 프로세스만 골라 리소스 사용량을 보려면?"이라는 질문에 바로 쓰는 답입니다.
+ps -eo pid,ppid,%cpu,%mem,etime,cmd | grep fake_train | grep -v grep
+
+# M3. [목적] 실험 3개 중 특정 하나(exp002)만 골라서 중단한다
+# [설명] pgrep -f로 명령줄 전체를 대상으로 패턴을 찾고, 로그 파일 경로로 특정 실험을 구분해
+#        여러 개 중 하나만 정확히 종료합니다. -f 없이는 스크립트 이름만 매칭되어 원하는 것을 못 고릅니다.
+pgrep -af "fake_train.sh 15 1" | grep exp002 2>/dev/null
+# (실습 환경에 따라 아래처럼 로그 감시로 PID 매칭)
+for exp in exp001 exp002 exp003; do
+    echo "$exp -> $(pgrep -f fake_train.sh | sed -n '1p')"
+done
+
+# M4. [목적] 모든 실험이 끝날 때까지 기다렸다가, 끝나면 자동으로 결과를 취합한다
+# [설명] wait는 백그라운드로 띄운 자식 프로세스가 전부 끝날 때까지 스크립트를 멈춥니다.
+#        "3개 실험이 다 끝나야 다음 단계(비교 리포트 생성)로 넘어갈 수 있는" 실무 파이프라인의 핵심 구조입니다.
+wait
+echo "모든 실험 종료. 결과 비교:"
+for exp in exp001 exp002 exp003; do
+    best=$(grep -o "mAP50=[0-9.]*" ~/kdt-linux/logs/${exp}.log | tail -1)
+    echo "  $exp: $best"
+done
+
+# M5. [목적] 메모리를 과도하게 점유해 다른 실험에 영향을 주는 프로세스를 자동으로 찾아낸다
+# [설명] ps 출력을 %mem 기준으로 정렬(sort -k)하면 "지금 가장 위험한 프로세스"를
+#        스크립트로 자동 탐지할 수 있습니다. 실제 GPU 서버 운영 스크립트의 기본 패턴입니다.
+ps -eo pid,%mem,cmd --sort=-%mem | head -5
+</code></pre>
+<blockquote>
+<p><strong>연결점</strong>: 안내서 6.2절의 학습 서버(AWS <code>g5.xlarge</code>)는 계정을 여러 조가 나눠 쓸 수 있습니다. 위 미션은 "내 실험이 서버 자원을 얼마나 쓰는지, 남의 실험을 방해하지 않는지"를 스스로 점검하는 실무 습관입니다.</p>
+</blockquote>
+<h3 id="체크포인트-4-3" class="cp">✅ 체크포인트 4-3</h3>
+<ul>
+<li>[ ] <code>&amp;</code>, <code>jobs</code>, <code>fg</code>, <code>kill</code> 을 사용했다</li>
+<li>[ ] <code>nohup</code> + <code>tail -f</code> 로 백그라운드 로그를 확인했다</li>
+<li>[ ] tmux detach 후 재접속으로 세션 유지를 확인했다</li>
+<li>[ ] tmux 화면 분할 상태에서 학습+모니터링 동시 운영</li>
+</ul>
+<hr />
+<h2 id="실습-4-4-cron-자동화-40분">실습 4-4 · cron 자동화 (40분)</h2>
+<h3 id="step-1-백업-스크립트-개선">Step 1. 백업 스크립트 개선</h3>
+<pre><code class="language-bash">cd ~/kdt-linux/scripts
+vim auto_backup.sh
+</code></pre>
+<pre><code class="language-bash">#!/bin/bash
+#===============================================================
+# 목적 : 데이터셋 메타정보 자동 백업 + 검증 로그 기록
+# cron : 0 2 * * *  /home/$USER/kdt-linux/scripts/auto_backup.sh
+#===============================================================
+set -uo pipefail
+
+readonly ROOT=&quot;$HOME/kdt-linux&quot;
+readonly LOGFILE=&quot;$ROOT/logs/backup.log&quot;
+readonly STAMP=$(date +%Y%m%d_%H%M)
+readonly KEEP_DAYS=30
+
+mkdir -p &quot;$ROOT/logs&quot;
+
+log () { echo &quot;[$(date '+%F %T')] $*&quot; &gt;&gt; &quot;$LOGFILE&quot;; }
+
+log &quot;===== 백업 시작 =====&quot;
+
+for ds in &quot;$ROOT&quot;/dataset/*/; do
+    [ -d &quot;$ds&quot; ] || continue
+    name=$(basename &quot;$ds&quot;)
+    mkdir -p &quot;$ds/backup&quot;
+    out=&quot;$ds/backup/${name}_meta_${STAMP}.tar.gz&quot;
+
+    if tar -czf &quot;$out&quot; -C &quot;$ds&quot; meta 2&gt;/dev/null; then
+        log &quot;OK  $name -&gt; $(basename &quot;$out&quot;) ($(du -h &quot;$out&quot; | cut -f1))&quot;
+    else
+        log &quot;ERR $name 백업 실패&quot;
+    fi
+
+    # 정합성 검사 결과도 함께 기록
+    if &quot;$ROOT/scripts/dataset_check.sh&quot; &quot;$ds&quot; &gt; /dev/null 2&gt;&amp;1; then
+        log &quot;OK  $name 정합성 PASS&quot;
+    else
+        log &quot;WARN $name 정합성 FAIL&quot;
+    fi
+done
+
+deleted=$(find &quot;$ROOT/dataset&quot; -name &quot;*_meta_*.tar.gz&quot; -mtime +$KEEP_DAYS -print -delete | wc -l)
+log &quot;오래된 백업 ${deleted}건 삭제&quot;
+log &quot;===== 백업 종료 =====&quot;
+</code></pre>
+<pre><code class="language-bash">chmod +x auto_backup.sh
+./auto_backup.sh
+cat ~/kdt-linux/logs/backup.log
+</code></pre>
+<h3 id="step-2-cron-등록">Step 2. cron 등록</h3>
+<pre><code class="language-bash">crontab -e
+</code></pre>
+<pre><code># KDT Vision AI 과정 - 데이터셋 백업
+0 2 * * * /home/훈련생계정/kdt-linux/scripts/auto_backup.sh
+
+# 테스트용: 2분마다 (실습 후 반드시 제거)
+*/2 * * * * /home/훈련생계정/kdt-linux/scripts/auto_backup.sh
+</code></pre>
+<pre><code class="language-bash">crontab -l
+# 2분 대기 후
+tail -20 ~/kdt-linux/logs/backup.log
+</code></pre>
+<h3 id="step-3-cron-함정-체험">Step 3. cron 함정 체험 ★</h3>
+<pre><code class="language-bash"># 절대경로 없이 작성한 나쁜 예
+cat &gt; /tmp/bad_cron.sh &lt;&lt; 'EOF'
+#!/bin/bash
+echo &quot;$(date): $(python --version 2&gt;&amp;1)&quot; &gt;&gt; ~/cron_test.log
+EOF
+chmod +x /tmp/bad_cron.sh
+</code></pre>
+<p>crontab에 등록 후 로그를 보면 <code>python: command not found</code> 가 나올 수 있습니다.
+<strong>원인</strong>: cron은 최소 PATH만 가집니다.</p>
+<p><strong>해결</strong>:</p>
+<pre><code class="language-bash"># 스크립트 상단에 명시
+export PATH=&quot;/usr/local/bin:/usr/bin:/bin:$HOME/anaconda3/bin:$PATH&quot;
+# 또는 절대경로 사용
+/home/kdt/anaconda3/envs/vision-ai/bin/python train.py
+</code></pre>
+<h3 id="step-4-정리">Step 4. 정리</h3>
+<pre><code class="language-bash">crontab -e        # 테스트용 */2 라인 삭제
+crontab -l
+</code></pre>
+<h3 id="체크포인트-4-4" class="cp">✅ 체크포인트 4-4</h3>
+<ul>
+<li>[ ] <code>auto_backup.sh</code> 가 로그를 남기며 동작한다</li>
+<li>[ ] crontab 등록 → 실행 확인 → 제거를 완료했다</li>
+<li>[ ] cron의 PATH 문제를 설명할 수 있다</li>
+</ul>
+<hr />
+<h2 id="실습-4-5-종합-챌린지-30분">실습 4-5 · 종합 챌린지 (30분)</h2>
+<p><strong>미션</strong>: <code>run_pipeline.sh</code> — 전체 데이터 준비 파이프라인을 하나로 묶으시오.</p>
+<h3 id="요구사항">요구사항</h3>
+<pre><code>./run_pipeline.sh &lt;dataset_dir&gt;
+
+1. dataset_check.sh 실행 → FAIL이면 중단(exit 1)
+2. PASS면 클래스 분포 리포트 생성
+3. 메타정보 백업
+4. 전 과정을 logs/pipeline_YYYYMMDD.log 에 기록
+5. 소요 시간 출력
+6. 각 단계 성공/실패를 색상으로 표시 (선택)
+</code></pre>
+<h3 id="힌트">힌트</h3>
+<pre><code class="language-bash">START=$(date +%s)
+...
+END=$(date +%s)
+echo &quot;소요: $((END-START))초&quot;
+
+# 색상
+RED='\033[0;31m'; GREEN='\033[0;32m'; NC='\033[0m'
+echo -e &quot;${GREEN}[PASS]${NC} 검증 완료&quot;
+</code></pre>
+<h3 id="최종-체크포인트" class="cp">✅ 최종 체크포인트</h3>
+<ul>
+<li>[ ] 검증 실패 시 파이프라인이 중단된다</li>
+<li>[ ] 로그 파일에 전 단계가 기록된다</li>
+<li>[ ] 소요 시간이 출력된다</li>
+</ul>
+<hr />
+<h2 id="마무리-10분">마무리 (10분)</h2>
+<pre><code class="language-bash">cd ~/kdt-linux
+cat &gt; DAY4.md &lt;&lt; 'EOF'
+# Day 4 — 셸 스크립트 · 프로세스 · 자동화
+## 산출물
+- scripts/dataset_check.sh  (정합성 검증 CLI, --fix/--min 지원)
+- scripts/auto_backup.sh    (cron 연동 백업)
+- scripts/run_pipeline.sh   (통합 파이프라인)
+## 핵심
+- set -euo pipefail / usage() / 종료코드 0,1,2
+- tmux: 세션 유지 = 장시간 학습의 생명줄
+- cron: PATH 문제 주의, 절대경로 필수
+EOF
+tree scripts
+</code></pre>
+<hr />
+<h2 id="과제">과제</h2>
+<ol>
+<li><code>dataset_check.sh</code> 에 기능 1개 추가 (예: 이미지 해상도 검증, 중복 파일 검출)</li>
+<li><code>shellcheck</code> 로 본인 스크립트를 검사하고 경고 3개 이상 수정</li>
+<li>tmux 설정 파일 <code>~/.tmux.conf</code> 작성 (마우스 모드, 창 분할 단축키 변경 등)</li>
+<li>다음 상황의 원인을 3가지 이상 쓰시오: "수동 실행은 되는데 cron에서만 실패한다"</li>
+</ol>
+<hr />
+<h2 id="강사-운영-노트">강사 운영 노트</h2>
+<div class="tw"><table>
+<thead>
+<tr>
+<th>시점</th>
+<th>주의사항</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>실습 4-2</td>
+<td>130줄 스크립트를 통으로 타이핑시키면 좌절합니다. <strong>함수 단위로 나눠 배포</strong>하고, 훈련생은 <code>main()</code> 조립과 함수 1~2개만 직접 작성하게 하십시오.</td>
+</tr>
+<tr>
+<td><code>set -e</code></td>
+<td><code>dataset_check.sh</code>에서 <code>-e</code>를 뺀 이유(검사 중 실패해도 계속 검사해야 함)를 반드시 설명하십시오. 좋은 토론 소재입니다.</td>
+</tr>
+<tr>
+<td>tmux</td>
+<td>실무 체감이 가장 큰 실습입니다. <strong>터미널 창을 실제로 닫았다가</strong> 재접속하는 시연을 꼭 하십시오.</td>
+</tr>
+<tr>
+<td>cron</td>
+<td>교실 PC가 재부팅되면 cron이 실행 안 될 수 있습니다. 실습 후 테스트 엔트리를 <strong>반드시 제거</strong>시키십시오(60대에 2분마다 실행되면 부하).</td>
+</tr>
+<tr>
+<td>심화</td>
+<td>진도가 빠른 조에게는 <code>dataset_check.sh</code>를 Python으로 재구현하게 하면 교과 2와 연결됩니다.</td>
+</tr>
+<tr>
+<td>실무 확장 미션</td>
+<td>실습 4-2 Step 5, 실습 4-3 Step 6에 추가된 미션은 "현업형 운영 시나리오"입니다. 시간이 부족하면 각 세트에서 2개만 시연하고 나머지는 과제로 돌리십시오. 여러 실험 동시 실행(실습4-3 Step 6)은 교실 PC 60대가 동시에 실행하면 부하가 크므로 <strong>조별로 순번을 정해</strong> 진행하십시오.</td>
+</tr>
+</tbody>
+</table></div>
+    <nav class="pager"><a href="03.html"><span class="k">← 이전 · D3</span><span class="v">편집기와 텍스트 처리</span></a><a class="next" href="05.html"><span class="k">다음 · D5 →</span><span class="v">Anaconda 환경과 데이터셋 구조화</span></a></nav>
+  </main>
+</div>
+<script>
+(function(){
+  var links=[].slice.call(document.querySelectorAll('.toc a'));
+  if(!links.length)return;
+  var map={},targets=[];
+  links.forEach(function(a){
+    var el=document.getElementById(decodeURIComponent(a.getAttribute('href').slice(1)));
+    if(el){map[el.id]=a;targets.push(el);}
+  });
+  var cur=null;
+  var io=new IntersectionObserver(function(es){
+    es.forEach(function(e){
+      if(e.isIntersecting){
+        if(cur)cur.classList.remove('active');
+        cur=map[e.target.id];
+        if(cur){cur.classList.add('active');
+          var r=document.querySelector('.rail');
+          if(r&&r.scrollHeight>r.clientHeight){
+            var t=cur.offsetTop-r.clientHeight/2;
+            if(Math.abs(r.scrollTop-t)>90)r.scrollTop=t;
+          }
+        }
+      }
+    });
+  },{rootMargin:'-76px 0px -72% 0px',threshold:0});
+  targets.forEach(function(t){io.observe(t);});
+})();
+</script>
+</body>
+</html>
