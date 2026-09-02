@@ -1,0 +1,1437 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>부록 · 치트시트 &amp; 트러블슈팅 · 교과 1 · 리눅스</title>
+<link rel="preconnect" href="https://cdn.jsdelivr.net">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fontsource/jetbrains-mono@5.0.20/index.min.css">
+<style>
+/* ============ 토큰 ============ */
+:root{
+  --paper:#FAFAFB; --card:#FFFFFF;
+  --ink:#161B22; --ink2:#495364; --ink3:#828D9E;
+  --rule:#E4E8ED; --rule2:#F0F2F5;
+  --spec:#14539A;          /* 청사진 잉크 — 구조 · 링크 */
+  --spec-soft:#EAF1FA;
+  --warn:#A85408;          /* 신호 앰버 — 경고 · 보안 */
+  --warn-soft:#FDF3E7;
+  --ok:#0B6E5F;            /* 검수 통과 — 체크포인트 */
+  --ok-soft:#E7F3F0;
+  --term:#0E141B; --term-ink:#DCE6F0; --term-rule:#232C38;
+  --mono:"JetBrains Mono",ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+  --sans:"Pretendard Variable",Pretendard,-apple-system,BlinkMacSystemFont,
+         "Segoe UI","Malgun Gothic","Apple SD Gothic Neo","Noto Sans KR",sans-serif;
+  --rail:264px;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth;scroll-padding-top:84px}
+@media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}*{animation:none!important;transition:none!important}}
+body{
+  margin:0;background:var(--paper);color:var(--ink);font-family:var(--sans);
+  font-size:16px;line-height:1.78;-webkit-font-smoothing:antialiased;
+  word-break:keep-all;overflow-wrap:anywhere;
+}
+
+/* ============ 상단 바 ============ */
+.topbar{
+  position:sticky;top:0;z-index:40;background:rgba(250,250,251,.92);
+  backdrop-filter:blur(10px);border-bottom:1px solid var(--rule);
+}
+.topbar .in{max-width:1400px;margin:0 auto;padding:0 24px;height:56px;
+  display:flex;align-items:center;gap:18px}
+.brand{font-family:var(--mono);font-size:11px;letter-spacing:.1em;color:var(--ink3);
+  text-transform:uppercase;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.brand b{color:var(--spec);font-weight:700}
+.navbtns{margin-left:auto;display:flex;gap:8px;flex-shrink:0}
+.navbtns a{font-family:var(--mono);font-size:11px;letter-spacing:.06em;
+  text-decoration:none;color:var(--ink2);border:1px solid var(--rule);
+  border-radius:6px;padding:6px 11px;background:var(--card);transition:.15s}
+.navbtns a:hover{border-color:var(--spec);color:var(--spec)}
+.navbtns a.home{background:var(--spec);color:#fff;border-color:var(--spec)}
+.navbtns a.home:hover{filter:brightness(1.12)}
+
+/* ============ 레이아웃 ============ */
+.wrap{max-width:1400px;margin:0 auto;padding:0 24px;display:grid;
+  grid-template-columns:var(--rail) minmax(0,1fr);gap:44px;align-items:start}
+.rail{position:sticky;top:56px;max-height:calc(100vh - 56px);overflow-y:auto;
+  padding:28px 0 60px;scrollbar-width:thin}
+.rail::-webkit-scrollbar{width:6px}
+.rail::-webkit-scrollbar-thumb{background:var(--rule);border-radius:3px}
+main{padding:36px 0 120px;min-width:0;max-width:920px}
+
+/* ============ 시그니처: 일차 스파인 ============ */
+.spine-h{font-family:var(--mono);font-size:10px;letter-spacing:.14em;
+  color:var(--ink3);text-transform:uppercase;margin:0 0 12px 2px}
+.spine{list-style:none;margin:0 0 30px;padding:0;position:relative}
+.spine::before{content:"";position:absolute;left:19px;top:14px;bottom:14px;
+  width:1px;background:var(--rule)}
+.spine li{position:relative}
+.spine a{display:grid;grid-template-columns:38px 40px minmax(0,1fr);align-items:center;gap:6px;
+  padding:5px 8px 5px 0;text-decoration:none;color:var(--ink2);border-radius:6px}
+.spine a:hover{background:var(--rule2)}
+.spine .dot{position:relative;z-index:1;justify-self:center;width:9px;height:9px;
+  border-radius:50%;background:var(--card);border:1.5px solid var(--rule)}
+.spine .lbl{font-family:var(--mono);font-size:11.5px;letter-spacing:.04em}
+.spine .ttl{font-size:12.5px;line-height:1.35;color:var(--ink3);
+  overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.spine a[aria-current]{background:var(--spec-soft)}
+.spine a[aria-current] .dot{background:var(--spec);border-color:var(--spec);
+  box-shadow:0 0 0 3px rgba(20,83,154,.14)}
+.spine a[aria-current] .lbl{color:var(--spec);font-weight:700}
+.spine a[aria-current] .ttl{color:var(--ink)}
+.spine .done .dot{background:var(--rule);border-color:var(--rule)}
+
+/* ============ 문서 내 목차 ============ */
+.toc-h{font-family:var(--mono);font-size:10px;letter-spacing:.14em;color:var(--ink3);
+  text-transform:uppercase;margin:0 0 10px 2px;padding-top:22px;border-top:1px solid var(--rule)}
+.toc{list-style:none;margin:0;padding:0}
+.toc li{margin:0}
+.toc a{display:block;padding:5px 10px;font-size:13.5px;line-height:1.45;
+  text-decoration:none;color:var(--ink2);border-left:2px solid transparent;border-radius:0 5px 5px 0}
+.toc a:hover{background:var(--rule2);color:var(--ink)}
+.toc .lv1>a{font-weight:700;color:var(--ink);margin-top:12px;font-size:13px;
+  font-family:var(--mono);letter-spacing:.02em}
+.toc .lv2>a{padding-left:16px}
+.toc a.active{border-left-color:var(--spec);background:var(--spec-soft);color:var(--spec);font-weight:600}
+
+/* ============ 문서 헤더 ============ */
+.dochead{margin:0 0 40px;padding-bottom:26px;border-bottom:2px solid var(--ink)}
+.eyebrow{font-family:var(--mono);font-size:11px;letter-spacing:.14em;color:var(--spec);
+  text-transform:uppercase;margin-bottom:12px}
+.dochead h1{margin:0;padding:0;background:none;color:var(--ink);border-radius:0;
+  font-size:clamp(26px,3.3vw,38px);line-height:1.24;font-weight:800;letter-spacing:-.025em}
+.dochead .sub{margin:12px 0 0;color:var(--ink2);font-size:15px}
+/* 진도 트랙 — 60시간 중 현재 위치 */
+.track{margin-top:22px}
+.track .bar{height:5px;background:var(--rule);border-radius:3px;overflow:hidden;display:flex}
+.track .bar i{display:block;height:100%}
+.track .bar .past{background:var(--rule)}
+.track .bar .now{background:var(--spec)}
+.track .cap{display:flex;justify-content:space-between;margin-top:8px;max-width:640px;
+  font-family:var(--mono);font-size:10.5px;color:var(--ink3);letter-spacing:.04em}
+.track .bar{max-width:640px}
+
+/* ============ 본문 타이포 ============ */
+main h1{font-size:22px;font-weight:800;letter-spacing:-.01em;margin:64px 0 20px;
+  padding:14px 18px;background:var(--ink);color:#fff;border-radius:8px}
+main h1:first-of-type{margin-top:8px}
+main h2{font-size:19.5px;font-weight:750;margin:48px 0 14px;padding-bottom:9px;
+  border-bottom:1px solid var(--rule);letter-spacing:-.01em;scroll-margin-top:80px}
+main h3{font-size:16.5px;font-weight:700;margin:34px 0 10px;color:var(--ink);
+  scroll-margin-top:80px}
+main h4{font-size:15px;font-weight:700;margin:24px 0 8px;color:var(--ink2)}
+main p{margin:0 0 15px}
+main ul,main ol{margin:0 0 16px;padding-left:22px}
+main li{margin:5px 0}
+main li>ul,main li>ol{margin:6px 0}
+main hr{border:0;border-top:1px solid var(--rule);margin:46px 0}
+main strong{font-weight:700}
+main a{color:var(--spec);text-underline-offset:3px}
+
+/* 체크포인트 · 경고 헤딩 */
+main h3.cp,main h4.cp{background:var(--ok-soft);color:var(--ok);border-left:3px solid var(--ok);
+  padding:9px 14px;border-radius:0 7px 7px 0;font-size:15px}
+main h3.warn,main h4.warn,main h2.warn{background:var(--warn-soft);color:var(--warn);
+  border-left:3px solid var(--warn);border-bottom:0;padding:9px 14px;border-radius:0 7px 7px 0;font-size:15px}
+
+/* ============ 코드 ============ */
+main :not(pre)>code{font-family:var(--mono);font-size:.855em;background:var(--spec-soft);
+  color:#0F3F76;padding:1.5px 5px;border-radius:4px;word-break:break-all}
+main pre{background:var(--term);color:var(--term-ink);border-radius:10px;
+  padding:16px 18px;overflow-x:auto;margin:0 0 18px;font-size:13.5px;line-height:1.7;
+  border:1px solid var(--term-rule)}
+main pre code{font-family:var(--mono);background:none;color:inherit;padding:0;font-size:inherit}
+main pre::-webkit-scrollbar{height:8px}
+main pre::-webkit-scrollbar-thumb{background:#2C3846;border-radius:4px}
+
+/* ============ 표 ============ */
+.tw{overflow-x:auto;margin:0 0 20px;border:1px solid var(--rule);border-radius:9px;background:var(--card)}
+main table{border-collapse:collapse;width:100%;font-size:14px;min-width:min(100%,420px)}
+main th,main td{padding:9px 13px;border-bottom:1px solid var(--rule2);
+  text-align:left;vertical-align:top;line-height:1.6}
+main th{background:#F5F7F9;font-weight:700;font-size:12.5px;letter-spacing:.02em;
+  color:var(--ink2);white-space:nowrap;border-bottom:1px solid var(--rule)}
+main tbody tr:last-child td{border-bottom:0}
+main tbody tr:hover{background:#FBFCFD}
+main td code{white-space:nowrap}
+
+/* ============ 인용 ============ */
+main blockquote{margin:0 0 18px;padding:13px 18px;background:var(--card);
+  border:1px solid var(--rule);border-left:3px solid var(--spec);border-radius:0 8px 8px 0;
+  color:var(--ink2);font-size:14.5px}
+main blockquote p:last-child{margin-bottom:0}
+
+/* ============ 하단 이동 ============ */
+.pager{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:70px;
+  padding-top:26px;border-top:1px solid var(--rule)}
+.pager a{display:block;padding:15px 18px;border:1px solid var(--rule);border-radius:10px;
+  text-decoration:none;background:var(--card);transition:.15s}
+.pager a:hover{border-color:var(--spec);box-shadow:0 2px 10px rgba(20,83,154,.07)}
+.pager .k{font-family:var(--mono);font-size:10px;letter-spacing:.12em;color:var(--ink3);
+  text-transform:uppercase;display:block;margin-bottom:5px}
+.pager .v{font-size:14.5px;font-weight:650;color:var(--ink);line-height:1.4}
+.pager .next{text-align:right}
+.pager .empty{border-style:dashed;opacity:.4;pointer-events:none}
+
+/* ============ 색인 페이지 ============ */
+.hero{padding:56px 0 40px;border-bottom:2px solid var(--ink);margin-bottom:44px}
+.hero h1{margin:14px 0 0;padding:0;background:none;color:var(--ink);border-radius:0;
+  font-size:clamp(30px,4.4vw,48px);line-height:1.18;font-weight:800;letter-spacing:-.03em}
+.hero .eyebrow{margin-bottom:0}
+.hero .lede{margin:20px 0 0;font-size:16.5px;line-height:1.68;color:var(--ink2);max-width:60ch}
+.stats{display:flex;flex-wrap:wrap;gap:36px;margin-top:34px}
+.stat .n{font-family:var(--mono);font-size:27px;font-weight:700;color:var(--spec);
+  letter-spacing:-.02em;line-height:1}
+.stat .l{font-family:var(--mono);font-size:10.5px;letter-spacing:.12em;color:var(--ink3);
+  text-transform:uppercase;margin-top:7px}
+.cards{display:grid;gap:12px;margin-bottom:60px}
+.card{display:grid;grid-template-columns:74px 1fr auto;align-items:center;gap:20px;
+  padding:17px 22px;background:var(--card);border:1px solid var(--rule);border-radius:11px;
+  text-decoration:none;color:inherit;transition:.15s}
+.card:hover{border-color:var(--spec);transform:translateX(3px);
+  box-shadow:0 3px 14px rgba(20,83,154,.08)}
+.card .key{font-family:var(--mono);font-size:15px;font-weight:700;color:var(--spec);
+  letter-spacing:.02em}
+.card .key small{display:block;font-size:9.5px;color:var(--ink3);font-weight:400;
+  letter-spacing:.1em;margin-top:3px}
+.card .t{font-size:16px;font-weight:700;line-height:1.35}
+.card .d{font-size:13.5px;color:#78818E;margin-top:4px;line-height:1.55}
+.card .h{font-family:var(--mono);font-size:11px;color:var(--ink3);white-space:nowrap;
+  letter-spacing:.04em}
+.idx-sec{font-family:var(--mono);font-size:10.5px;letter-spacing:.14em;color:var(--ink3);
+  text-transform:uppercase;margin:34px 0 12px}
+.idx-sec:first-child{margin-top:0}
+.note{background:var(--warn-soft);border:1px solid #F0DFC6;border-left:3px solid var(--warn);
+  border-radius:0 10px 10px 0;padding:18px 22px;margin-bottom:56px;font-size:14.5px;color:#6B3A08}
+.note b{color:var(--warn)}
+.note ul{margin:9px 0 0;padding-left:20px}
+
+/* ============ 반응형 ============ */
+@media (max-width:1080px){
+  .wrap{grid-template-columns:1fr;gap:0}
+  .rail{position:static;max-height:none;overflow:visible;padding:22px 0 0;
+    border-bottom:1px solid var(--rule);margin-bottom:8px}
+  .spine{display:flex;flex-wrap:wrap;gap:5px;margin-bottom:20px}
+  .spine::before{display:none}
+  .spine a{grid-template-columns:auto;padding:6px 11px;border:1px solid var(--rule);border-radius:7px}
+  .spine .dot,.spine .ttl{display:none}
+  .toc-h{padding-top:16px}
+  .toc{columns:2;column-gap:20px;max-height:230px;overflow-y:auto;
+    border:1px solid var(--rule);border-radius:9px;padding:8px;background:var(--card)}
+  .toc .lv1>a{margin-top:0}
+  main{padding:22px 0 80px}
+}
+@media (max-width:620px){
+  body{font-size:15.5px}
+  .wrap,.topbar .in{padding:0 15px}
+  .toc{columns:1;max-height:200px}
+  .pager{grid-template-columns:1fr}
+  .pager .next{text-align:left}
+  .card{grid-template-columns:56px 1fr;gap:14px}
+  .card .h{grid-column:2;margin-top:5px}
+  main h1{font-size:19px;padding:12px 14px}
+  main pre{font-size:12.5px;padding:13px 14px}
+}
+
+/* ============ 인쇄 ============ */
+@media print{
+  :root{--paper:#fff}
+  .topbar,.rail,.pager,.track{display:none!important}
+  .wrap{display:block;max-width:none;padding:0}
+  main{padding:0}
+  body{font-size:10.5pt;line-height:1.62}
+  main h1{background:none;color:#000;border:1.5pt solid #000;padding:7pt 10pt;
+    font-size:15pt;margin:22pt 0 11pt;page-break-after:avoid}
+  main h2,main h3,main h4{page-break-after:avoid}
+  main h2{font-size:13pt;margin:16pt 0 7pt}
+  main h3{font-size:11.5pt}
+  main pre{background:#F6F7F9;color:#111;border:.5pt solid #CBD2DA;
+    font-size:8.6pt;page-break-inside:avoid;white-space:pre-wrap;word-break:break-all}
+  main pre code{color:#111}
+  main :not(pre)>code{background:#EFF2F5;color:#111}
+  main table{font-size:9pt;page-break-inside:avoid}
+  .tw{overflow:visible;border-color:#CBD2DA}
+  main blockquote{page-break-inside:avoid}
+  a{color:#000;text-decoration:none}
+  .dochead{page-break-after:avoid}
+  @page{margin:15mm 14mm}
+}
+</style>
+</head>
+<body>
+<header class="topbar"><div class="in">
+  <div class="brand">KDT · AI 캠퍼스 [비솔] Vision AI &amp; 산업분야 Vertical AI 융합 전문가 양성 · <b>교과 1 · 리눅스</b></div>
+  <nav class="navbtns">
+    <a class="home" href="index.html">전체 목차</a>
+    <a href="#" onclick="window.print();return false;">인쇄 / PDF</a>
+  </nav>
+</div></header>
+
+<div class="wrap">
+  <aside class="rail">
+    <p class="spine-h">교과 1 · 60H 전체</p>
+    <ul class="spine"><li><a class="done" href="00.html"><span class="dot"></span><span class="lbl">PLAN</span><span class="ttl">강의 기획서</span></a></li>
+<li><a class="done" href="01.html"><span class="dot"></span><span class="lbl">D1</span><span class="ttl">리눅스 시작과 파일 시스템</span></a></li>
+<li><a class="done" href="02.html"><span class="dot"></span><span class="lbl">D2</span><span class="ttl">권한 · 아카이브 · 텍스트 스트림</span></a></li>
+<li><a class="done" href="03.html"><span class="dot"></span><span class="lbl">D3</span><span class="ttl">편집기와 텍스트 처리</span></a></li>
+<li><a class="done" href="04.html"><span class="dot"></span><span class="lbl">D4</span><span class="ttl">셸 스크립트 · 프로세스 · 자동화</span></a></li>
+<li><a class="done" href="05.html"><span class="dot"></span><span class="lbl">D5</span><span class="ttl">Anaconda 환경과 데이터셋 구조화</span></a></li>
+<li><a class="done" href="06.html"><span class="dot"></span><span class="lbl">D6</span><span class="ttl">Git 기초</span></a></li>
+<li><a class="done" href="07.html"><span class="dot"></span><span class="lbl">D7</span><span class="ttl">GitHub 협업과 데이터 보안</span></a></li>
+<li><a class="done" href="08.html"><span class="dot"></span><span class="lbl">D8</span><span class="ttl">부분 파이널 프로젝트</span></a></li>
+<li><a class="" href="99.html" aria-current="page"><span class="dot"></span><span class="lbl">APX</span><span class="ttl">부록 · 치트시트 &amp; 트러블슈팅</span></a></li></ul>
+    <p class="toc-h">이 문서 안에서</p>
+    <ul class="toc"><li class="lv1"><a href="#a-명령어-치트시트">A. 명령어 치트시트</a></li>
+<li class="lv2"><a href="#a-1-파일-디렉토리">A-1. 파일 · 디렉토리</a></li>
+<li class="lv2"><a href="#a-2-권한">A-2. 권한</a></li>
+<li class="lv2"><a href="#a-3-텍스트-파이프">A-3. 텍스트 · 파이프</a></li>
+<li class="lv2"><a href="#a-4-grep-sed-awk">A-4. grep / sed / awk</a></li>
+<li class="lv2"><a href="#a-5-아카이브">A-5. 아카이브</a></li>
+<li class="lv2"><a href="#a-6-프로세스-시스템">A-6. 프로세스 · 시스템</a></li>
+<li class="lv2"><a href="#a-7-원격-전송">A-7. 원격 · 전송</a></li>
+<li class="lv2"><a href="#a-8-vim">A-8. Vim</a></li>
+<li class="lv2"><a href="#a-9-conda">A-9. conda</a></li>
+<li class="lv2"><a href="#a-10-git">A-10. Git</a></li>
+<li class="lv1"><a href="#b-트러블슈팅">B. 트러블슈팅</a></li>
+<li class="lv2"><a href="#b-1-권한-관련">B-1. 권한 관련</a></li>
+<li class="lv2"><a href="#b-2-파이썬-conda">B-2. 파이썬 · conda</a></li>
+<li class="lv2"><a href="#b-3-git">B-3. Git</a></li>
+<li class="lv2"><a href="#b-4-셸-스크립트">B-4. 셸 스크립트</a></li>
+<li class="lv2"><a href="#b-5-데이터셋-관련">B-5. 데이터셋 관련</a></li>
+<li class="lv2"><a href="#b-6-원격-접속">B-6. 원격 접속</a></li>
+<li class="lv1"><a href="#c-보안-규정-요약-안내서-62절-7장">C. 보안 규정 요약 (안내서 6.2절 · 7장)</a></li>
+<li class="lv1"><a href="#d-자주-쓰는-one-liner-모음-vision-ai-실무">D. 자주 쓰는 one-liner 모음 (Vision AI 실무)</a></li>
+<li class="lv1"><a href="#e-학습-리소스">E. 학습 리소스</a></li>
+<li class="lv1"><a href="#f-문의">F. 문의</a></li></ul>
+  </aside>
+
+  <main>
+    <div class="dochead">
+      <div class="eyebrow">APX &nbsp;/&nbsp; 교과 1 · 리눅스 &nbsp;/&nbsp; 보조 자료</div>
+      <h1>부록 · 명령어 치트시트 &amp; 트러블슈팅</h1>
+      <p class="sub">명령어 치트시트 · 오류 대응 · 실무 one-liner</p>
+      
+    </div>
+    <blockquote>
+<p>교과 1 · 리눅스 (60H) 보조 자료
+훈련생 배포용 · 인쇄 권장</p>
+</blockquote>
+<hr />
+<h1 id="a-명령어-치트시트">A. 명령어 치트시트</h1>
+<h2 id="a-1-파일-디렉토리">A-1. 파일 · 디렉토리</h2>
+<div class="tw"><table>
+<thead>
+<tr>
+<th>명령</th>
+<th>용도</th>
+<th>자주 쓰는 옵션</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>pwd</code></td>
+<td>현재 위치</td>
+<td></td>
+</tr>
+<tr>
+<td><code>cd</code></td>
+<td>이동</td>
+<td><code>..</code> 상위, <code>-</code> 직전, <code>~</code> 홈</td>
+</tr>
+<tr>
+<td><code>ls</code></td>
+<td>목록</td>
+<td><code>-l -a -h -t -r -S -d</code></td>
+</tr>
+<tr>
+<td><code>tree</code></td>
+<td>트리 구조</td>
+<td><code>-L 2</code> 깊이, <code>-d</code> 폴더만</td>
+</tr>
+<tr>
+<td><code>mkdir</code></td>
+<td>생성</td>
+<td><code>-p</code> 중간 경로 포함</td>
+</tr>
+<tr>
+<td><code>touch</code></td>
+<td>빈 파일 / 시간 갱신</td>
+<td></td>
+</tr>
+<tr>
+<td><code>cp</code></td>
+<td>복사</td>
+<td><code>-r -p -v -n -a</code></td>
+</tr>
+<tr>
+<td><code>mv</code></td>
+<td>이동·이름변경</td>
+<td><code>-i -n</code></td>
+</tr>
+<tr>
+<td><code>rm</code></td>
+<td>삭제</td>
+<td><code>-r -f -i</code> ⚠️</td>
+</tr>
+<tr>
+<td><code>ln</code></td>
+<td>링크</td>
+<td><code>-s</code> 심볼릭</td>
+</tr>
+<tr>
+<td><code>find</code></td>
+<td>검색</td>
+<td><code>-name -type -size -mtime -exec -xtype</code></td>
+</tr>
+<tr>
+<td><code>stat</code></td>
+<td>상세 정보</td>
+<td><code>-c%s</code> 크기, <code>-c%A</code> 권한</td>
+</tr>
+<tr>
+<td><code>file</code></td>
+<td>파일 종류</td>
+<td></td>
+</tr>
+<tr>
+<td><code>du</code></td>
+<td>용량</td>
+<td><code>-sh</code>, <code>--max-depth=1</code></td>
+</tr>
+<tr>
+<td><code>df</code></td>
+<td>디스크</td>
+<td><code>-h</code></td>
+</tr>
+<tr>
+<td><code>basename</code>/<code>dirname</code></td>
+<td>경로 분해</td>
+<td></td>
+</tr>
+<tr>
+<td><code>realpath</code></td>
+<td>절대경로 변환</td>
+<td>(<code>readlink -f</code>)</td>
+</tr>
+</tbody>
+</table></div>
+<h2 id="a-2-권한">A-2. 권한</h2>
+<div class="tw"><table>
+<thead>
+<tr>
+<th>명령</th>
+<th>용도</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>chmod 755 f</code></td>
+<td>rwxr-xr-x</td>
+</tr>
+<tr>
+<td><code>chmod +x f</code></td>
+<td>실행 권한 추가</td>
+</tr>
+<tr>
+<td><code>chmod -R 444 dir</code></td>
+<td>재귀 읽기전용</td>
+</tr>
+<tr>
+<td><code>chown user:group f</code></td>
+<td>소유자 변경</td>
+</tr>
+<tr>
+<td><code>umask</code></td>
+<td>기본 권한 마스크</td>
+</tr>
+<tr>
+<td><code>sudo cmd</code></td>
+<td>관리자 실행</td>
+</tr>
+</tbody>
+</table></div>
+<p><strong>8진수 빠른 표</strong></p>
+<div class="tw"><table>
+<thead>
+<tr>
+<th>값</th>
+<th>표기</th>
+<th>용도</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>777</td>
+<td>rwxrwxrwx</td>
+<td>⚠️ 지양</td>
+</tr>
+<tr>
+<td>755</td>
+<td>rwxr-xr-x</td>
+<td>스크립트·디렉토리</td>
+</tr>
+<tr>
+<td>700</td>
+<td>rwx------</td>
+<td>개인 폴더</td>
+</tr>
+<tr>
+<td>644</td>
+<td>rw-r--r--</td>
+<td>일반 파일</td>
+</tr>
+<tr>
+<td>600</td>
+<td>rw-------</td>
+<td><strong>SSH 키·비밀정보</strong></td>
+</tr>
+<tr>
+<td>555</td>
+<td>r-xr-xr-x</td>
+<td>원본 디렉토리</td>
+</tr>
+<tr>
+<td>444</td>
+<td>r--r--r--</td>
+<td><strong>원본 파일</strong></td>
+</tr>
+</tbody>
+</table></div>
+<h2 id="a-3-텍스트-파이프">A-3. 텍스트 · 파이프</h2>
+<div class="tw"><table>
+<thead>
+<tr>
+<th>명령</th>
+<th>용도</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>cat</code></td>
+<td>출력 (<code>-n</code> 줄번호)</td>
+</tr>
+<tr>
+<td><code>head -n N</code> / <code>tail -n N</code></td>
+<td>앞/뒤 N줄</td>
+</tr>
+<tr>
+<td><code>tail -f</code></td>
+<td>실시간 추적 ★</td>
+</tr>
+<tr>
+<td><code>less</code></td>
+<td>페이저 (<code>/</code>검색, <code>q</code>종료)</td>
+</tr>
+<tr>
+<td><code>wc -l</code></td>
+<td>줄 수</td>
+</tr>
+<tr>
+<td><code>sort</code></td>
+<td>정렬 (<code>-n -r -k2 -u</code>)</td>
+</tr>
+<tr>
+<td><code>uniq -c</code></td>
+<td>중복 개수</td>
+</tr>
+<tr>
+<td><code>cut -d' ' -f1</code></td>
+<td>필드 추출</td>
+</tr>
+<tr>
+<td><code>tr ' ' '_'</code></td>
+<td>문자 치환</td>
+</tr>
+<tr>
+<td><code>comm -23 a b</code></td>
+<td>차집합</td>
+</tr>
+<tr>
+<td><code>diff a b</code></td>
+<td>파일 비교</td>
+</tr>
+<tr>
+<td><code>tee f</code></td>
+<td>화면+파일 동시</td>
+</tr>
+<tr>
+<td><code>xargs</code></td>
+<td>입력→인자</td>
+</tr>
+</tbody>
+</table></div>
+<p><strong>리다이렉션</strong></p>
+<pre><code>&gt;  덮어쓰기     &gt;&gt; 추가       2&gt; 에러만
+&amp;&gt; 전부        2&gt;&amp;1 에러를 출력으로     &lt; 입력
+</code></pre>
+<h2 id="a-4-grep-sed-awk">A-4. grep / sed / awk</h2>
+<p><strong>grep</strong></p>
+<pre><code class="language-bash">grep -n &quot;패턴&quot; f        # 줄번호
+grep -c &quot;패턴&quot; f        # 개수
+grep -v &quot;패턴&quot; f        # 반대
+grep -i &quot;패턴&quot; f        # 대소문자 무시
+grep -r &quot;패턴&quot; .        # 재귀
+grep -E &quot;a|b&quot; f         # 확장 정규식
+grep -o &quot;mAP=[0-9.]*&quot;   # 매칭 부분만
+grep -A3 -B3 &quot;패턴&quot;     # 앞뒤 3줄
+grep -l &quot;패턴&quot; *.txt    # 파일명만
+</code></pre>
+<p><strong>sed</strong></p>
+<pre><code class="language-bash">sed 's/a/b/g' f              # 전체 치환
+sed -i.bak 's/a/b/g' f       # 백업 남기고 직접 수정 ★
+sed -n '5,10p' f             # 5~10줄
+sed '/패턴/d' f              # 줄 삭제
+sed '1i 텍스트' f            # 첫 줄 앞 삽입
+sed -E 's/([0-9]+)/[\1]/g'   # 그룹 참조
+</code></pre>
+<p><strong>awk</strong></p>
+<pre><code class="language-bash">awk '{print $1}' f
+awk -F',' '{print $2}' f
+awk 'NF!=5 {print FILENAME}' f
+awk '$1==3 {c++} END {print c}' f
+awk '{s+=$4*$5} END {printf &quot;%.4f\n&quot;, s/NR}' f
+awk 'NR==FNR{m[$1]=$2;next}{print m[$1]}' map.txt data.txt   # 조인
+awk '{printf &quot;%-20s %5d\n&quot;, $1, $2}' f                        # 서식
+</code></pre>
+<h2 id="a-5-아카이브">A-5. 아카이브</h2>
+<pre><code class="language-bash">tar -czvf out.tar.gz dir/         # 압축 생성
+tar -xzvf out.tar.gz              # 해제
+tar -xzvf out.tar.gz -C /dest     # 위치 지정 해제
+tar -tzvf out.tar.gz              # 목록
+tar -czvf o.tgz --exclude='*.jpg' dir/
+zip -r out.zip dir/  /  unzip out.zip
+</code></pre>
+<h2 id="a-6-프로세스-시스템">A-6. 프로세스 · 시스템</h2>
+<div class="tw"><table>
+<thead>
+<tr>
+<th>명령</th>
+<th>용도</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>ps aux</code></td>
+<td>전체 프로세스</td>
+</tr>
+<tr>
+<td><code>pgrep -f name</code></td>
+<td>PID 찾기</td>
+</tr>
+<tr>
+<td><code>kill PID</code> / <code>kill -9 PID</code></td>
+<td>종료 / 강제 종료</td>
+</tr>
+<tr>
+<td><code>pkill -f name</code></td>
+<td>이름으로 종료</td>
+</tr>
+<tr>
+<td><code>jobs</code> / <code>fg</code> / <code>bg</code></td>
+<td>잡 제어</td>
+</tr>
+<tr>
+<td><code>cmd &amp;</code></td>
+<td>백그라운드</td>
+</tr>
+<tr>
+<td><code>nohup cmd &amp;</code></td>
+<td>로그아웃 후에도 유지</td>
+</tr>
+<tr>
+<td><code>top</code> / <code>htop</code></td>
+<td>실시간 모니터</td>
+</tr>
+<tr>
+<td><code>free -h</code></td>
+<td>메모리</td>
+</tr>
+<tr>
+<td><code>uptime</code></td>
+<td>부하</td>
+</tr>
+<tr>
+<td><code>watch -n 1 cmd</code></td>
+<td>주기 실행</td>
+</tr>
+<tr>
+<td><code>nvidia-smi</code></td>
+<td>GPU (해당 장비)</td>
+</tr>
+<tr>
+<td><code>tegrastats</code></td>
+<td>Jetson 모니터</td>
+</tr>
+</tbody>
+</table></div>
+<p><strong>tmux</strong></p>
+<pre><code class="language-bash">tmux new -s name        # 생성
+tmux ls                 # 목록
+tmux attach -t name     # 재접속
+tmux kill-session -t name
+</code></pre>
+<div class="tw"><table>
+<thead>
+<tr>
+<th>Ctrl+b 후</th>
+<th>기능</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>d</code></td>
+<td>detach</td>
+</tr>
+<tr>
+<td><code>%</code> / <code>"</code></td>
+<td>세로/가로 분할</td>
+</tr>
+<tr>
+<td><code>방향키</code></td>
+<td>창 이동</td>
+</tr>
+<tr>
+<td><code>c</code> / <code>n</code> / <code>p</code></td>
+<td>새 윈도우 / 다음 / 이전</td>
+</tr>
+<tr>
+<td><code>[</code></td>
+<td>스크롤 (q 종료)</td>
+</tr>
+<tr>
+<td><code>x</code></td>
+<td>창 닫기</td>
+</tr>
+</tbody>
+</table></div>
+<h2 id="a-7-원격-전송">A-7. 원격 · 전송</h2>
+<pre><code class="language-bash">ssh user@host
+ssh -p 2222 user@host
+ssh-keygen -t ed25519 -C &quot;email&quot;
+ssh-copy-id user@host
+
+scp file user@host:~/            # 업로드
+scp user@host:~/file .           # 다운로드
+scp -r dir user@host:~/
+
+rsync -avh --progress src/ dst/
+rsync -avh --dry-run src/ user@host:~/dst/    # 시뮬레이션 ★
+rsync -avh --exclude='*.jpg' src/ dst/
+</code></pre>
+<h2 id="a-8-vim">A-8. Vim</h2>
+<div class="tw"><table>
+<thead>
+<tr>
+<th>모드 전환</th>
+<th></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>i a o</code></td>
+<td>입력 모드</td>
+</tr>
+<tr>
+<td><code>Esc</code></td>
+<td>명령 모드</td>
+</tr>
+<tr>
+<td><code>:</code></td>
+<td>실행 모드</td>
+</tr>
+</tbody>
+</table></div>
+<div class="tw"><table>
+<thead>
+<tr>
+<th>저장/종료</th>
+<th></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>:w</code> <code>:wq</code> <code>ZZ</code></td>
+<td>저장 / 저장 후 종료</td>
+</tr>
+<tr>
+<td><code>:q!</code></td>
+<td>강제 종료</td>
+</tr>
+</tbody>
+</table></div>
+<div class="tw"><table>
+<thead>
+<tr>
+<th>이동</th>
+<th></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>h j k l</code></td>
+<td>좌 하 상 우</td>
+</tr>
+<tr>
+<td><code>w b</code></td>
+<td>단어 앞/뒤</td>
+</tr>
+<tr>
+<td><code>0 $</code></td>
+<td>줄 처음/끝</td>
+</tr>
+<tr>
+<td><code>gg G</code></td>
+<td>문서 처음/끝</td>
+</tr>
+<tr>
+<td><code>:42</code></td>
+<td>42줄로</td>
+</tr>
+</tbody>
+</table></div>
+<div class="tw"><table>
+<thead>
+<tr>
+<th>편집</th>
+<th></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>x</code> <code>dd</code> <code>5dd</code></td>
+<td>삭제</td>
+</tr>
+<tr>
+<td><code>yy</code> <code>p</code> <code>P</code></td>
+<td>복사·붙여넣기</td>
+</tr>
+<tr>
+<td><code>u</code> <code>Ctrl+r</code></td>
+<td>취소·재실행</td>
+</tr>
+<tr>
+<td><code>.</code></td>
+<td>직전 반복</td>
+</tr>
+</tbody>
+</table></div>
+<div class="tw"><table>
+<thead>
+<tr>
+<th>검색/치환</th>
+<th></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>/패턴</code> <code>n</code> <code>N</code></td>
+<td>검색</td>
+</tr>
+<tr>
+<td><code>:%s/a/b/g</code></td>
+<td>전체 치환</td>
+</tr>
+<tr>
+<td><code>:%s/a/b/gc</code></td>
+<td>확인하며 치환</td>
+</tr>
+<tr>
+<td><code>:noh</code></td>
+<td>하이라이트 끄기</td>
+</tr>
+</tbody>
+</table></div>
+<div class="tw"><table>
+<thead>
+<tr>
+<th>설정</th>
+<th></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>:set nu</code></td>
+<td>줄번호</td>
+</tr>
+<tr>
+<td><code>:set paste</code></td>
+<td>붙여넣기 모드 ★</td>
+</tr>
+</tbody>
+</table></div>
+<h2 id="a-9-conda">A-9. conda</h2>
+<pre><code class="language-bash">conda create -n env python=3.10 -y
+conda activate env  /  conda deactivate
+conda env list
+conda env remove -n env -y
+conda install -c conda-forge pkg
+conda list | grep torch
+conda env export --no-builds &gt; environment.yml
+conda env export --from-history &gt; environment.yml   # 권장
+conda env create -f environment.yml
+conda env update -f environment.yml --prune
+conda clean --all
+</code></pre>
+<h2 id="a-10-git">A-10. Git</h2>
+<p><strong>기본</strong></p>
+<pre><code class="language-bash">git init
+git clone &lt;URL&gt;
+git status  /  git status -s
+git add &lt;f&gt;  /  git add .  /  git add -p
+git commit -m &quot;type(scope): subject&quot;
+git commit --amend                # ⚠️ push 전에만
+git log --oneline --graph --all
+git diff  /  git diff --staged
+git show &lt;hash&gt;
+</code></pre>
+<p><strong>되돌리기</strong></p>
+<pre><code class="language-bash">git restore &lt;f&gt;                   # 작업폴더 수정 취소
+git restore --staged &lt;f&gt;          # 스테이징 해제
+git reset --soft HEAD~1           # 커밋만 취소
+git reset HEAD~1                  # 커밋+스테이징 취소
+git reset --hard HEAD~1           # ⚠️ 전부 삭제
+git revert &lt;hash&gt;                 # 공유 이력은 이것
+git reflog                        # 구조선 ★
+git stash  /  git stash pop
+</code></pre>
+<p><strong>브랜치</strong></p>
+<pre><code class="language-bash">git branch  /  git branch &lt;name&gt;
+git switch &lt;name&gt;  /  git switch -c &lt;name&gt;
+git merge &lt;name&gt;  /  git merge --no-ff &lt;name&gt;
+git merge --abort
+git branch -d &lt;name&gt;  /  -D &lt;name&gt;
+</code></pre>
+<p><strong>원격</strong></p>
+<pre><code class="language-bash">git remote add origin &lt;URL&gt;
+git remote -v
+git push -u origin main  /  git push  /  git push --tags
+git fetch origin
+git log HEAD..origin/main         # 원격에만 있는 커밋
+git pull  /  git pull --rebase
+</code></pre>
+<p><strong>기타</strong></p>
+<pre><code class="language-bash">git check-ignore -v &lt;f&gt;           # 어느 규칙에 걸렸나
+git rm --cached &lt;f&gt;               # 추적 제외
+git ls-files | grep -E '\.(jpg|pt)$'   # 금지 파일 확인 ★
+git tag -a v1.0 -m &quot;메시지&quot;
+git config --global alias.lg &quot;log --oneline --graph --all&quot;
+</code></pre>
+<p><strong>커밋 타입</strong></p>
+<div class="tw"><table>
+<thead>
+<tr>
+<th>type</th>
+<th>용도</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>feat</code></td>
+<td>새 기능</td>
+</tr>
+<tr>
+<td><code>fix</code></td>
+<td>버그 수정</td>
+</tr>
+<tr>
+<td><code>docs</code></td>
+<td>문서</td>
+</tr>
+<tr>
+<td><code>style</code></td>
+<td>포맷</td>
+</tr>
+<tr>
+<td><code>refactor</code></td>
+<td>리팩터링</td>
+</tr>
+<tr>
+<td><code>test</code></td>
+<td>테스트</td>
+</tr>
+<tr>
+<td><code>chore</code></td>
+<td>설정·잡무</td>
+</tr>
+<tr>
+<td><code>data</code></td>
+<td>데이터셋 변경</td>
+</tr>
+<tr>
+<td><code>ci</code></td>
+<td>CI 설정</td>
+</tr>
+</tbody>
+</table></div>
+<hr />
+<h1 id="b-트러블슈팅">B. 트러블슈팅</h1>
+<h2 id="b-1-권한-관련">B-1. 권한 관련</h2>
+<p><strong><code>Permission denied</code> — 스크립트 실행 시</strong></p>
+<pre><code class="language-bash">ls -l script.sh          # x 권한 확인
+chmod +x script.sh
+</code></pre>
+<p><strong><code>Permission denied</code> — 디렉토리 접근 시</strong></p>
+<pre><code class="language-bash">ls -ld dir               # 디렉토리 x 권한 확인
+chmod +x dir             # 진입 권한
+</code></pre>
+<p><strong><code>Permission denied</code> — pip install 시</strong></p>
+<pre><code class="language-bash"># 원인: 시스템 파이썬에 설치 시도
+conda activate vision-ai      # 반드시 가상환경 먼저
+pip install pkg
+# sudo pip install 는 절대 금지 ★
+</code></pre>
+<p><strong>SSH <code>Permissions 0644 for 'id_ed25519' are too open</code></strong></p>
+<pre><code class="language-bash">chmod 600 ~/.ssh/id_ed25519
+</code></pre>
+<h2 id="b-2-파이썬-conda">B-2. 파이썬 · conda</h2>
+<p><strong><code>ImportError: libGL.so.1: cannot open shared object file</code></strong></p>
+<pre><code class="language-bash">sudo apt install -y libgl1 libglib2.0-0
+# 원인: OpenCV는 시스템 라이브러리를 필요로 함
+</code></pre>
+<p><strong><code>conda: command not found</code></strong></p>
+<pre><code class="language-bash">source ~/anaconda3/bin/activate
+conda init bash
+exec bash
+</code></pre>
+<p><strong><code>conda activate</code> 가 안 됨</strong></p>
+<pre><code class="language-bash">conda init bash
+source ~/.bashrc
+</code></pre>
+<p><strong>환경을 activate 했는데 시스템 파이썬이 실행됨</strong></p>
+<pre><code class="language-bash">which python             # 경로 확인
+echo $PATH
+hash -r                  # 셸의 명령 캐시 초기화
+</code></pre>
+<p><strong><code>environment.yml</code> 재현 실패</strong></p>
+<div class="tw"><table>
+<thead>
+<tr>
+<th>원인</th>
+<th>해결</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>플랫폼 종속 빌드 정보</td>
+<td><code>--no-builds</code> 또는 <code>--from-history</code> 로 재생성</td>
+</tr>
+<tr>
+<td>pip 패키지 누락</td>
+<td><code>pip freeze &gt; requirements.txt</code> 별도 제공</td>
+</tr>
+<tr>
+<td>채널 불일치</td>
+<td><code>conda config --add channels conda-forge</code></td>
+</tr>
+</tbody>
+</table></div>
+<p><strong><code>CondaHTTPError</code> / 다운로드 지연</strong></p>
+<pre><code class="language-bash">conda config --set remote_read_timeout_secs 120
+# 사내 프록시가 있으면 ~/.condarc 에 proxy_servers 설정
+</code></pre>
+<h2 id="b-3-git">B-3. Git</h2>
+<p><strong><code>fatal: not a git repository</code></strong></p>
+<pre><code class="language-bash">pwd                      # 위치 확인
+git rev-parse --show-toplevel    # 저장소 루트 찾기
+git init                 # 새로 시작할 때만
+</code></pre>
+<p><strong>커밋했는데 이름이 이상함</strong></p>
+<pre><code class="language-bash">git config --global user.name &quot;이름&quot;
+git config --global user.email &quot;메일&quot;
+git commit --amend --reset-author      # 직전 커밋만 수정
+</code></pre>
+<p><strong><code>reset --hard</code> 로 커밋을 날렸다</strong></p>
+<pre><code class="language-bash">git reflog               # 이동 기록에서 해시 확인
+git reset --hard &lt;해시&gt;
+# 기본 90일간 복구 가능
+</code></pre>
+<p><strong><code>.gitignore</code> 가 동작 안 함</strong></p>
+<pre><code class="language-bash">git check-ignore -v &lt;파일&gt;       # 규칙 확인
+git rm --cached &lt;파일&gt;           # 이미 추적 중이면 제외 필요
+git rm -r --cached .             # 전체 재적용 (주의)
+git add . &amp;&amp; git commit -m &quot;chore: gitignore 재적용&quot;
+</code></pre>
+<p><strong>한글 파일명이 <code>\355\225\234</code> 처럼 보임</strong></p>
+<pre><code class="language-bash">git config --global core.quotepath false
+</code></pre>
+<p><strong>push 시 <code>rejected — non-fast-forward</code></strong></p>
+<pre><code class="language-bash">git fetch origin
+git log HEAD..origin/main        # 원격에 뭐가 있나
+git pull --rebase                # 또는 merge
+git push
+</code></pre>
+<p><strong>충돌 해결 중 포기하고 싶다</strong></p>
+<pre><code class="language-bash">git merge --abort
+# rebase 중이면
+git rebase --abort
+</code></pre>
+<p><strong><code>fatal: refusing to merge unrelated histories</code></strong></p>
+<pre><code class="language-bash">git pull origin main --allow-unrelated-histories
+# 원인: 원격에 README를 만들면서 저장소를 생성한 경우
+</code></pre>
+<p><strong>GitHub push 시 인증 실패</strong></p>
+<pre><code class="language-bash">ssh -T git@github.com            # SSH 테스트
+git remote -v                    # URL이 https인지 ssh인지
+git remote set-url origin git@github.com:계정/저장소.git
+# HTTPS면 비밀번호 대신 PAT 사용
+</code></pre>
+<p><strong>100MB 초과 파일 push 거부</strong></p>
+<pre><code>remote: error: File model.pt is 250 MB; this exceeds GitHub's file size limit
+</code></pre>
+<pre><code class="language-bash">git rm --cached model.pt
+echo &quot;*.pt&quot; &gt;&gt; .gitignore
+git commit -m &quot;chore: 모델 가중치 제외&quot;
+# 이력에서도 지우려면 git filter-repo 필요 (별도 학습)
+# 권장: GitHub Releases 또는 별도 스토리지 사용
+</code></pre>
+<h2 id="b-4-셸-스크립트">B-4. 셸 스크립트</h2>
+<p><strong><code>bad interpreter: No such file or directory</code></strong></p>
+<pre><code class="language-bash"># 원인: Windows 줄바꿈(CRLF)
+file script.sh
+sed -i 's/\r$//' script.sh
+# 또는
+dos2unix script.sh
+</code></pre>
+<p><strong><code>[: too many arguments</code></strong></p>
+<pre><code class="language-bash"># 원인: 변수에 공백이 있는데 따옴표를 안 씀
+if [ &quot;$VAR&quot; = &quot;value&quot; ]; then    # ✅ 따옴표 필수
+</code></pre>
+<p><strong><code>unbound variable</code> (set -u 사용 시)</strong></p>
+<pre><code class="language-bash">VAR=&quot;${1:-기본값}&quot;               # 기본값 지정
+VAR=&quot;${VAR:-}&quot;                   # 빈 값 허용
+</code></pre>
+<p><strong>스크립트가 중간에 멈춤 (set -e)</strong></p>
+<pre><code class="language-bash">bash -x script.sh                # 어디서 멈추는지 추적
+# 실패해도 계속하려면
+cmd || true
+</code></pre>
+<p><strong>cron에서만 실패</strong></p>
+<div class="tw"><table>
+<thead>
+<tr>
+<th>원인</th>
+<th>해결</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>PATH가 최소</td>
+<td>스크립트에 <code>export PATH=...</code> 명시</td>
+</tr>
+<tr>
+<td>상대경로 사용</td>
+<td>절대경로로 변경</td>
+</tr>
+<tr>
+<td>conda 환경 미활성화</td>
+<td><code>source ~/anaconda3/etc/profile.d/conda.sh &amp;&amp; conda activate env</code></td>
+</tr>
+<tr>
+<td>환경변수 없음</td>
+<td><code>.bashrc</code> 를 <code>source</code> 하거나 직접 설정</td>
+</tr>
+<tr>
+<td>로그 없음</td>
+<td><code>&gt;&gt; /path/log 2&gt;&amp;1</code> 추가</td>
+</tr>
+</tbody>
+</table></div>
+<p><strong><code>shellcheck</code> 경고 대응</strong></p>
+<div class="tw"><table>
+<thead>
+<tr>
+<th>코드</th>
+<th>의미</th>
+<th>해결</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>SC2086</td>
+<td>따옴표 없는 변수</td>
+<td><code>"$VAR"</code></td>
+</tr>
+<tr>
+<td>SC2046</td>
+<td>따옴표 없는 명령 치환</td>
+<td><code>"$(cmd)"</code></td>
+</tr>
+<tr>
+<td>SC2164</td>
+<td>cd 실패 미처리</td>
+<td><code>cd dir \|\| exit</code></td>
+</tr>
+<tr>
+<td>SC2181</td>
+<td><code>$?</code> 직접 검사</td>
+<td><code>if cmd; then</code></td>
+</tr>
+</tbody>
+</table></div>
+<h2 id="b-5-데이터셋-관련">B-5. 데이터셋 관련</h2>
+<p><strong>심볼릭 링크가 깨짐</strong></p>
+<pre><code class="language-bash">find images labels -xtype l           # 깨진 링크 찾기
+# 원인: 원본 이동/삭제, 상대경로 링크 후 폴더 이동
+ln -sf &quot;$(realpath 원본)&quot; 링크         # 절대경로로 재생성
+</code></pre>
+<p><strong>WSL에서 심볼릭 링크 생성 실패</strong></p>
+<pre><code class="language-bash"># 원인: /mnt/c 등 Windows 파일시스템에서는 제약
+# 해결: 리눅스 파일시스템(~/) 안에서 작업
+</code></pre>
+<p><strong>학습 시 <code>FileNotFoundError</code></strong></p>
+<pre><code class="language-bash"># 체크리스트
+find images labels -xtype l | wc -l          # 깨진 링크
+ls images/train | head                        # 파일 존재
+cat meta/data.yaml                            # 경로 설정
+realpath meta/data.yaml                       # 절대경로 확인
+# 대소문자 확인 (Linux는 구분함) ★
+</code></pre>
+<p><strong>분할 결과가 매번 다름</strong></p>
+<pre><code class="language-bash"># 원인: 시드 미고정
+./split_dataset.sh &lt;dir&gt; --seed 42 --clean
+cat meta/split_seed.txt
+# 검증
+ls images/train | sort | md5sum
+</code></pre>
+<p><strong>클래스 분포가 이상함</strong></p>
+<pre><code class="language-bash">cat labels/train/*.txt | cut -d' ' -f1 | sort | uniq -c
+cat meta/classes.txt
+# 클래스 재매핑 후 검증을 빠뜨린 경우가 대부분
+</code></pre>
+<p><strong>디스크가 가득 참</strong></p>
+<pre><code class="language-bash">df -h
+du -sh ~/* | sort -rh | head
+du -sh ~/kdt-linux/*/ | sort -rh
+conda clean --all                    # conda 캐시 (수 GB 확보 가능)
+pip cache purge
+rm -rf ~/.cache/torch                # 모델 캐시
+find . -name &quot;__pycache__&quot; -exec rm -rf {} +
+</code></pre>
+<h2 id="b-6-원격-접속">B-6. 원격 접속</h2>
+<p><strong>SSH 접속 안 됨</strong></p>
+<pre><code class="language-bash">ping 서버IP                      # 네트워크
+ssh -v user@host                 # verbose 로그
+telnet 서버IP 22                 # 포트 열림 확인
+# 서버 측
+sudo systemctl status ssh
+sudo apt install openssh-server
+</code></pre>
+<p><strong>tmux 세션이 사라짐</strong></p>
+<pre><code class="language-bash">tmux ls                          # 목록 확인
+# 서버가 재부팅되면 세션도 사라짐 (정상)
+# 대책: 학습 스크립트에 체크포인트 저장 로직 필수
+</code></pre>
+<p><strong><code>Connection closed by remote host</code> (장시간 유휴)</strong></p>
+<pre><code class="language-bash"># ~/.ssh/config 에 추가
+Host *
+    ServerAliveInterval 60
+    ServerAliveCountMax 3
+</code></pre>
+<hr />
+<h1 id="c-보안-규정-요약-안내서-62절-7장">C. 보안 규정 요약 (안내서 6.2절 · 7장)</h1>
+<div class="tw"><table>
+<thead>
+<tr>
+<th>데이터</th>
+<th>사용 범위</th>
+<th>외부 반출</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>㈜비솔 제공 조각김치·이물 이미지+라벨 (교과 8)</td>
+<td><strong>원내 폐쇄망 전용</strong></td>
+<td>❌ 금지</td>
+</tr>
+<tr>
+<td>훈련생 직접 촬영 컨베이어 이미지 (교과 14)</td>
+<td>제한 없음</td>
+<td>✅ 가능</td>
+</tr>
+<tr>
+<td>모션캡처 원본 Take (교과 12)</td>
+<td>스튜디오 현장 처리</td>
+<td>❌ 금지</td>
+</tr>
+<tr>
+<td>공개 데이터셋 (교과 9·10)</td>
+<td>라이선스 확인 후</td>
+<td>라이선스 준수</td>
+</tr>
+<tr>
+<td>코드·스크립트·메타 문서</td>
+<td>제한 없음</td>
+<td>✅ 가능</td>
+</tr>
+<tr>
+<td>결과 화면·시연 영상·포트폴리오</td>
+<td>활용 가능</td>
+<td>✅ 가능</td>
+</tr>
+</tbody>
+</table></div>
+<p><strong>금지 사항</strong>
+- 외부 클라우드(AWS/GCP/Azure) 업로드
+- GitHub 등 원격 저장소 업로드
+- 개인 저장매체 반출</p>
+<p><strong>필수 조치</strong>
+- 개인별 보안서약서 징구
+- <code>.gitignore</code> + <code>pre-commit</code> 훅 설치
+- 제출 전 <code>git ls-files | grep -E '\.(jpg|jpeg|png|mp4|pt)$'</code> 확인</p>
+<hr />
+<h1 id="d-자주-쓰는-one-liner-모음-vision-ai-실무">D. 자주 쓰는 one-liner 모음 (Vision AI 실무)</h1>
+<pre><code class="language-bash"># 이미지 개수
+find . -name &quot;*.jpg&quot; | wc -l
+
+# 라벨 없는 이미지
+comm -23 &lt;(ls *.jpg | sed 's/\.jpg$//' | sort) \
+         &lt;(ls *.txt | sed 's/\.txt$//' | sort)
+
+# 클래스 분포
+cat *.txt | cut -d' ' -f1 | sort | uniq -c | sort -rn
+
+# 빈 라벨 파일
+find . -name &quot;*.txt&quot; -size 0
+
+# 필드 개수 오류
+awk 'NF!=5 &amp;&amp; NF!=0 {print FILENAME}' *.txt | sort -u
+
+# 좌표 범위 초과
+awk '{for(i=2;i&lt;=5;i++) if($i&lt;0||$i&gt;1){print FILENAME&quot;: &quot;$0;next}}' *.txt
+
+# bbox 평균 면적
+awk '{s+=$4*$5} END {printf &quot;%.5f\n&quot;, s/NR}' *.txt
+
+# 초소형 객체 개수 (면적 1% 미만)
+awk '$4*$5&lt;0.01 {c++} END {print c+0}' *.txt
+
+# YOLO → 픽셀 좌표
+awk -v W=4848 -v H=2704 '{printf &quot;%d %.0f %.0f %.0f %.0f\n&quot;, $1,
+  ($2-$4/2)*W, ($3-$5/2)*H, ($2+$4/2)*W, ($3+$5/2)*H}' label.txt
+
+# 전체 라벨을 CSV로
+awk '{split(FILENAME,a,&quot;.&quot;);print a[1]&quot;,&quot;$1&quot;,&quot;$2&quot;,&quot;$3&quot;,&quot;$4&quot;,&quot;$5}' *.txt
+
+# 학습 로그에서 mAP 추출
+grep -o &quot;mAP50=[0-9.]*&quot; train.log | cut -d= -f2
+
+# 목표 성능(0.7) 달성 시점
+awk -F'mAP50=' '/mAP50=/ &amp;&amp; $2+0&gt;=0.7 {print; exit}' train.log
+
+# 파일명 공백 제거
+find . -name &quot;* *&quot; -type f | while read -r f; do mv &quot;$f&quot; &quot;${f// /_}&quot;; done
+
+# 폴더별 용량 큰 순
+du -sh */ | sort -rh | head
+
+# 깨진 심볼릭 링크
+find . -xtype l
+
+# 최근 수정 파일 10개
+find . -type f -printf '%T@ %p\n' | sort -rn | head -10 | cut -d' ' -f2-
+
+# 저장소에 금지 파일이 있는지
+git ls-files | grep -Ei '\.(jpg|jpeg|png|bmp|mp4|pt|pth|onnx)$'
+
+# 커밋 통계
+git log --oneline | wc -l
+git log --pretty='%an' | sort | uniq -c | sort -rn
+</code></pre>
+<hr />
+<h1 id="e-학습-리소스">E. 학습 리소스</h1>
+<div class="tw"><table>
+<thead>
+<tr>
+<th>주제</th>
+<th>자료</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>리눅스 기초</td>
+<td><code>man</code>, <code>tldr</code>, Ubuntu 공식 문서</td>
+</tr>
+<tr>
+<td>Vim</td>
+<td><code>vimtutor</code> (터미널에서 실행)</td>
+</tr>
+<tr>
+<td>Git</td>
+<td><code>git help &lt;명령&gt;</code>, Pro Git (한국어 무료)</td>
+</tr>
+<tr>
+<td>셸 스크립트</td>
+<td><code>shellcheck</code> 도구, Bash 매뉴얼</td>
+</tr>
+<tr>
+<td>conda</td>
+<td>conda 공식 문서</td>
+</tr>
+<tr>
+<td>YOLO 데이터 포맷</td>
+<td>Ultralytics 공식 문서</td>
+</tr>
+</tbody>
+</table></div>
+<blockquote>
+<p>본 과정 교재(안내서 8장): 「컴퓨터 비전과 딥러닝(2024 개정판)」이 교과 3·5와 연계되며, 사전학습 30차시 목차와도 대응합니다.</p>
+</blockquote>
+<hr />
+<h1 id="f-문의">F. 문의</h1>
+<div class="tw"><table>
+<thead>
+<tr>
+<th>구분</th>
+<th>담당</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>교과 내용 · 실습</td>
+<td>담당 강사</td>
+</tr>
+<tr>
+<td>학사 운영 · 장비 · 계정</td>
+<td>KH정보교육원 강남지원 학사 운영 담당</td>
+</tr>
+<tr>
+<td>데이터 제공 · 보안 규정</td>
+<td>㈜비솔 훈련 운영 관리자</td>
+</tr>
+</tbody>
+</table></div>
+    <nav class="pager"><a href="08.html"><span class="k">← 이전 · D8</span><span class="v">부분 파이널 프로젝트</span></a><span class="empty"></span></nav>
+  </main>
+</div>
+<script>
+(function(){
+  var links=[].slice.call(document.querySelectorAll('.toc a'));
+  if(!links.length)return;
+  var map={},targets=[];
+  links.forEach(function(a){
+    var el=document.getElementById(decodeURIComponent(a.getAttribute('href').slice(1)));
+    if(el){map[el.id]=a;targets.push(el);}
+  });
+  var cur=null;
+  var io=new IntersectionObserver(function(es){
+    es.forEach(function(e){
+      if(e.isIntersecting){
+        if(cur)cur.classList.remove('active');
+        cur=map[e.target.id];
+        if(cur){cur.classList.add('active');
+          var r=document.querySelector('.rail');
+          if(r&&r.scrollHeight>r.clientHeight){
+            var t=cur.offsetTop-r.clientHeight/2;
+            if(Math.abs(r.scrollTop-t)>90)r.scrollTop=t;
+          }
+        }
+      }
+    });
+  },{rootMargin:'-76px 0px -72% 0px',threshold:0});
+  targets.forEach(function(t){io.observe(t);});
+})();
+</script>
+</body>
+</html>

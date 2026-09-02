@@ -1,0 +1,826 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>명령어 연습 부록 · 셸·프로세스 · 교과 1 · 리눅스</title>
+<link rel="preconnect" href="https://cdn.jsdelivr.net">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fontsource/jetbrains-mono@5.0.20/index.min.css">
+<style>
+/* ============ 토큰 ============ */
+:root{
+  --paper:#FAFAFB; --card:#FFFFFF;
+  --ink:#161B22; --ink2:#495364; --ink3:#828D9E;
+  --rule:#E4E8ED; --rule2:#F0F2F5;
+  --spec:#14539A;          /* 청사진 잉크 — 구조 · 링크 */
+  --spec-soft:#EAF1FA;
+  --warn:#A85408;          /* 신호 앰버 — 경고 · 보안 */
+  --warn-soft:#FDF3E7;
+  --ok:#0B6E5F;            /* 검수 통과 — 체크포인트 */
+  --ok-soft:#E7F3F0;
+  --term:#0E141B; --term-ink:#DCE6F0; --term-rule:#232C38;
+  --mono:"JetBrains Mono",ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+  --sans:"Pretendard Variable",Pretendard,-apple-system,BlinkMacSystemFont,
+         "Segoe UI","Malgun Gothic","Apple SD Gothic Neo","Noto Sans KR",sans-serif;
+  --rail:264px;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth;scroll-padding-top:84px}
+@media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}*{animation:none!important;transition:none!important}}
+body{
+  margin:0;background:var(--paper);color:var(--ink);font-family:var(--sans);
+  font-size:16px;line-height:1.78;-webkit-font-smoothing:antialiased;
+  word-break:keep-all;overflow-wrap:anywhere;
+}
+
+/* ============ 상단 바 ============ */
+.topbar{
+  position:sticky;top:0;z-index:40;background:rgba(250,250,251,.92);
+  backdrop-filter:blur(10px);border-bottom:1px solid var(--rule);
+}
+.topbar .in{max-width:1400px;margin:0 auto;padding:0 24px;height:56px;
+  display:flex;align-items:center;gap:18px}
+.brand{font-family:var(--mono);font-size:11px;letter-spacing:.1em;color:var(--ink3);
+  text-transform:uppercase;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.brand b{color:var(--spec);font-weight:700}
+.navbtns{margin-left:auto;display:flex;gap:8px;flex-shrink:0}
+.navbtns a{font-family:var(--mono);font-size:11px;letter-spacing:.06em;
+  text-decoration:none;color:var(--ink2);border:1px solid var(--rule);
+  border-radius:6px;padding:6px 11px;background:var(--card);transition:.15s}
+.navbtns a:hover{border-color:var(--spec);color:var(--spec)}
+.navbtns a.home{background:var(--spec);color:#fff;border-color:var(--spec)}
+.navbtns a.home:hover{filter:brightness(1.12)}
+
+/* ============ 레이아웃 ============ */
+.wrap{max-width:1400px;margin:0 auto;padding:0 24px;display:grid;
+  grid-template-columns:var(--rail) minmax(0,1fr);gap:44px;align-items:start}
+.rail{position:sticky;top:56px;max-height:calc(100vh - 56px);overflow-y:auto;
+  padding:28px 0 60px;scrollbar-width:thin}
+.rail::-webkit-scrollbar{width:6px}
+.rail::-webkit-scrollbar-thumb{background:var(--rule);border-radius:3px}
+main{padding:36px 0 120px;min-width:0;max-width:920px}
+
+/* ============ 시그니처: 일차 스파인 ============ */
+.spine-h{font-family:var(--mono);font-size:10px;letter-spacing:.14em;
+  color:var(--ink3);text-transform:uppercase;margin:0 0 12px 2px}
+.spine{list-style:none;margin:0 0 30px;padding:0;position:relative}
+.spine::before{content:"";position:absolute;left:19px;top:14px;bottom:14px;
+  width:1px;background:var(--rule)}
+.spine li{position:relative}
+.spine a{display:grid;grid-template-columns:38px 40px minmax(0,1fr);align-items:center;gap:6px;
+  padding:5px 8px 5px 0;text-decoration:none;color:var(--ink2);border-radius:6px}
+.spine a:hover{background:var(--rule2)}
+.spine .dot{position:relative;z-index:1;justify-self:center;width:9px;height:9px;
+  border-radius:50%;background:var(--card);border:1.5px solid var(--rule)}
+.spine .lbl{font-family:var(--mono);font-size:11.5px;letter-spacing:.04em}
+.spine .ttl{font-size:12.5px;line-height:1.35;color:var(--ink3);
+  overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.spine a[aria-current]{background:var(--spec-soft)}
+.spine a[aria-current] .dot{background:var(--spec);border-color:var(--spec);
+  box-shadow:0 0 0 3px rgba(20,83,154,.14)}
+.spine a[aria-current] .lbl{color:var(--spec);font-weight:700}
+.spine a[aria-current] .ttl{color:var(--ink)}
+.spine .done .dot{background:var(--rule);border-color:var(--rule)}
+
+/* ============ 문서 내 목차 ============ */
+.toc-h{font-family:var(--mono);font-size:10px;letter-spacing:.14em;color:var(--ink3);
+  text-transform:uppercase;margin:0 0 10px 2px;padding-top:22px;border-top:1px solid var(--rule)}
+.toc{list-style:none;margin:0;padding:0}
+.toc li{margin:0}
+.toc a{display:block;padding:5px 10px;font-size:13.5px;line-height:1.45;
+  text-decoration:none;color:var(--ink2);border-left:2px solid transparent;border-radius:0 5px 5px 0}
+.toc a:hover{background:var(--rule2);color:var(--ink)}
+.toc .lv1>a{font-weight:700;color:var(--ink);margin-top:12px;font-size:13px;
+  font-family:var(--mono);letter-spacing:.02em}
+.toc .lv2>a{padding-left:16px}
+.toc a.active{border-left-color:var(--spec);background:var(--spec-soft);color:var(--spec);font-weight:600}
+
+/* ============ 문서 헤더 ============ */
+.dochead{margin:0 0 40px;padding-bottom:26px;border-bottom:2px solid var(--ink)}
+.eyebrow{font-family:var(--mono);font-size:11px;letter-spacing:.14em;color:var(--spec);
+  text-transform:uppercase;margin-bottom:12px}
+.dochead h1{margin:0;padding:0;background:none;color:var(--ink);border-radius:0;
+  font-size:clamp(26px,3.3vw,38px);line-height:1.24;font-weight:800;letter-spacing:-.025em}
+.dochead .sub{margin:12px 0 0;color:var(--ink2);font-size:15px}
+/* 진도 트랙 — 60시간 중 현재 위치 */
+.track{margin-top:22px}
+.track .bar{height:5px;background:var(--rule);border-radius:3px;overflow:hidden;display:flex}
+.track .bar i{display:block;height:100%}
+.track .bar .past{background:var(--rule)}
+.track .bar .now{background:var(--spec)}
+.track .cap{display:flex;justify-content:space-between;margin-top:8px;max-width:640px;
+  font-family:var(--mono);font-size:10.5px;color:var(--ink3);letter-spacing:.04em}
+.track .bar{max-width:640px}
+
+/* ============ 본문 타이포 ============ */
+main h1{font-size:22px;font-weight:800;letter-spacing:-.01em;margin:64px 0 20px;
+  padding:14px 18px;background:var(--ink);color:#fff;border-radius:8px}
+main h1:first-of-type{margin-top:8px}
+main h2{font-size:19.5px;font-weight:750;margin:48px 0 14px;padding-bottom:9px;
+  border-bottom:1px solid var(--rule);letter-spacing:-.01em;scroll-margin-top:80px}
+main h3{font-size:16.5px;font-weight:700;margin:34px 0 10px;color:var(--ink);
+  scroll-margin-top:80px}
+main h4{font-size:15px;font-weight:700;margin:24px 0 8px;color:var(--ink2)}
+main p{margin:0 0 15px}
+main ul,main ol{margin:0 0 16px;padding-left:22px}
+main li{margin:5px 0}
+main li>ul,main li>ol{margin:6px 0}
+main hr{border:0;border-top:1px solid var(--rule);margin:46px 0}
+main strong{font-weight:700}
+main a{color:var(--spec);text-underline-offset:3px}
+
+/* 체크포인트 · 경고 헤딩 */
+main h3.cp,main h4.cp{background:var(--ok-soft);color:var(--ok);border-left:3px solid var(--ok);
+  padding:9px 14px;border-radius:0 7px 7px 0;font-size:15px}
+main h3.warn,main h4.warn,main h2.warn{background:var(--warn-soft);color:var(--warn);
+  border-left:3px solid var(--warn);border-bottom:0;padding:9px 14px;border-radius:0 7px 7px 0;font-size:15px}
+
+/* ============ 코드 ============ */
+main :not(pre)>code{font-family:var(--mono);font-size:.855em;background:var(--spec-soft);
+  color:#0F3F76;padding:1.5px 5px;border-radius:4px;word-break:break-all}
+main pre{background:var(--term);color:var(--term-ink);border-radius:10px;
+  padding:16px 18px;overflow-x:auto;margin:0 0 18px;font-size:13.5px;line-height:1.7;
+  border:1px solid var(--term-rule)}
+main pre code{font-family:var(--mono);background:none;color:inherit;padding:0;font-size:inherit}
+main pre::-webkit-scrollbar{height:8px}
+main pre::-webkit-scrollbar-thumb{background:#2C3846;border-radius:4px}
+
+/* ============ 표 ============ */
+.tw{overflow-x:auto;margin:0 0 20px;border:1px solid var(--rule);border-radius:9px;background:var(--card)}
+main table{border-collapse:collapse;width:100%;font-size:14px;min-width:min(100%,420px)}
+main th,main td{padding:9px 13px;border-bottom:1px solid var(--rule2);
+  text-align:left;vertical-align:top;line-height:1.6}
+main th{background:#F5F7F9;font-weight:700;font-size:12.5px;letter-spacing:.02em;
+  color:var(--ink2);white-space:nowrap;border-bottom:1px solid var(--rule)}
+main tbody tr:last-child td{border-bottom:0}
+main tbody tr:hover{background:#FBFCFD}
+main td code{white-space:nowrap}
+
+/* ============ 인용 ============ */
+main blockquote{margin:0 0 18px;padding:13px 18px;background:var(--card);
+  border:1px solid var(--rule);border-left:3px solid var(--spec);border-radius:0 8px 8px 0;
+  color:var(--ink2);font-size:14.5px}
+main blockquote p:last-child{margin-bottom:0}
+
+/* ============ 하단 이동 ============ */
+.pager{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:70px;
+  padding-top:26px;border-top:1px solid var(--rule)}
+.pager a{display:block;padding:15px 18px;border:1px solid var(--rule);border-radius:10px;
+  text-decoration:none;background:var(--card);transition:.15s}
+.pager a:hover{border-color:var(--spec);box-shadow:0 2px 10px rgba(20,83,154,.07)}
+.pager .k{font-family:var(--mono);font-size:10px;letter-spacing:.12em;color:var(--ink3);
+  text-transform:uppercase;display:block;margin-bottom:5px}
+.pager .v{font-size:14.5px;font-weight:650;color:var(--ink);line-height:1.4}
+.pager .next{text-align:right}
+.pager .empty{border-style:dashed;opacity:.4;pointer-events:none}
+
+/* ============ 색인 페이지 ============ */
+.hero{padding:56px 0 40px;border-bottom:2px solid var(--ink);margin-bottom:44px}
+.hero h1{margin:14px 0 0;padding:0;background:none;color:var(--ink);border-radius:0;
+  font-size:clamp(30px,4.4vw,48px);line-height:1.18;font-weight:800;letter-spacing:-.03em}
+.hero .eyebrow{margin-bottom:0}
+.hero .lede{margin:20px 0 0;font-size:16.5px;line-height:1.68;color:var(--ink2);max-width:60ch}
+.stats{display:flex;flex-wrap:wrap;gap:36px;margin-top:34px}
+.stat .n{font-family:var(--mono);font-size:27px;font-weight:700;color:var(--spec);
+  letter-spacing:-.02em;line-height:1}
+.stat .l{font-family:var(--mono);font-size:10.5px;letter-spacing:.12em;color:var(--ink3);
+  text-transform:uppercase;margin-top:7px}
+.cards{display:grid;gap:12px;margin-bottom:60px}
+.card{display:grid;grid-template-columns:74px 1fr auto;align-items:center;gap:20px;
+  padding:17px 22px;background:var(--card);border:1px solid var(--rule);border-radius:11px;
+  text-decoration:none;color:inherit;transition:.15s}
+.card:hover{border-color:var(--spec);transform:translateX(3px);
+  box-shadow:0 3px 14px rgba(20,83,154,.08)}
+.card .key{font-family:var(--mono);font-size:15px;font-weight:700;color:var(--spec);
+  letter-spacing:.02em}
+.card .key small{display:block;font-size:9.5px;color:var(--ink3);font-weight:400;
+  letter-spacing:.1em;margin-top:3px}
+.card .t{font-size:16px;font-weight:700;line-height:1.35}
+.card .d{font-size:13.5px;color:#78818E;margin-top:4px;line-height:1.55}
+.card .h{font-family:var(--mono);font-size:11px;color:var(--ink3);white-space:nowrap;
+  letter-spacing:.04em}
+.idx-sec{font-family:var(--mono);font-size:10.5px;letter-spacing:.14em;color:var(--ink3);
+  text-transform:uppercase;margin:34px 0 12px}
+.idx-sec:first-child{margin-top:0}
+.note{background:var(--warn-soft);border:1px solid #F0DFC6;border-left:3px solid var(--warn);
+  border-radius:0 10px 10px 0;padding:18px 22px;margin-bottom:56px;font-size:14.5px;color:#6B3A08}
+.note b{color:var(--warn)}
+.note ul{margin:9px 0 0;padding-left:20px}
+
+/* ============ 반응형 ============ */
+@media (max-width:1080px){
+  .wrap{grid-template-columns:1fr;gap:0}
+  .rail{position:static;max-height:none;overflow:visible;padding:22px 0 0;
+    border-bottom:1px solid var(--rule);margin-bottom:8px}
+  .spine{display:flex;flex-wrap:wrap;gap:5px;margin-bottom:20px}
+  .spine::before{display:none}
+  .spine a{grid-template-columns:auto;padding:6px 11px;border:1px solid var(--rule);border-radius:7px}
+  .spine .dot,.spine .ttl{display:none}
+  .toc-h{padding-top:16px}
+  .toc{columns:2;column-gap:20px;max-height:230px;overflow-y:auto;
+    border:1px solid var(--rule);border-radius:9px;padding:8px;background:var(--card)}
+  .toc .lv1>a{margin-top:0}
+  main{padding:22px 0 80px}
+}
+@media (max-width:620px){
+  body{font-size:15.5px}
+  .wrap,.topbar .in{padding:0 15px}
+  .toc{columns:1;max-height:200px}
+  .pager{grid-template-columns:1fr}
+  .pager .next{text-align:left}
+  .card{grid-template-columns:56px 1fr;gap:14px}
+  .card .h{grid-column:2;margin-top:5px}
+  main h1{font-size:19px;padding:12px 14px}
+  main pre{font-size:12.5px;padding:13px 14px}
+}
+
+/* ============ 인쇄 ============ */
+@media print{
+  :root{--paper:#fff}
+  .topbar,.rail,.pager,.track{display:none!important}
+  .wrap{display:block;max-width:none;padding:0}
+  main{padding:0}
+  body{font-size:10.5pt;line-height:1.62}
+  main h1{background:none;color:#000;border:1.5pt solid #000;padding:7pt 10pt;
+    font-size:15pt;margin:22pt 0 11pt;page-break-after:avoid}
+  main h2,main h3,main h4{page-break-after:avoid}
+  main h2{font-size:13pt;margin:16pt 0 7pt}
+  main h3{font-size:11.5pt}
+  main pre{background:#F6F7F9;color:#111;border:.5pt solid #CBD2DA;
+    font-size:8.6pt;page-break-inside:avoid;white-space:pre-wrap;word-break:break-all}
+  main pre code{color:#111}
+  main :not(pre)>code{background:#EFF2F5;color:#111}
+  main table{font-size:9pt;page-break-inside:avoid}
+  .tw{overflow:visible;border-color:#CBD2DA}
+  main blockquote{page-break-inside:avoid}
+  a{color:#000;text-decoration:none}
+  .dochead{page-break-after:avoid}
+  @page{margin:15mm 14mm}
+}
+</style>
+</head>
+<body>
+<header class="topbar"><div class="in">
+  <div class="brand">KDT · AI 캠퍼스 [비솔] Vision AI &amp; 산업분야 Vertical AI 융합 전문가 양성 · <b>교과 1 · 리눅스</b></div>
+  <nav class="navbtns">
+    <a class="home" href="index.html">전체 목차</a>
+    <a href="#" onclick="window.print();return false;">인쇄 / PDF</a>
+  </nav>
+</div></header>
+
+<div class="wrap">
+  <aside class="rail">
+    <p class="spine-h">교과 1 · 60H 전체</p>
+    <ul class="spine"><li><a class="done" href="00.html"><span class="dot"></span><span class="lbl">PLAN</span><span class="ttl">강의 기획서</span></a></li>
+<li><a class="done" href="01.html"><span class="dot"></span><span class="lbl">D1</span><span class="ttl">리눅스 시작과 파일 시스템</span></a></li>
+<li><a class="done" href="01-2.html"><span class="dot"></span><span class="lbl">D1+</span><span class="ttl">OS 개론 · 시스템 구조와 시스템콜</span></a></li>
+<li><a class="done" href="02.html"><span class="dot"></span><span class="lbl">D2</span><span class="ttl">권한 · 아카이브 · 텍스트 스트림</span></a></li>
+<li><a class="done" href="03.html"><span class="dot"></span><span class="lbl">D3</span><span class="ttl">편집기와 텍스트 처리</span></a></li>
+<li><a class="done" href="03-2.html"><span class="dot"></span><span class="lbl">D3+</span><span class="ttl">명령어 연습 부록 · grep·sed·awk·vim</span></a></li>
+<li><a class="done" href="04.html"><span class="dot"></span><span class="lbl">D4</span><span class="ttl">셸 스크립트 · 프로세스 · 자동화</span></a></li>
+<li><a class="" href="04-2.html" aria-current="page"><span class="dot"></span><span class="lbl">D4+</span><span class="ttl">명령어 연습 부록 · 셸·프로세스</span></a></li>
+<li><a class="" href="05.html"><span class="dot"></span><span class="lbl">D5</span><span class="ttl">Anaconda 환경과 데이터셋 구조화</span></a></li>
+<li><a class="" href="05-2.html"><span class="dot"></span><span class="lbl">D5+</span><span class="ttl">명령어 연습 부록 · conda·pip</span></a></li>
+<li><a class="" href="06.html"><span class="dot"></span><span class="lbl">D6</span><span class="ttl">Git 기초</span></a></li>
+<li><a class="" href="06-2.html"><span class="dot"></span><span class="lbl">D6+</span><span class="ttl">명령어 연습 부록 · git</span></a></li>
+<li><a class="" href="07.html"><span class="dot"></span><span class="lbl">D7</span><span class="ttl">GitHub 협업과 데이터 보안</span></a></li>
+<li><a class="" href="08.html"><span class="dot"></span><span class="lbl">D8</span><span class="ttl">부분 파이널 프로젝트</span></a></li>
+<li><a class="" href="99.html"><span class="dot"></span><span class="lbl">APX</span><span class="ttl">부록 · 치트시트 &amp; 트러블슈팅</span></a></li></ul>
+    <p class="toc-h">이 문서 안에서</p>
+    <ul class="toc"><li class="lv2"><a href="#이-문서를-보는-법">이 문서를 보는 법</a></li>
+<li class="lv2"><a href="#실습-준비-예제-파일과-프로세스-만들기">실습 준비 — 예제 파일과 프로세스 만들기</a></li>
+<li class="lv1"><a href="#1-if-조건에-따라-다르게-동작하기">1. if — 조건에 따라 다르게 동작하기</a></li>
+<li class="lv2"><a href="#if-쉬움-10">if · 쉬움 10제</a></li>
+<li class="lv2"><a href="#if-어려움-10">if · 어려움 10제</a></li>
+<li class="lv1"><a href="#2-for-while-같은-작업을-반복하기">2. for/while — 같은 작업을 반복하기</a></li>
+<li class="lv2"><a href="#반복문-쉬움-10">반복문 · 쉬움 10제</a></li>
+<li class="lv2"><a href="#반복문-어려움-10">반복문 · 어려움 10제</a></li>
+<li class="lv1"><a href="#3-ps-지금-실행-중인-프로세스-보기">3. ps — 지금 실행 중인 프로세스 보기</a></li>
+<li class="lv2"><a href="#ps-쉬움-10">ps · 쉬움 10제</a></li>
+<li class="lv2"><a href="#ps-어려움-10">ps · 어려움 10제</a></li>
+<li class="lv1"><a href="#4-kill-프로세스-종료하기">4. kill — 프로세스 종료하기</a></li>
+<li class="lv2"><a href="#kill-쉬움-10">kill · 쉬움 10제</a></li>
+<li class="lv2"><a href="#kill-어려움-10">kill · 어려움 10제</a></li>
+<li class="lv1"><a href="#5-잡-제어-nohup-cron-핵심만-12개">5. 잡 제어 · nohup · cron — 핵심만 12개</a></li>
+<li class="lv2"><a href="#한눈에-정리">한눈에 정리</a></li></ul>
+  </aside>
+
+  <main>
+    <div class="dochead">
+      <div class="eyebrow">D4+ &nbsp;/&nbsp; 교과 1 · 리눅스</div>
+      <h1>명령어 연습 부록 — if · for · ps · kill 각 20제 + 잡제어/cron</h1>
+      <p class="sub">쉬운 예제 10개 → 어려운 예제 10개 순서로, 셸 스크립트와 프로세스 제어가 손에 익도록 반복 연습합니다</p>
+    </div>
+    <blockquote>
+<p><strong>이 문서의 목표</strong>: D4에서 배운 조건문·반복문·프로세스 명령이 "낯선 문법"에서 "손에 익은 도구"가 되도록, 아주 쉬운 예제부터 실무에 가까운 예제까지 단계적으로 반복 연습합니다.</p>
+</blockquote>
+<hr />
+<h2 id="이-문서를-보는-법">이 문서를 보는 법</h2>
+<ul>
+<li>각 명령어마다 <strong>쉬움 10개 → 어려움 10개</strong> 순서로 배치되어 있습니다. 쉬움부터 순서대로 직접 타이핑해 보세요.</li>
+<li><code>$</code>로 시작하는 줄이 "내가 입력하는 명령"이고, 그 아래 줄이 <strong>예상 결과</strong>입니다. PID(프로세스 번호)는 실행할 때마다 달라지므로 예시 숫자와 다르게 나와도 정상입니다.</li>
+<li>각 예제 아래 <strong>의미</strong>가 "이 명령이 왜 이렇게 동작하는지"를 설명합니다.</li>
+<li>막히면 D4 본문(<a href="04.html">04.html</a>)의 해당 절로 돌아가 개념을 다시 확인하세요.</li>
+</ul>
+<h2 id="실습-준비-예제-파일과-프로세스-만들기">실습 준비 — 예제 파일과 프로세스 만들기</h2>
+<pre><code class="language-bash">mkdir -p ~/kdt-linux/cmd-practice-04 &amp;&amp; cd ~/kdt-linux/cmd-practice-04
+
+# fruits.txt — 반복문 연습용
+cat &gt; fruits.txt &lt;&lt; 'EOF'
+apple,5,1200
+banana,10,800
+cherry,3,5000
+date,0,3000
+elderberry,7,4500
+EOF
+
+# server.log — 조건문/ps 연습용
+cat &gt; server.log &lt;&lt; 'EOF'
+2026-08-20 09:20:11 ERROR Connection-timeout
+2026-08-20 10:01:00 ERROR Out-of-memory
+2026-08-20 11:00:00 WARNING Disk-usage-95%
+EOF
+
+# 빈 파일 하나 — 조건문 -s 테스트용
+touch empty.txt
+
+ls -l
+</code></pre>
+<p><strong>예상 결과</strong>: <code>fruits.txt</code>, <code>server.log</code>, <code>empty.txt</code> 3개 파일이 만들어집니다. ps/kill 예제에서는 그때그때 <code>sleep 300 &amp;</code> 같은 명령으로 연습용 프로세스를 직접 띄웁니다.</p>
+<hr />
+<h1 id="1-if-조건에-따라-다르게-동작하기">1. if — 조건에 따라 다르게 동작하기</h1>
+<p>if는 "조건이 참이면 이 코드를, 아니면 저 코드를 실행해줘"라고 지시하는 문법입니다. 스크립트가 상황에 따라 다르게 동작하게 만드는 가장 기본적인 도구입니다.</p>
+<h2 id="if-쉬움-10">if · 쉬움 10제</h2>
+<ol>
+<li><pre><code class="language-bash">$ num=10
+$ if [ $num -gt 5 ]; then echo "5보다 큽니다"; fi
+5보다 큽니다</code></pre>
+<p><strong>의미</strong>: <code>[ 조건 ]</code>이 참이면 <code>then</code>과 <code>fi</code> 사이의 명령이 실행됩니다. <code>-gt</code>는 "~보다 크다(greater than)"는 뜻입니다.</p></li>
+<li><pre><code class="language-bash">$ num=3
+$ if [ $num -gt 5 ]; then echo "5보다 큽니다"; else echo "5 이하입니다"; fi
+5 이하입니다</code></pre>
+<p><strong>의미</strong>: <code>else</code>는 조건이 거짓일 때 실행할 코드를 담습니다.</p></li>
+<li><pre><code class="language-bash">$ name="kdt"
+$ if [ "$name" = "kdt" ]; then echo "이름 일치"; fi
+이름 일치</code></pre>
+<p><strong>의미</strong>: 문자열 비교는 숫자용 <code>-eq</code>가 아니라 <code>=</code>를 씁니다. 변수는 항상 큰따옴표로 감싸는 습관을 들이면 공백이 있어도 안전합니다.</p></li>
+<li><pre><code class="language-bash">$ if [ -f fruits.txt ]; then echo "파일 있음"; else echo "파일 없음"; fi
+파일 있음</code></pre>
+<p><strong>의미</strong>: <code>-f</code>는 "그 이름의 일반 파일이 존재하는가"를 검사합니다.</p></li>
+<li><pre><code class="language-bash">$ if [ -d ~/kdt-linux ]; then echo "폴더 있음"; fi
+폴더 있음</code></pre>
+<p><strong>의미</strong>: <code>-d</code>는 디렉토리(폴더) 존재 여부를 검사합니다.</p></li>
+<li><pre><code class="language-bash">$ num=8
+$ if [ $num -gt 5 ] && [ $num -lt 10 ]; then echo "5~10 사이"; fi
+5~10 사이</code></pre>
+<p><strong>의미</strong>: <code>&amp;&amp;</code>는 앞뒤 두 조건이 <strong>모두</strong> 참일 때만 실행합니다.</p></li>
+<li><pre><code class="language-bash">$ num=15
+$ if [ $num -lt 5 ] || [ $num -gt 10 ]; then echo "범위 밖"; fi
+범위 밖</code></pre>
+<p><strong>의미</strong>: <code>||</code>는 둘 중 <strong>하나만</strong> 참이어도 실행합니다.</p></li>
+<li><pre><code class="language-bash">$ score=75
+$ if [ $score -ge 90 ]; then echo "A"
+&gt; elif [ $score -ge 80 ]; then echo "B"
+&gt; elif [ $score -ge 70 ]; then echo "C"
+&gt; else echo "F"; fi
+C</code></pre>
+<p><strong>의미</strong>: <code>elif</code>로 여러 구간을 순서대로 검사하며, 처음으로 맞는 조건 하나에서 멈춥니다.</p></li>
+<li><pre><code class="language-bash">$ if [ ! -f nofile.txt ]; then echo "파일이 없습니다"; fi
+파일이 없습니다</code></pre>
+<p><strong>의미</strong>: <code>!</code>는 조건을 반대로 뒤집습니다. "없으면"을 표현할 때 자주 씁니다.</p></li>
+<li><pre><code class="language-bash">$ name=""
+$ if [ -z "$name" ]; then echo "값이 비어있음"; fi
+값이 비어있음</code></pre>
+<p><strong>의미</strong>: <code>-z</code>는 문자열의 길이가 0인지(비어있는지) 검사합니다. 변수 입력을 제대로 받았는지 검증할 때 필수입니다.</p></li>
+</ol>
+<h2 id="if-어려움-10">if · 어려움 10제</h2>
+<ol>
+<li><pre><code class="language-bash">$ file="dataset_001.jpg"
+$ if [[ $file == *.jpg ]]; then echo "이미지 파일"; fi
+이미지 파일</code></pre>
+<p><strong>의미</strong>: <code>[[ ]]</code>는 bash 확장 조건식으로, <code>*.jpg</code> 같은 와일드카드 패턴 매칭을 지원합니다(기본 <code>[ ]</code>에서는 안 됩니다).</p></li>
+<li><pre><code class="language-bash">$ log="ERROR: connection failed"
+$ if [[ $log =~ ^ERROR ]]; then echo "에러 로그"; fi
+에러 로그</code></pre>
+<p><strong>의미</strong>: <code>=~</code>는 정규식 매칭 연산자입니다. grep 없이도 셸 안에서 바로 패턴을 검사할 수 있습니다.</p></li>
+<li><pre><code class="language-bash">$ if grep -q "ERROR" server.log; then echo "에러 있음"; else echo "에러 없음"; fi
+에러 있음</code></pre>
+<p><strong>의미</strong>: if 뒤에는 <code>[ ]</code>뿐 아니라 <strong>아무 명령이나</strong> 올 수 있습니다. <code>grep -q</code>는 화면에 아무것도 출력하지 않고 "찾았는지 여부"만 종료코드로 돌려주므로 조건에 바로 쓰기 좋습니다.</p></li>
+<li><pre><code class="language-bash">$ count=$(grep -c ERROR server.log)
+$ if (( count > 0 )); then echo "에러 $count 건 발견"; fi
+에러 2 건 발견</code></pre>
+<p><strong>의미</strong>: <code>(( ))</code>는 산술 비교 전용 문법으로, <code>-gt</code> 대신 사람이 읽기 쉬운 <code>&gt;</code>, <code>&lt;</code>, <code>==</code>을 그대로 쓸 수 있습니다.</p></li>
+<li><pre><code class="language-bash">$ ext="txt"
+$ case $ext in
+&gt;   jpg|png) echo "이미지" ;;
+&gt;   txt|csv) echo "텍스트/데이터" ;;
+&gt;   *) echo "알 수 없음" ;;
+&gt; esac
+텍스트/데이터</code></pre>
+<p><strong>의미</strong>: <code>case</code>는 값 하나를 여러 패턴과 비교할 때, if/elif를 여러 번 쓰는 것보다 훨씬 깔끔합니다.</p></li>
+<li><pre><code class="language-bash">$ check_positive() { if [ $1 -gt 0 ]; then return 0; else return 1; fi; }
+$ if check_positive -5; then echo "양수"; else echo "양수 아님"; fi
+양수 아님</code></pre>
+<p><strong>의미</strong>: 함수도 종료코드(<code>return</code>)를 가지며, if는 그 종료코드로 참/거짓을 판단합니다(0=성공=참).</p></li>
+<li><pre><code class="language-bash">$ if [ -x server.log ]; then echo "실행 가능"; else echo "실행 권한 없음"; fi
+실행 권한 없음</code></pre>
+<p><strong>의미</strong>: <code>-x</code>는 "실행 권한이 있는가"를 검사합니다. 스크립트를 실행하기 전 안전장치로 자주 씁니다.</p></li>
+<li><pre><code class="language-bash">$ for f in *.txt; do
+&gt;   if [ ! -s "$f" ]; then echo "$f 은 빈 파일"; fi
+&gt; done
+empty.txt 은 빈 파일</code></pre>
+<p><strong>의미</strong>: <code>-s</code>는 "파일이 존재하고 크기가 0보다 큰가"를 검사합니다. <code>!</code>와 결합하면 "빈 파일 찾기"가 됩니다.</p></li>
+<li><pre><code class="language-bash">$ if [ "$(whoami)" = "root" ]; then echo "관리자 계정"; else echo "일반 사용자"; fi
+일반 사용자</code></pre>
+<p><strong>의미</strong>: <code>$(명령)</code>은 명령 실행 결과를 문자열로 바꿔주며, 그 값을 조건 비교에 바로 사용할 수 있습니다.</p></li>
+<li><pre><code class="language-bash">$ cat &gt; argcheck.sh &lt;&lt; 'EOF'
+#!/bin/bash
+if [ $# -ne 2 ]; then
+  echo "사용법: $0 입력파일 출력파일"
+  exit 1
+fi
+echo "입력: $1, 출력: $2"
+EOF
+$ bash argcheck.sh a.txt
+사용법: argcheck.sh 입력파일 출력파일</code></pre>
+<p><strong>의미</strong>: <code>$#</code>은 전달받은 인자의 개수입니다. 정확히 2개가 아니면 사용법을 안내하고 <code>exit 1</code>(실패)로 즉시 종료하는, 실무 스크립트의 필수 안전장치입니다.</p></li>
+</ol>
+<hr />
+<h1 id="2-for-while-같은-작업을-반복하기">2. for/while — 같은 작업을 반복하기</h1>
+<p>반복문은 "같은 작업을 목록의 개수만큼, 또는 조건이 참인 동안 계속" 실행하게 해줍니다. 파일 수백 개를 하나씩 처리할 때 반복문 없이는 사실상 불가능합니다.</p>
+<h2 id="반복문-쉬움-10">반복문 · 쉬움 10제</h2>
+<ol>
+<li><pre><code class="language-bash">$ for i in 1 2 3; do echo "번호: $i"; done
+번호: 1
+번호: 2
+번호: 3</code></pre>
+<p><strong>의미</strong>: <code>for 변수 in 목록</code> 형태로, 목록의 값을 하나씩 변수에 넣어가며 반복 실행합니다.</p></li>
+<li><pre><code class="language-bash">$ for i in {1..5}; do echo "$i번째"; done
+1번째
+2번째
+3번째
+4번째
+5번째</code></pre>
+<p><strong>의미</strong>: <code>{시작..끝}</code>은 그 사이의 숫자를 자동으로 나열해주는 문법입니다.</p></li>
+<li><pre><code class="language-bash">$ for f in *.txt; do echo "파일: $f"; done
+파일: argcheck.sh
+파일: empty.txt
+파일: fruits.txt
+...(생략)...</code></pre>
+<p><strong>의미</strong>: <code>*</code>는 "모든"을 의미하는 와일드카드이며, for는 매칭된 파일 이름을 하나씩 변수에 담아 반복합니다.</p></li>
+<li><pre><code class="language-bash">$ for i in $(seq 1 3); do echo "카운트 $i"; done
+카운트 1
+카운트 2
+카운트 3</code></pre>
+<p><strong>의미</strong>: <code>seq 시작 끝</code>은 숫자 목록을 만들어주는 명령이고, <code>$()</code>로 그 결과를 for의 목록으로 사용합니다.</p></li>
+<li><pre><code class="language-bash">$ for ((i=0; i<3; i++)); do echo "i=$i"; done
+i=0
+i=1
+i=2</code></pre>
+<p><strong>의미</strong>: 다른 프로그래밍 언어와 비슷한 형태의 C스타일 for문도 bash에서 지원합니다.</p></li>
+<li><pre><code class="language-bash">$ n=1
+$ while [ $n -le 3 ]; do echo "n=$n"; n=$((n+1)); done
+n=1
+n=2
+n=3</code></pre>
+<p><strong>의미</strong>: while은 조건이 참인 동안 계속 반복합니다. 안에서 변수를 직접 증가시켜야 무한루프를 피할 수 있습니다.</p></li>
+<li><pre><code class="language-bash">$ for i in 1 2 3 4 5; do
+&gt;   if [ $i -eq 3 ]; then break; fi
+&gt;   echo $i
+&gt; done
+1
+2</code></pre>
+<p><strong>의미</strong>: <code>break</code>는 반복문을 즉시 빠져나갑니다. 3을 만나는 순간 멈춥니다.</p></li>
+<li><pre><code class="language-bash">$ for i in 1 2 3 4 5; do
+&gt;   if [ $i -eq 3 ]; then continue; fi
+&gt;   echo $i
+&gt; done
+1
+2
+4
+5</code></pre>
+<p><strong>의미</strong>: <code>continue</code>는 그 순번만 건너뛰고 반복은 계속합니다. 3만 출력에서 빠집니다.</p></li>
+<li><pre><code class="language-bash">$ fruits=(apple banana cherry)
+$ for f in "${fruits[@]}"; do echo "$f"; done
+apple
+banana
+cherry</code></pre>
+<p><strong>의미</strong>: 배열 <code>()</code>로 여러 값을 묶어두고, <code>"${배열[@]}"</code>로 전체를 꺼내 반복할 수 있습니다.</p></li>
+<li><pre><code class="language-bash">$ while read line; do echo "읽음: $line"; done < fruits.txt
+읽음: apple,5,1200
+읽음: banana,10,800
+...(이하 동일)...</code></pre>
+<p><strong>의미</strong>: <code>while read</code>는 파일을 한 줄씩 읽어 변수에 담는 표준 패턴입니다. for보다 줄 단위 처리에 더 안전합니다.</p></li>
+</ol>
+<h2 id="반복문-어려움-10">반복문 · 어려움 10제</h2>
+<ol>
+<li><pre><code class="language-bash">$ for i in 1 2 3; do
+&gt;   for j in a b; do echo "$i$j"; done
+&gt; done
+1a
+1b
+2a
+2b
+3a
+3b</code></pre>
+<p><strong>의미</strong>: for 안에 for를 넣으면 "모든 조합"을 만들 수 있습니다. 여러 실험 설정(배치크기×러닝레이트) 조합을 만들 때 이 구조를 씁니다.</p></li>
+<li><pre><code class="language-bash">$ IFS=',' read -ra cols <<< "apple,5,1200"
+$ for c in "${cols[@]}"; do echo "필드: $c"; done
+필드: apple
+필드: 5
+필드: 1200</code></pre>
+<p><strong>의미</strong>: <code>IFS</code>(구분자)를 콤마로 바꾸면 콤마 기준으로 나눠 배열에 담을 수 있습니다.</p></li>
+<li><pre><code class="language-bash">$ for f in $(find . -name "*.txt"); do
+&gt;   echo "$f: $(wc -l < "$f")줄"
+&gt; done
+./fruits.txt: 5줄
+./server.log: 3줄
+./empty.txt: 0줄</code></pre>
+<p><strong>의미</strong>: find의 결과를 for로 반복하며 각 파일마다 추가 작업(줄 수 세기)을 할 수 있습니다.</p></li>
+<li><pre><code class="language-bash">$ for f in fruits.txt server.log missing.txt; do
+&gt;   if [ ! -f "$f" ]; then echo "$f 없음 — 건너뜀"; continue; fi
+&gt;   echo "$f 처리 중"
+&gt; done
+fruits.txt 처리 중
+server.log 처리 중
+missing.txt 없음 — 건너뜀</code></pre>
+<p><strong>의미</strong>: <code>continue</code>와 조건문을 결합하면 "문제 있는 항목은 건너뛰고 나머지는 계속 처리"하는 견고한 배치 스크립트를 만들 수 있습니다.</p></li>
+<li><pre><code class="language-bash">$ count=0
+$ while true; do
+&gt;   count=$((count+1)); echo "체크 $count회"
+&gt;   if [ $count -ge 3 ]; then break; fi
+&gt;   sleep 1
+&gt; done
+체크 1회
+체크 2회
+체크 3회</code></pre>
+<p><strong>의미</strong>: <code>while true</code>는 무한 반복이며, 안에 반드시 <code>break</code> 조건을 둬야 합니다. 서버 상태를 주기적으로 감시하는 스크립트의 기본 골격입니다.</p></li>
+<li><pre><code class="language-bash">$ for i in 1 2 3; do (sleep 1; echo "작업 $i 완료") & done
+$ wait
+$ echo "전체 작업 종료"
+작업 1 완료
+작업 2 완료
+작업 3 완료
+전체 작업 종료</code></pre>
+<p><strong>의미</strong>: 반복문 안에서 <code>&amp;</code>로 백그라운드 실행하면 여러 작업을 동시에 돌릴 수 있고, <code>wait</code>로 전부 끝날 때까지 기다립니다.</p></li>
+<li><pre><code class="language-bash">$ fruits=(apple banana cherry)
+$ for i in "${!fruits[@]}"; do echo "$i번째: ${fruits[$i]}"; done
+0번째: apple
+1번째: banana
+2번째: cherry</code></pre>
+<p><strong>의미</strong>: <code>!배열[@]</code>는 "인덱스 목록"을 돌려줍니다. 값과 순서를 함께 다뤄야 할 때 씁니다.</p></li>
+<li><pre><code class="language-bash">$ for f in *.txt; do
+&gt;   size=$(stat -c%s "$f")
+&gt;   if [ "$size" -eq 0 ]; then echo "삭제 대상(빈 파일): $f"; fi
+&gt; done
+삭제 대상(빈 파일): empty.txt</code></pre>
+<p><strong>의미</strong>: <code>stat -c%s</code>로 파일 크기를 얻어 조건에 활용합니다. 데이터 정제 스크립트에서 불량 파일을 자동으로 찾아낼 때 쓰는 패턴입니다.</p></li>
+<li><pre><code class="language-bash">$ files=(fruits.txt server.log empty.txt)
+$ total=${#files[@]}
+$ for i in "${!files[@]}"; do echo "[$((i+1))/$total] ${files[$i]} 처리 중"; done
+[1/3] fruits.txt 처리 중
+[2/3] server.log 처리 중
+[3/3] empty.txt 처리 중</code></pre>
+<p><strong>의미</strong>: <code>${#배열[@]}</code>는 배열의 전체 개수를 알려줍니다. 대량 파일 처리 시 "몇 번째/전체" 진행 상황을 보여주는 실무 패턴입니다.</p></li>
+<li><pre><code class="language-bash">$ n=1
+$ until [ $n -gt 3 ]; do echo "n=$n"; n=$((n+1)); done
+n=1
+n=2
+n=3</code></pre>
+<p><strong>의미</strong>: <code>until</code>은 while과 반대로 "조건이 거짓인 동안" 반복합니다. "~가 될 때까지 기다린다"는 의미의 코드에서 while보다 자연스러운 경우가 있습니다.</p></li>
+</ol>
+<hr />
+<h1 id="3-ps-지금-실행-중인-프로세스-보기">3. ps — 지금 실행 중인 프로세스 보기</h1>
+<p>ps는 지금 컴퓨터 안에서 <strong>어떤 프로그램들이 실행되고 있는지</strong> 보여줍니다. 학습이 잘 돌고 있는지, 좀비처럼 남아있는 프로세스는 없는지 확인하는 눈 역할을 합니다.</p>
+<h2 id="ps-쉬움-10">ps · 쉬움 10제</h2>
+<ol>
+<li><pre><code class="language-bash">$ ps
+  PID TTY          TIME CMD
+ 1234 pts/0    00:00:00 bash
+ 5678 pts/0    00:00:00 ps</code></pre>
+<p><strong>의미</strong>: 아무 옵션 없는 <code>ps</code>는 "지금 내 터미널에서 실행 중인" 프로세스만 간단히 보여줍니다.</p></li>
+<li><pre><code class="language-bash">$ sleep 300 &
+[1] 6001
+$ ps
+  PID TTY          TIME CMD
+ 1234 pts/0    00:00:00 bash
+ 6001 pts/0    00:00:00 sleep
+ 6010 pts/0    00:00:00 ps</code></pre>
+<p><strong>의미</strong>: <code>&amp;</code>로 백그라운드 실행한 sleep도 ps 목록에 나타납니다. PID(6001)가 이 프로세스의 고유 번호입니다.</p></li>
+<li><pre><code class="language-bash">$ ps aux | head -5
+USER   PID %CPU %MEM COMMAND
+kdt      1  0.0  0.1 systemd
+kdt   1234  0.0  0.2 bash
+kdt   6001  0.0  0.0 sleep
+...</code></pre>
+<p><strong>의미</strong>: <code>aux</code>는 "모든 사용자(a)의, 터미널 없는 것까지 포함(x), 상세정보(u)"를 보여줍니다. 시스템 전체를 볼 때 가장 많이 쓰는 조합입니다.</p></li>
+<li><pre><code class="language-bash">$ ps -ef | head -3
+UID   PID  PPID  C STIME TTY      TIME CMD
+root    1     0  0 09:00 ?    00:00:01 /sbin/init
+kdt  1234  1200  0 09:05 pts/0 00:00:00 bash</code></pre>
+<p><strong>의미</strong>: <code>-ef</code>는 부모 프로세스 번호(PPID)까지 함께 보여줍니다. "누가 누구를 실행시켰는지" 파악할 때 씁니다.</p></li>
+<li><pre><code class="language-bash">$ ps aux | grep sleep
+kdt   6001  0.0  0.0  sleep 300
+kdt   6020  0.0  0.0  grep sleep</code></pre>
+<p><strong>의미</strong>: ps를 grep과 함께 쓰면 "이름에 sleep이 들어간 프로세스만" 걸러볼 수 있습니다(검색 명령인 grep 자신도 함께 나오는 것이 특징입니다).</p></li>
+<li><pre><code class="language-bash">$ pgrep sleep
+6001</code></pre>
+<p><strong>의미</strong>: pgrep은 grep 없이도 이름으로 PID만 바로 찾아줍니다. <code>ps | grep</code>보다 스크립트에서 다루기 편합니다.</p></li>
+<li><pre><code class="language-bash">$ ps -eo pid,cmd | grep sleep
+ 6001 sleep 300</code></pre>
+<p><strong>의미</strong>: <code>-eo 컬럼1,컬럼2</code>로 원하는 정보만 골라 출력할 수 있습니다.</p></li>
+<li><pre><code class="language-bash">$ ps aux --sort=-%mem | head -3
+USER   PID %CPU %MEM COMMAND
+kdt   1234  0.5  2.1 python3
+...</code></pre>
+<p><strong>의미</strong>: <code>--sort=-%mem</code>은 메모리 사용량이 큰 순서대로 정렬합니다(<code>-</code>는 내림차순).</p></li>
+<li><pre><code class="language-bash">$ ps -ef --forest | head -5
+UID   PID  PPID  CMD
+kdt  1200     1  \_ bash
+kdt  1234  1200      \_ vim</code></pre>
+<p><strong>의미</strong>: <code>--forest</code>는 부모-자식 관계를 들여쓰기로 보여줘 "무엇이 무엇을 실행시켰는지"를 한눈에 볼 수 있습니다.</p></li>
+<li><pre><code class="language-bash">$ ps -u $(whoami) | wc -l
+15</code></pre>
+<p><strong>의미</strong>: <code>-u 사용자명</code>은 특정 사용자의 프로세스만 보여주고, <code>wc -l</code>로 개수를 셀 수 있습니다.</p></li>
+</ol>
+<h2 id="ps-어려움-10">ps · 어려움 10제</h2>
+<ol>
+<li><pre><code class="language-bash">$ ps -o pid,ppid,cmd -p 6001
+ PID  PPID CMD
+6001  1200 sleep 300</code></pre>
+<p><strong>의미</strong>: <code>-p PID</code>로 특정 프로세스 하나만 콕 집어 정보를 볼 수 있습니다. PPID로 "이 프로세스를 누가 실행했는지" 확인됩니다.</p></li>
+<li><pre><code class="language-bash">$ ps -o pid,etime,cmd -p 6001
+ PID     ELAPSED CMD
+6001       02:15 sleep 300</code></pre>
+<p><strong>의미</strong>: <code>etime</code>은 프로세스가 시작된 후 얼마나 지났는지(경과 시간)를 보여줍니다. 오래 걸리는 학습이 몇 시간째 도는지 확인할 때 씁니다.</p></li>
+<li><pre><code class="language-bash">$ ps -eLf | grep python | head -1
+UID   PID   PPID   LWP  C NLWP STIME TTY TIME CMD
+kdt  7001  1200  7001  0    4 09:00 pts/0 00:00:02 python3 train.py</code></pre>
+<p><strong>의미</strong>: <code>-L</code>은 프로세스 내부의 스레드(LWP)까지 각각 보여줍니다. 멀티스레드로 동작하는 학습 프로세스를 자세히 볼 때 씁니다.</p></li>
+<li><pre><code class="language-bash">$ ps aux | awk '$8 ~ /D/ {print $2, $8, $11}'
+7050 D python3</code></pre>
+<p><strong>의미</strong>: STAT 컬럼의 D는 "디스크 입출력 대기 중(멈춘 것처럼 보이지만 정상)"을 의미합니다. Z(좀비), D(디스크대기) 같은 상태코드는 트러블슈팅에 핵심 정보입니다.</p></li>
+<li><pre><code class="language-bash">$ ps -u kdt -o pid,cmd | grep -E "python|sleep"
+7001 python3 train.py
+6001 sleep 300</code></pre>
+<p><strong>의미</strong>: 여러 조건(사용자+이름 패턴)을 조합해 "내가 띄운 학습/테스트 프로세스만" 골라볼 수 있습니다.</p></li>
+<li><pre><code class="language-bash">$ ps -eo pid,%mem,rss,cmd --sort=-%mem | head -2 | awk '{printf "%s %.1fMB %s\n",$1,$3/1024,$4}'
+7001 512.0MB python3</code></pre>
+<p><strong>의미</strong>: RSS는 KB 단위 실제 사용 메모리입니다. awk로 1024를 나눠 MB 단위로 변환해 사람이 읽기 편하게 만듭니다.</p></li>
+<li><pre><code class="language-bash">$ watch -n 2 'ps aux --sort=-%cpu | head -5'
+(2초마다 화면이 갱신되며 CPU 사용량 상위 5개 프로세스가 계속 보임)</code></pre>
+<p><strong>의미</strong>: <code>watch 간격 '명령'</code>은 지정한 간격(초)마다 명령을 반복 실행해 화면에 갱신합니다. top 대신 원하는 ps 조합을 실시간으로 볼 때 씁니다.</p></li>
+<li><pre><code class="language-bash">$ ps -eo pid,args | grep train
+7001 python3 train.py --epochs 100 --batch-size 32 --lr 0.001</code></pre>
+<p><strong>의미</strong>: <code>args</code>는 실행할 때 준 옵션까지 전체를 보여줍니다. "이 학습이 어떤 설정으로 돌고 있었는지" 뒤늦게 확인할 때 유용합니다.</p></li>
+<li><pre><code class="language-bash">$ TARGET_PID=$(ps -eo pid,cmd | grep "python3 train.py" | grep -v grep | awk '{print $1}')
+$ echo "학습 프로세스 PID: $TARGET_PID"
+학습 프로세스 PID: 7001</code></pre>
+<p><strong>의미</strong>: ps+grep+awk 조합으로 원하는 프로세스의 PID만 뽑아 변수에 저장하면, 이후 kill이나 모니터링 스크립트에 바로 활용할 수 있습니다.</p></li>
+<li><pre><code class="language-bash">$ lsof -p 7001 | grep -E "\.pt$|\.jpg$" | head -3
+python3 7001 kdt   10r   REG    8,1  512000 model.pt</code></pre>
+<p><strong>의미</strong>: ps로 PID를 알아낸 뒤 <code>lsof -p PID</code>로 그 프로세스가 지금 열어서 쓰고 있는 파일 목록을 볼 수 있습니다. "학습이 어느 파일을 읽는 중에 멈췄는지" 진단할 때 유용합니다.</p></li>
+</ol>
+<hr />
+<h1 id="4-kill-프로세스-종료하기">4. kill — 프로세스 종료하기</h1>
+<p>kill은 이름과 달리 항상 "죽이는" 것이 아니라, 프로세스에게 <strong>신호(signal)</strong>를 보내는 명령입니다. 대부분은 "정상적으로 종료해줘"라는 정중한 요청입니다.</p>
+<h2 id="kill-쉬움-10">kill · 쉬움 10제</h2>
+<ol>
+<li><pre><code class="language-bash">$ sleep 300 &
+[1] 6001
+$ kill 6001
+$ jobs
+[1]+  Terminated              sleep 300</code></pre>
+<p><strong>의미</strong>: <code>kill PID</code>는 그 프로세스에게 "종료해 달라"는 신호(기본 SIGTERM)를 보냅니다.</p></li>
+<li><pre><code class="language-bash">$ kill 6001
+$ ps -p 6001
+    PID TTY          TIME CMD</code></pre>
+<p><strong>의미</strong>: kill 이후 <code>ps -p PID</code>로 다시 조회하면 결과가 없어(프로세스가 사라져) 정상 종료를 확인할 수 있습니다.</p></li>
+<li><pre><code class="language-bash">$ sleep 300 & sleep 300 &
+[1] 7001
+[2] 7002
+$ kill 7001 7002</code></pre>
+<p><strong>의미</strong>: kill 뒤에 PID를 여러 개 나열하면 한 번에 여러 프로세스를 종료할 수 있습니다.</p></li>
+<li><pre><code class="language-bash">$ kill -9 7003</code></pre>
+<p><strong>의미</strong>: <code>-9</code>(SIGKILL)는 "정중히 요청"이 아니라 "무조건 즉시 강제 종료"입니다. 일반 kill로 안 꺼질 때 최후의 수단으로 씁니다.</p></li>
+<li><pre><code class="language-bash">$ killall sleep</code></pre>
+<p><strong>의미</strong>: <code>killall 이름</code>은 PID를 몰라도 "이름이 sleep인 프로세스 전부"를 한 번에 종료합니다.</p></li>
+<li><pre><code class="language-bash">$ pgrep sleep
+7010
+$ kill 7010</code></pre>
+<p><strong>의미</strong>: pgrep으로 PID를 먼저 알아낸 뒤 그 번호로 kill하는 조합은 스크립트에서 가장 안전하게 쓰는 방식입니다.</p></li>
+<li><pre><code class="language-bash">$ pkill sleep</code></pre>
+<p><strong>의미</strong>: pkill은 killall과 비슷하게 이름으로 바로 종료합니다(pgrep의 kill 버전이라 생각하면 쉽습니다).</p></li>
+<li><pre><code class="language-bash">$ kill -l | head -5
+ 1) SIGHUP  2) SIGINT  3) SIGQUIT  4) SIGILL  5) SIGTRAP</code></pre>
+<p><strong>의미</strong>: <code>kill -l</code>은 보낼 수 있는 모든 신호(signal) 종류 목록을 보여줍니다. 번호나 이름으로 지정할 수 있습니다.</p></li>
+<li><pre><code class="language-bash">$ kill -SIGTERM 7020</code></pre>
+<p><strong>의미</strong>: <code>-9</code>처럼 번호 대신 <code>-SIGTERM</code>처럼 이름으로도 신호를 지정할 수 있습니다. 둘은 동일한 효과입니다.</p></li>
+<li><pre><code class="language-bash">$ kill 99999
+bash: kill: (99999) - No such process</code></pre>
+<p><strong>의미</strong>: 존재하지 않는 PID를 넣으면 에러 메시지가 뜹니다. kill 전에 ps나 pgrep으로 PID를 먼저 확인하는 습관이 중요한 이유입니다.</p></li>
+</ol>
+<h2 id="kill-어려움-10">kill · 어려움 10제</h2>
+<ol>
+<li><pre><code class="language-bash">$ kill -SIGINT 7030</code></pre>
+<p><strong>의미</strong>: 터미널에서 <code>Ctrl+C</code>를 누르면 사실 이 SIGINT 신호가 전달되는 것입니다. 스크립트 안에서 "Ctrl+C를 흉내" 낼 때 씁니다.</p></li>
+<li><pre><code class="language-bash">$ cat > graceful.sh << 'EOF'
+#!/bin/bash
+trap 'echo "종료 신호 받음, 정리 작업 수행 중..."; exit 0' SIGTERM SIGINT
+while true; do sleep 1; done
+EOF
+$ bash graceful.sh &
+$ kill $!
+종료 신호 받음, 정리 작업 수행 중...</code></pre>
+<p><strong>의미</strong>: <code>trap</code>은 스크립트가 SIGTERM/SIGINT를 받았을 때 "그냥 죽지 말고 이 코드를 먼저 실행해라"고 지정합니다. 학습 중단 시 체크포인트를 저장하는 등 안전한 종료에 필수적입니다.</p></li>
+<li><pre><code class="language-bash">$ kill -- -7040</code></pre>
+<p><strong>의미</strong>: PID 앞에 <code>-</code>를 붙이면 "그 프로세스가 속한 그룹 전체"를 종료합니다. 부모가 여러 자식을 만든 경우 하나만 죽이면 자식이 남을 수 있는데, 그룹킬로 한 번에 정리합니다.</p></li>
+<li><pre><code class="language-bash">$ kill -SIGHUP 7050</code></pre>
+<p><strong>의미</strong>: 일부 서비스는 SIGHUP을 받으면 "설정을 다시 읽어 재시작"하도록 만들어져 있습니다. 서비스 재시작 없이 설정만 반영할 때 씁니다.</p></li>
+<li><pre><code class="language-bash">$ for pid in $(pgrep -f "sleep 300"); do kill "$pid"; echo "$pid 종료함"; done
+7060 종료함</code></pre>
+<p><strong>의미</strong>: <code>pgrep -f</code>로 명령줄 전체 기준 검색을 하고, for로 여러 개를 한 번에 종료합니다. 여러 실험 중 특정 설정만 골라 끄는 실무 패턴입니다.</p></li>
+<li><pre><code class="language-bash">$ PID=7060
+$ kill "$PID"; sleep 3
+$ if ps -p "$PID" > /dev/null; then echo "정상 종료 실패, 강제 종료"; kill -9 "$PID"; fi</code></pre>
+<p><strong>의미</strong>: 먼저 정중하게 요청(kill)하고, 3초 기다려도 안 죽으면 그때 강제 종료(-9)합니다. 무작정 -9부터 쓰지 않는 것이 데이터 손상을 막는 안전한 습관입니다.</p></li>
+<li><pre><code class="language-bash">$ kill 7070
+$ if [ $? -eq 0 ]; then echo "종료 신호 전송 성공"; else echo "실패"; fi
+종료 신호 전송 성공</code></pre>
+<p><strong>의미</strong>: <code>$?</code>는 바로 직전 명령의 종료코드입니다. kill이 신호 전송에 성공했는지 스크립트에서 자동으로 판단할 때 씁니다.</p></li>
+<li><pre><code class="language-bash">$ pkill -f "python3 train.py"</code></pre>
+<p><strong>의미</strong>: <code>-f</code> 옵션은 프로세스 이름뿐 아니라 실행할 때 준 전체 명령줄까지 비교합니다. 같은 이름의 여러 스크립트 중 정확히 이 옵션 조합으로 실행된 것만 골라 종료할 때 유용합니다.</p></li>
+<li><pre><code class="language-bash">$ pkill -u kdt -f "sleep"</code></pre>
+<p><strong>의미</strong>: <code>-u 사용자명</code>과 <code>-f</code>를 함께 쓰면 "이 사용자가 실행한, 이름에 sleep이 들어간 프로세스만" 종료합니다. 공용 서버에서 남의 프로세스를 실수로 건드리지 않도록 조건을 좁히는 방법입니다.</p></li>
+<li><pre><code class="language-bash">$ timeout 5 sleep 300
+$ echo $?
+124</code></pre>
+<p><strong>의미</strong>: <code>timeout 초 명령</code>은 지정한 시간이 지나면 자동으로 kill(SIGTERM)을 보냅니다. 종료코드 124는 "시간 초과로 강제 종료됨"을 의미합니다 — 무한정 멈출 수 있는 작업에 안전장치를 걸 때 씁니다.</p></li>
+</ol>
+<hr />
+<h1 id="5-잡-제어-nohup-cron-핵심만-12개">5. 잡 제어 · nohup · cron — 핵심만 12개</h1>
+<p>이 세 가지는 변형이 많지 않아 쉬움/어려움을 나누기보다, <strong>꼭 필요한 12개</strong>를 표로 정리했습니다.</p>
+<div class="tw"><table>
+<thead><tr><th>번호</th><th>명령/키</th><th>예상 결과</th><th>의미</th></tr></thead>
+<tbody>
+<tr><td>1</td><td><code>Ctrl+Z</code> (실행 중인 포그라운드 명령에서)</td><td><code>[1]+  Stopped   명령어</code> 표시 후 프롬프트로 복귀</td><td>지금 실행 중인 작업을 잠시 멈추고(정지) 셸을 돌려받습니다</td></tr>
+<tr><td>2</td><td><code>jobs</code></td><td><code>[1]+  Stopped   sleep 300</code> 처럼 현재 셸의 작업 목록 출력</td><td>지금 떠 있는 백그라운드/정지된 작업들을 번호와 함께 확인합니다</td></tr>
+<tr><td>3</td><td><code>bg %1</code></td><td><code>[1]+ sleep 300 &amp;</code> — 정지됐던 작업이 백그라운드에서 계속 실행됨</td><td>Ctrl+Z로 멈춘 작업을 백그라운드에서 이어서 실행합니다</td></tr>
+<tr><td>4</td><td><code>fg %1</code></td><td>해당 작업이 다시 포그라운드로 올라와 터미널을 점유함</td><td>백그라운드 작업을 다시 눈앞으로 가져와 직접 제어할 때 씁니다</td></tr>
+<tr><td>5</td><td><code>python3 train.py &amp;</code></td><td><code>[1] 12345</code>(PID 출력) 후 즉시 프롬프트 복귀</td><td>처음부터 백그라운드로 실행을 시작합니다</td></tr>
+<tr><td>6</td><td><code>nohup python3 train.py &amp;</code></td><td><code>nohup: ignoring input and appending output to 'nohup.out'</code></td><td>터미널을 닫아도(로그아웃해도) 프로세스가 계속 살아있게 합니다</td></tr>
+<tr><td>7</td><td><code>nohup python3 train.py &gt; out.log 2&gt;&amp;1 &amp;</code></td><td><code>out.log</code> 파일에 모든 출력이 저장됨</td><td>nohup.out 대신 원하는 파일명으로 로그를 지정합니다</td></tr>
+<tr><td>8</td><td><code>crontab -e</code></td><td>편집기가 열려 예약 작업 목록을 수정할 수 있음</td><td>반복 실행할 작업(스케줄)을 등록·수정하는 명령입니다</td></tr>
+<tr><td>9</td><td><code>crontab -l</code></td><td><code>0 3 * * * /home/kdt/backup.sh</code> 처럼 등록된 목록 출력</td><td>지금 등록되어 있는 cron 작업들을 확인합니다</td></tr>
+<tr><td>10</td><td><code>*/10 * * * * command</code> (crontab 안에 작성)</td><td>이후 10분마다 자동으로 command가 실행됨</td><td>"분 시 일 월 요일" 5칸 형식으로 주기를 지정하며, <code>*/10</code>은 "10 간격마다"라는 뜻입니다</td></tr>
+<tr><td>11</td><td><code>crontab -r</code></td><td>등록된 모든 cron 작업이 삭제됨</td><td>예약 작업 전체를 초기화합니다 (신중하게 사용해야 합니다)</td></tr>
+<tr><td>12</td><td><code>0 9 * * 1-5 command</code></td><td>평일(월~금) 오전 9시에만 실행되도록 등록됨</td><td>요일 필드(1-5=월~금)로 "특정 요일에만" 실행되도록 제한합니다</td></tr>
+</tbody>
+</table></div>
+<hr />
+<h2 id="한눈에-정리">한눈에 정리</h2>
+<div class="tw"><table>
+<thead><tr><th>명령/문법</th><th>한 줄 정의</th><th>가장 많이 쓰는 형태</th><th>실무에서 이럴 때 쓴다</th></tr></thead>
+<tbody>
+<tr><td>if</td><td>조건에 따라 다른 코드를 실행한다</td><td><code>[ ] [[ ]] (( )) grep -q</code></td><td>파일 존재 확인 후 처리, 인자 개수 검증</td></tr>
+<tr><td>for / while</td><td>같은 작업을 반복한다</td><td><code>for...in {1..n} while read</code></td><td>수백 개 파일 일괄 처리, 여러 실험 조합 실행</td></tr>
+<tr><td>ps</td><td>지금 실행 중인 프로세스를 보여준다</td><td><code>aux -ef --forest --sort</code></td><td>학습이 잘 돌고 있는지, 메모리를 얼마나 쓰는지 확인</td></tr>
+<tr><td>kill</td><td>프로세스에게 신호를 보낸다</td><td><code>kill -9 pkill -f trap</code></td><td>멈춘 프로세스 종료, 안전한 학습 중단 처리</td></tr>
+<tr><td>잡제어/nohup/cron</td><td>작업을 백그라운드로 돌리고 예약한다</td><td><code>Ctrl+Z bg fg nohup crontab -e</code></td><td>로그아웃해도 학습이 계속 돌게, 매일 자동으로 검증 스크립트 실행</td></tr>
+</tbody>
+</table></div>
+<p><strong>다음 단계</strong>: 위 예제를 전부 따라 해봤다면, D4 본문(<a href="04.html">04.html</a>)의 "실무 확장 미션"으로 돌아가 실제 학습 프로세스·크론 자동화에 이 명령어들을 적용해 보세요.</p>
+    <nav class="pager"><a href="04.html"><span class="k">← 이전 · D4</span><span class="v">셸 스크립트 · 프로세스 · 자동화</span></a><a class="next" href="05.html"><span class="k">다음 · D5 →</span><span class="v">Anaconda 환경과 데이터셋 구조화</span></a></nav>
+  </main>
+</div>
+<script>
+(function(){
+  var links=[].slice.call(document.querySelectorAll('.toc a'));
+  if(!links.length)return;
+  var map={},targets=[];
+  links.forEach(function(a){
+    var el=document.getElementById(decodeURIComponent(a.getAttribute('href').slice(1)));
+    if(el){map[el.id]=a;targets.push(el);}
+  });
+  var cur=null;
+  var io=new IntersectionObserver(function(es){
+    es.forEach(function(e){
+      if(e.isIntersecting){
+        if(cur)cur.classList.remove('active');
+        cur=map[e.target.id];
+        if(cur){cur.classList.add('active');
+          var r=document.querySelector('.rail');
+          if(r&&r.scrollHeight>r.clientHeight){
+            var t=cur.offsetTop-r.clientHeight/2;
+            if(Math.abs(r.scrollTop-t)>90)r.scrollTop=t;
+          }
+        }
+      }
+    });
+  },{rootMargin:'-76px 0px -72% 0px',threshold:0});
+  targets.forEach(function(t){io.observe(t);});
+})();
+</script>
+</body>
+</html>

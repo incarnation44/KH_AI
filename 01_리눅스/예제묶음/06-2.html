@@ -1,0 +1,737 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>명령어 연습 부록 · git · 교과 1 · 리눅스</title>
+<link rel="preconnect" href="https://cdn.jsdelivr.net">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fontsource/jetbrains-mono@5.0.20/index.min.css">
+<style>
+/* ============ 토큰 ============ */
+:root{
+  --paper:#FAFAFB; --card:#FFFFFF;
+  --ink:#161B22; --ink2:#495364; --ink3:#828D9E;
+  --rule:#E4E8ED; --rule2:#F0F2F5;
+  --spec:#14539A;          /* 청사진 잉크 — 구조 · 링크 */
+  --spec-soft:#EAF1FA;
+  --warn:#A85408;          /* 신호 앰버 — 경고 · 보안 */
+  --warn-soft:#FDF3E7;
+  --ok:#0B6E5F;            /* 검수 통과 — 체크포인트 */
+  --ok-soft:#E7F3F0;
+  --term:#0E141B; --term-ink:#DCE6F0; --term-rule:#232C38;
+  --mono:"JetBrains Mono",ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+  --sans:"Pretendard Variable",Pretendard,-apple-system,BlinkMacSystemFont,
+         "Segoe UI","Malgun Gothic","Apple SD Gothic Neo","Noto Sans KR",sans-serif;
+  --rail:264px;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth;scroll-padding-top:84px}
+@media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}*{animation:none!important;transition:none!important}}
+body{
+  margin:0;background:var(--paper);color:var(--ink);font-family:var(--sans);
+  font-size:16px;line-height:1.78;-webkit-font-smoothing:antialiased;
+  word-break:keep-all;overflow-wrap:anywhere;
+}
+
+/* ============ 상단 바 ============ */
+.topbar{
+  position:sticky;top:0;z-index:40;background:rgba(250,250,251,.92);
+  backdrop-filter:blur(10px);border-bottom:1px solid var(--rule);
+}
+.topbar .in{max-width:1400px;margin:0 auto;padding:0 24px;height:56px;
+  display:flex;align-items:center;gap:18px}
+.brand{font-family:var(--mono);font-size:11px;letter-spacing:.1em;color:var(--ink3);
+  text-transform:uppercase;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.brand b{color:var(--spec);font-weight:700}
+.navbtns{margin-left:auto;display:flex;gap:8px;flex-shrink:0}
+.navbtns a{font-family:var(--mono);font-size:11px;letter-spacing:.06em;
+  text-decoration:none;color:var(--ink2);border:1px solid var(--rule);
+  border-radius:6px;padding:6px 11px;background:var(--card);transition:.15s}
+.navbtns a:hover{border-color:var(--spec);color:var(--spec)}
+.navbtns a.home{background:var(--spec);color:#fff;border-color:var(--spec)}
+.navbtns a.home:hover{filter:brightness(1.12)}
+
+/* ============ 레이아웃 ============ */
+.wrap{max-width:1400px;margin:0 auto;padding:0 24px;display:grid;
+  grid-template-columns:var(--rail) minmax(0,1fr);gap:44px;align-items:start}
+.rail{position:sticky;top:56px;max-height:calc(100vh - 56px);overflow-y:auto;
+  padding:28px 0 60px;scrollbar-width:thin}
+.rail::-webkit-scrollbar{width:6px}
+.rail::-webkit-scrollbar-thumb{background:var(--rule);border-radius:3px}
+main{padding:36px 0 120px;min-width:0;max-width:920px}
+
+/* ============ 시그니처: 일차 스파인 ============ */
+.spine-h{font-family:var(--mono);font-size:10px;letter-spacing:.14em;
+  color:var(--ink3);text-transform:uppercase;margin:0 0 12px 2px}
+.spine{list-style:none;margin:0 0 30px;padding:0;position:relative}
+.spine::before{content:"";position:absolute;left:19px;top:14px;bottom:14px;
+  width:1px;background:var(--rule)}
+.spine li{position:relative}
+.spine a{display:grid;grid-template-columns:38px 40px minmax(0,1fr);align-items:center;gap:6px;
+  padding:5px 8px 5px 0;text-decoration:none;color:var(--ink2);border-radius:6px}
+.spine a:hover{background:var(--rule2)}
+.spine .dot{position:relative;z-index:1;justify-self:center;width:9px;height:9px;
+  border-radius:50%;background:var(--card);border:1.5px solid var(--rule)}
+.spine .lbl{font-family:var(--mono);font-size:11.5px;letter-spacing:.04em}
+.spine .ttl{font-size:12.5px;line-height:1.35;color:var(--ink3);
+  overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.spine a[aria-current]{background:var(--spec-soft)}
+.spine a[aria-current] .dot{background:var(--spec);border-color:var(--spec);
+  box-shadow:0 0 0 3px rgba(20,83,154,.14)}
+.spine a[aria-current] .lbl{color:var(--spec);font-weight:700}
+.spine a[aria-current] .ttl{color:var(--ink)}
+.spine .done .dot{background:var(--rule);border-color:var(--rule)}
+
+/* ============ 문서 내 목차 ============ */
+.toc-h{font-family:var(--mono);font-size:10px;letter-spacing:.14em;color:var(--ink3);
+  text-transform:uppercase;margin:0 0 10px 2px;padding-top:22px;border-top:1px solid var(--rule)}
+.toc{list-style:none;margin:0;padding:0}
+.toc li{margin:0}
+.toc a{display:block;padding:5px 10px;font-size:13.5px;line-height:1.45;
+  text-decoration:none;color:var(--ink2);border-left:2px solid transparent;border-radius:0 5px 5px 0}
+.toc a:hover{background:var(--rule2);color:var(--ink)}
+.toc .lv1>a{font-weight:700;color:var(--ink);margin-top:12px;font-size:13px;
+  font-family:var(--mono);letter-spacing:.02em}
+.toc .lv2>a{padding-left:16px}
+.toc a.active{border-left-color:var(--spec);background:var(--spec-soft);color:var(--spec);font-weight:600}
+
+/* ============ 문서 헤더 ============ */
+.dochead{margin:0 0 40px;padding-bottom:26px;border-bottom:2px solid var(--ink)}
+.eyebrow{font-family:var(--mono);font-size:11px;letter-spacing:.14em;color:var(--spec);
+  text-transform:uppercase;margin-bottom:12px}
+.dochead h1{margin:0;padding:0;background:none;color:var(--ink);border-radius:0;
+  font-size:clamp(26px,3.3vw,38px);line-height:1.24;font-weight:800;letter-spacing:-.025em}
+.dochead .sub{margin:12px 0 0;color:var(--ink2);font-size:15px}
+/* 진도 트랙 — 60시간 중 현재 위치 */
+.track{margin-top:22px}
+.track .bar{height:5px;background:var(--rule);border-radius:3px;overflow:hidden;display:flex}
+.track .bar i{display:block;height:100%}
+.track .bar .past{background:var(--rule)}
+.track .bar .now{background:var(--spec)}
+.track .cap{display:flex;justify-content:space-between;margin-top:8px;max-width:640px;
+  font-family:var(--mono);font-size:10.5px;color:var(--ink3);letter-spacing:.04em}
+.track .bar{max-width:640px}
+
+/* ============ 본문 타이포 ============ */
+main h1{font-size:22px;font-weight:800;letter-spacing:-.01em;margin:64px 0 20px;
+  padding:14px 18px;background:var(--ink);color:#fff;border-radius:8px}
+main h1:first-of-type{margin-top:8px}
+main h2{font-size:19.5px;font-weight:750;margin:48px 0 14px;padding-bottom:9px;
+  border-bottom:1px solid var(--rule);letter-spacing:-.01em;scroll-margin-top:80px}
+main h3{font-size:16.5px;font-weight:700;margin:34px 0 10px;color:var(--ink);
+  scroll-margin-top:80px}
+main h4{font-size:15px;font-weight:700;margin:24px 0 8px;color:var(--ink2)}
+main p{margin:0 0 15px}
+main ul,main ol{margin:0 0 16px;padding-left:22px}
+main li{margin:5px 0}
+main li>ul,main li>ol{margin:6px 0}
+main hr{border:0;border-top:1px solid var(--rule);margin:46px 0}
+main strong{font-weight:700}
+main a{color:var(--spec);text-underline-offset:3px}
+
+/* 체크포인트 · 경고 헤딩 */
+main h3.cp,main h4.cp{background:var(--ok-soft);color:var(--ok);border-left:3px solid var(--ok);
+  padding:9px 14px;border-radius:0 7px 7px 0;font-size:15px}
+main h3.warn,main h4.warn,main h2.warn{background:var(--warn-soft);color:var(--warn);
+  border-left:3px solid var(--warn);border-bottom:0;padding:9px 14px;border-radius:0 7px 7px 0;font-size:15px}
+
+/* ============ 코드 ============ */
+main :not(pre)>code{font-family:var(--mono);font-size:.855em;background:var(--spec-soft);
+  color:#0F3F76;padding:1.5px 5px;border-radius:4px;word-break:break-all}
+main pre{background:var(--term);color:var(--term-ink);border-radius:10px;
+  padding:16px 18px;overflow-x:auto;margin:0 0 18px;font-size:13.5px;line-height:1.7;
+  border:1px solid var(--term-rule)}
+main pre code{font-family:var(--mono);background:none;color:inherit;padding:0;font-size:inherit}
+main pre::-webkit-scrollbar{height:8px}
+main pre::-webkit-scrollbar-thumb{background:#2C3846;border-radius:4px}
+
+/* ============ 표 ============ */
+.tw{overflow-x:auto;margin:0 0 20px;border:1px solid var(--rule);border-radius:9px;background:var(--card)}
+main table{border-collapse:collapse;width:100%;font-size:14px;min-width:min(100%,420px)}
+main th,main td{padding:9px 13px;border-bottom:1px solid var(--rule2);
+  text-align:left;vertical-align:top;line-height:1.6}
+main th{background:#F5F7F9;font-weight:700;font-size:12.5px;letter-spacing:.02em;
+  color:var(--ink2);white-space:nowrap;border-bottom:1px solid var(--rule)}
+main tbody tr:last-child td{border-bottom:0}
+main tbody tr:hover{background:#FBFCFD}
+main td code{white-space:nowrap}
+
+/* ============ 인용 ============ */
+main blockquote{margin:0 0 18px;padding:13px 18px;background:var(--card);
+  border:1px solid var(--rule);border-left:3px solid var(--spec);border-radius:0 8px 8px 0;
+  color:var(--ink2);font-size:14.5px}
+main blockquote p:last-child{margin-bottom:0}
+
+/* ============ 하단 이동 ============ */
+.pager{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:70px;
+  padding-top:26px;border-top:1px solid var(--rule)}
+.pager a{display:block;padding:15px 18px;border:1px solid var(--rule);border-radius:10px;
+  text-decoration:none;background:var(--card);transition:.15s}
+.pager a:hover{border-color:var(--spec);box-shadow:0 2px 10px rgba(20,83,154,.07)}
+.pager .k{font-family:var(--mono);font-size:10px;letter-spacing:.12em;color:var(--ink3);
+  text-transform:uppercase;display:block;margin-bottom:5px}
+.pager .v{font-size:14.5px;font-weight:650;color:var(--ink);line-height:1.4}
+.pager .next{text-align:right}
+.pager .empty{border-style:dashed;opacity:.4;pointer-events:none}
+
+/* ============ 색인 페이지 ============ */
+.hero{padding:56px 0 40px;border-bottom:2px solid var(--ink);margin-bottom:44px}
+.hero h1{margin:14px 0 0;padding:0;background:none;color:var(--ink);border-radius:0;
+  font-size:clamp(30px,4.4vw,48px);line-height:1.18;font-weight:800;letter-spacing:-.03em}
+.hero .eyebrow{margin-bottom:0}
+.hero .lede{margin:20px 0 0;font-size:16.5px;line-height:1.68;color:var(--ink2);max-width:60ch}
+.stats{display:flex;flex-wrap:wrap;gap:36px;margin-top:34px}
+.stat .n{font-family:var(--mono);font-size:27px;font-weight:700;color:var(--spec);
+  letter-spacing:-.02em;line-height:1}
+.stat .l{font-family:var(--mono);font-size:10.5px;letter-spacing:.12em;color:var(--ink3);
+  text-transform:uppercase;margin-top:7px}
+.cards{display:grid;gap:12px;margin-bottom:60px}
+.card{display:grid;grid-template-columns:74px 1fr auto;align-items:center;gap:20px;
+  padding:17px 22px;background:var(--card);border:1px solid var(--rule);border-radius:11px;
+  text-decoration:none;color:inherit;transition:.15s}
+.card:hover{border-color:var(--spec);transform:translateX(3px);
+  box-shadow:0 3px 14px rgba(20,83,154,.08)}
+.card .key{font-family:var(--mono);font-size:15px;font-weight:700;color:var(--spec);
+  letter-spacing:.02em}
+.card .key small{display:block;font-size:9.5px;color:var(--ink3);font-weight:400;
+  letter-spacing:.1em;margin-top:3px}
+.card .t{font-size:16px;font-weight:700;line-height:1.35}
+.card .d{font-size:13.5px;color:#78818E;margin-top:4px;line-height:1.55}
+.card .h{font-family:var(--mono);font-size:11px;color:var(--ink3);white-space:nowrap;
+  letter-spacing:.04em}
+.idx-sec{font-family:var(--mono);font-size:10.5px;letter-spacing:.14em;color:var(--ink3);
+  text-transform:uppercase;margin:34px 0 12px}
+.idx-sec:first-child{margin-top:0}
+.note{background:var(--warn-soft);border:1px solid #F0DFC6;border-left:3px solid var(--warn);
+  border-radius:0 10px 10px 0;padding:18px 22px;margin-bottom:56px;font-size:14.5px;color:#6B3A08}
+.note b{color:var(--warn)}
+.note ul{margin:9px 0 0;padding-left:20px}
+
+/* ============ 반응형 ============ */
+@media (max-width:1080px){
+  .wrap{grid-template-columns:1fr;gap:0}
+  .rail{position:static;max-height:none;overflow:visible;padding:22px 0 0;
+    border-bottom:1px solid var(--rule);margin-bottom:8px}
+  .spine{display:flex;flex-wrap:wrap;gap:5px;margin-bottom:20px}
+  .spine::before{display:none}
+  .spine a{grid-template-columns:auto;padding:6px 11px;border:1px solid var(--rule);border-radius:7px}
+  .spine .dot,.spine .ttl{display:none}
+  .toc-h{padding-top:16px}
+  .toc{columns:2;column-gap:20px;max-height:230px;overflow-y:auto;
+    border:1px solid var(--rule);border-radius:9px;padding:8px;background:var(--card)}
+  .toc .lv1>a{margin-top:0}
+  main{padding:22px 0 80px}
+}
+@media (max-width:620px){
+  body{font-size:15.5px}
+  .wrap,.topbar .in{padding:0 15px}
+  .toc{columns:1;max-height:200px}
+  .pager{grid-template-columns:1fr}
+  .pager .next{text-align:left}
+  .card{grid-template-columns:56px 1fr;gap:14px}
+  .card .h{grid-column:2;margin-top:5px}
+  main h1{font-size:19px;padding:12px 14px}
+  main pre{font-size:12.5px;padding:13px 14px}
+}
+
+/* ============ 인쇄 ============ */
+@media print{
+  :root{--paper:#fff}
+  .topbar,.rail,.pager,.track{display:none!important}
+  .wrap{display:block;max-width:none;padding:0}
+  main{padding:0}
+  body{font-size:10.5pt;line-height:1.62}
+  main h1{background:none;color:#000;border:1.5pt solid #000;padding:7pt 10pt;
+    font-size:15pt;margin:22pt 0 11pt;page-break-after:avoid}
+  main h2,main h3,main h4{page-break-after:avoid}
+  main h2{font-size:13pt;margin:16pt 0 7pt}
+  main h3{font-size:11.5pt}
+  main pre{background:#F6F7F9;color:#111;border:.5pt solid #CBD2DA;
+    font-size:8.6pt;page-break-inside:avoid;white-space:pre-wrap;word-break:break-all}
+  main pre code{color:#111}
+  main :not(pre)>code{background:#EFF2F5;color:#111}
+  main table{font-size:9pt;page-break-inside:avoid}
+  .tw{overflow:visible;border-color:#CBD2DA}
+  main blockquote{page-break-inside:avoid}
+  a{color:#000;text-decoration:none}
+  .dochead{page-break-after:avoid}
+  @page{margin:15mm 14mm}
+}
+</style>
+</head>
+<body>
+<header class="topbar"><div class="in">
+  <div class="brand">KDT · AI 캠퍼스 [비솔] Vision AI &amp; 산업분야 Vertical AI 융합 전문가 양성 · <b>교과 1 · 리눅스</b></div>
+  <nav class="navbtns">
+    <a class="home" href="index.html">전체 목차</a>
+    <a href="#" onclick="window.print();return false;">인쇄 / PDF</a>
+  </nav>
+</div></header>
+
+<div class="wrap">
+  <aside class="rail">
+    <p class="spine-h">교과 1 · 60H 전체</p>
+    <ul class="spine"><li><a class="done" href="00.html"><span class="dot"></span><span class="lbl">PLAN</span><span class="ttl">강의 기획서</span></a></li>
+<li><a class="done" href="01.html"><span class="dot"></span><span class="lbl">D1</span><span class="ttl">리눅스 시작과 파일 시스템</span></a></li>
+<li><a class="done" href="01-2.html"><span class="dot"></span><span class="lbl">D1+</span><span class="ttl">OS 개론 · 시스템 구조와 시스템콜</span></a></li>
+<li><a class="done" href="02.html"><span class="dot"></span><span class="lbl">D2</span><span class="ttl">권한 · 아카이브 · 텍스트 스트림</span></a></li>
+<li><a class="done" href="03.html"><span class="dot"></span><span class="lbl">D3</span><span class="ttl">편집기와 텍스트 처리</span></a></li>
+<li><a class="done" href="03-2.html"><span class="dot"></span><span class="lbl">D3+</span><span class="ttl">명령어 연습 부록 · grep·sed·awk·vim</span></a></li>
+<li><a class="done" href="04.html"><span class="dot"></span><span class="lbl">D4</span><span class="ttl">셸 스크립트 · 프로세스 · 자동화</span></a></li>
+<li><a class="done" href="04-2.html"><span class="dot"></span><span class="lbl">D4+</span><span class="ttl">명령어 연습 부록 · 셸·프로세스</span></a></li>
+<li><a class="done" href="05.html"><span class="dot"></span><span class="lbl">D5</span><span class="ttl">Anaconda 환경과 데이터셋 구조화</span></a></li>
+<li><a class="done" href="05-2.html"><span class="dot"></span><span class="lbl">D5+</span><span class="ttl">명령어 연습 부록 · conda·pip</span></a></li>
+<li><a class="done" href="06.html"><span class="dot"></span><span class="lbl">D6</span><span class="ttl">Git 기초</span></a></li>
+<li><a class="" href="06-2.html" aria-current="page"><span class="dot"></span><span class="lbl">D6+</span><span class="ttl">명령어 연습 부록 · git</span></a></li>
+<li><a class="" href="07.html"><span class="dot"></span><span class="lbl">D7</span><span class="ttl">GitHub 협업과 데이터 보안</span></a></li>
+<li><a class="" href="08.html"><span class="dot"></span><span class="lbl">D8</span><span class="ttl">부분 파이널 프로젝트</span></a></li>
+<li><a class="" href="99.html"><span class="dot"></span><span class="lbl">APX</span><span class="ttl">부록 · 치트시트 &amp; 트러블슈팅</span></a></li></ul>
+    <p class="toc-h">이 문서 안에서</p>
+    <ul class="toc"><li class="lv2"><a href="#이-문서를-보는-법">이 문서를 보는 법</a></li>
+<li class="lv2"><a href="#실습-준비-연습용-저장소-만들기">실습 준비 — 연습용 저장소 만들기</a></li>
+<li class="lv1"><a href="#1-add-commit-변경사항을-저장하기">1. add / commit — 변경사항을 저장하기</a></li>
+<li class="lv2"><a href="#add-commit-쉬움-10">add/commit · 쉬움 10제</a></li>
+<li class="lv2"><a href="#add-commit-어려움-10">add/commit · 어려움 10제</a></li>
+<li class="lv1"><a href="#2-log-지나온-이력-들여다보기">2. log — 지나온 이력 들여다보기</a></li>
+<li class="lv2"><a href="#log-쉬움-10">log · 쉬움 10제</a></li>
+<li class="lv2"><a href="#log-어려움-10">log · 어려움 10제</a></li>
+<li class="lv1"><a href="#3-restore-reset-revert-되돌리기-3단계">3. restore / reset / revert — 되돌리기 3단계</a></li>
+<li class="lv2"><a href="#되돌리기-쉬움-10">되돌리기 · 쉬움 10제</a></li>
+<li class="lv2"><a href="#되돌리기-어려움-10">되돌리기 · 어려움 10제</a></li>
+<li class="lv1"><a href="#4-branch-merge-갈라지고-합치기">4. branch / merge — 갈라지고 합치기</a></li>
+<li class="lv2"><a href="#branch-merge-쉬움-10">branch/merge · 쉬움 10제</a></li>
+<li class="lv2"><a href="#branch-merge-어려움-10">branch/merge · 어려움 10제</a></li>
+<li class="lv1"><a href="#5-tag-gitignore-stash-핵심만-10개">5. tag · .gitignore · stash — 핵심만 10개</a></li>
+<li class="lv2"><a href="#한눈에-정리">한눈에 정리</a></li></ul>
+  </aside>
+
+  <main>
+    <div class="dochead">
+      <div class="eyebrow">D6+ &nbsp;/&nbsp; 교과 1 · 리눅스</div>
+      <h1>명령어 연습 부록 — add/commit · log · 되돌리기 · branch/merge 각 20제</h1>
+      <p class="sub">쉬운 예제 10개 → 어려운 예제 10개 순서로, Git 명령이 손에 익도록 반복 연습합니다</p>
+    </div>
+    <blockquote>
+<p><strong>이 문서의 목표</strong>: D6에서 배운 Git 명령이 "낯선 도구"에서 "손에 익은 습관"이 되도록, 아주 쉬운 예제부터 실무에 가까운 예제까지 단계적으로 반복 연습합니다.</p>
+</blockquote>
+<hr />
+<h2 id="이-문서를-보는-법">이 문서를 보는 법</h2>
+<ul>
+<li>각 명령어마다 <strong>쉬움 10개 → 어려움 10개</strong> 순서로 배치되어 있습니다. 쉬움부터 순서대로 직접 타이핑해 보세요.</li>
+<li><code>$</code>로 시작하는 줄이 "내가 입력하는 명령"이고, 그 아래 줄이 <strong>예상 결과</strong>입니다. 커밋 해시(예: a1b2c3d)는 실습마다 다르게 나오므로 예시와 똑같지 않아도 정상입니다.</li>
+<li>각 예제 아래 <strong>의미</strong>가 "이 명령이 왜 이렇게 동작하는지"를 설명합니다.</li>
+<li>이 문서는 <strong>실제로 만들고 있는 프로젝트 저장소와는 별개의 연습용 저장소</strong>에서 진행합니다. 마음껏 커밋하고, 되돌리고, 브랜치를 만들었다 지워도 괜찮습니다.</li>
+<li>막히면 D6 본문(<a href="06.html">06.html</a>)의 해당 절로 돌아가 개념을 다시 확인하세요.</li>
+</ul>
+<h2 id="실습-준비-연습용-저장소-만들기">실습 준비 — 연습용 저장소 만들기</h2>
+<pre><code class="language-bash">mkdir -p ~/kdt-linux/git-practice &amp;&amp; cd ~/kdt-linux/git-practice
+git init
+git config user.name "kdt-student"
+git config user.email "kdt@example.com"
+
+echo "안녕하세요" &gt; note.txt
+</code></pre>
+<p><strong>예상 결과</strong>: <code>Initialized empty Git repository in .../git-practice/.git/</code> 메시지와 함께 빈 저장소가 만들어지고, <code>note.txt</code> 파일 하나가 준비됩니다.</p>
+<hr />
+<h1 id="1-add-commit-변경사항을-저장하기">1. add / commit — 변경사항을 저장하기</h1>
+<p>add는 "이번에 저장할 내용을 준비 영역에 올리는 것", commit은 "그 준비된 내용을 하나의 저장 시점으로 확정하는 것"입니다.</p>
+<h2 id="add-commit-쉬움-10">add/commit · 쉬움 10제</h2>
+<ol>
+<li><pre><code class="language-bash">$ git status
+On branch main
+No commits yet
+Untracked files:
+  (use "git add <file>..." to include in what will be committed)
+        note.txt</code></pre>
+<p><strong>의미</strong>: 지금 폴더의 파일이 git에 아직 추적되지 않고 있음(Untracked)을 보여줍니다. commit 전 항상 먼저 확인하는 명령입니다.</p></li>
+<li><pre><code class="language-bash">$ git add note.txt
+(출력 없음 — 다시 git status 하면 "Changes to be committed"에 note.txt가 보임)</code></pre>
+<p><strong>의미</strong>: 파일을 "다음 커밋에 포함시킬 준비 영역(스테이징)"에 올립니다.</p></li>
+<li><pre><code class="language-bash">$ git commit -m "docs: 첫 메모 추가"
+[main (root-commit) a1b2c3d] docs: 첫 메모 추가
+ 1 file changed, 1 insertion(+)
+ create mode 100644 note.txt</code></pre>
+<p><strong>의미</strong>: 스테이징된 내용을 하나의 "저장 시점(커밋)"으로 기록합니다. <code>-m</code> 뒤에 메시지를 바로 씁니다.</p></li>
+<li><pre><code class="language-bash">$ echo "두번째 줄" >> note.txt
+$ git add .
+(폴더 안의 변경된 모든 파일이 스테이징됨)</code></pre>
+<p><strong>의미</strong>: 파일명 대신 <code>.</code>(현재 폴더)을 쓰면 변경된 모든 파일을 한 번에 추가합니다.</p></li>
+<li><pre><code class="language-bash">$ git add *.txt
+(.txt로 끝나는 파일들만 스테이징됨)</code></pre>
+<p><strong>의미</strong>: 와일드카드로 특정 확장자만 골라 추가할 수 있습니다.</p></li>
+<li><pre><code class="language-bash">$ echo "세번째 줄" >> note.txt
+$ git commit -am "docs: 세번째 줄 추가"
+(add 없이 바로 커밋됨 — note.txt는 이미 git이 추적 중이므로)</code></pre>
+<p><strong>의미</strong>: <code>-a</code>는 "이미 git이 알고 있는 파일"의 수정사항을 자동으로 스테이징한 뒤 커밋까지 한 번에 처리합니다(새 파일은 포함되지 않습니다).</p></li>
+<li><pre><code class="language-bash">$ echo "네번째 줄" >> note.txt && touch new.txt
+$ git status -s
+ M note.txt
+?? new.txt</code></pre>
+<p><strong>의미</strong>: <code>-s</code>(short)는 각 파일 앞에 M(수정)/??(추적 안 됨) 같은 기호로 상태를 간단히 보여줍니다.</p></li>
+<li><pre><code class="language-bash">$ git add -A
+(새 파일, 수정된 파일, 삭제된 파일까지 전부 스테이징됨)</code></pre>
+<p><strong>의미</strong>: <code>-A</code>(all)는 <code>git add .</code>보다 더 넓은 범위(삭제된 파일 포함)를 반영합니다.</p></li>
+<li><pre><code class="language-bash">$ git commit -m "네번째 줄"
+$ git commit --amend -m "docs: 네번째 줄 추가 및 new.txt 생성"
+(방금 한 커밋의 메시지가 새 메시지로 교체됨)</code></pre>
+<p><strong>의미</strong>: <code>--amend</code>는 "방금 커밋에 뭔가 빠뜨렸거나 메시지를 잘못 썼을 때" 그 커밋 자체를 고치는 명령입니다.</p></li>
+<li><pre><code class="language-bash">$ echo "다섯번째" >> note.txt && echo "메모" > memo.txt
+$ git add note.txt memo.txt
+(두 파일이 함께 스테이징됨)</code></pre>
+<p><strong>의미</strong>: add 뒤에 여러 파일명을 공백으로 나열하면 한 번에 여러 개를 추가합니다.</p></li>
+</ol>
+<h2 id="add-commit-어려움-10">add/commit · 어려움 10제</h2>
+<ol>
+<li><pre><code class="language-bash">$ git add -p
+diff --git a/note.txt b/note.txt
+...
+Stage this hunk [y,n,q,a,d,s,e,?]?</code></pre>
+<p><strong>의미</strong>: 한 파일 안에서도 변경 덩어리(hunk)별로 "이 부분만 커밋하고 저 부분은 나중에" 나눌 수 있습니다 — 의미 단위 커밋의 핵심 도구입니다.</p></li>
+<li><pre><code class="language-bash">$ git commit --no-verify -m "긴급 수정"
+(pre-commit 훅 검사를 건너뛰고 강제로 커밋 진행)</code></pre>
+<p><strong>의미</strong>: 커밋 전 자동 검사(훅)가 걸려있을 때, 예외적으로 그 검사를 생략하고 커밋합니다(남용하면 안 됩니다).</p></li>
+<li><pre><code class="language-bash">$ git commit --allow-empty -m "체크포인트"
+[main 9f8e7d6] 체크포인트</code></pre>
+<p><strong>의미</strong>: 아무 파일 변경이 없어도 빈 커밋이 하나 생성됩니다. 코드 변경 없이 "이 시점을 표시"만 하고 싶을 때(예: CI 트리거) 쓰는 특수 커밋입니다.</p></li>
+<li><pre><code class="language-bash">$ GIT_AUTHOR_DATE="2026-01-01T09:00:00" git commit -m "과거 날짜로 기록"
+(커밋 시각이 지정한 과거 날짜로 기록됨)</code></pre>
+<p><strong>의미</strong>: 환경변수로 커밋 시각을 직접 지정할 수 있습니다(데이터 이관·복원 시나리오에서 가끔 필요합니다).</p></li>
+<li><pre><code class="language-bash">$ git add . -- ':!*.jpg'
+(.jpg 파일만 제외한 나머지 변경사항이 전부 스테이징됨)</code></pre>
+<p><strong>의미</strong>: pathspec의 제외 패턴(<code>:!</code>)으로 "이것만 빼고 전부"를 표현할 수 있습니다. 이미지 실수 커밋을 방지하는 안전한 습관입니다.</p></li>
+<li><pre><code class="language-bash">$ git add note.txt
+$ git diff --cached
+diff --git a/note.txt b/note.txt
++다섯번째</code></pre>
+<p><strong>의미</strong>: 커밋하기 직전, "정확히 무엇이 이번 커밋에 들어가는지" 최종 확인하는 명령입니다.</p></li>
+<li><pre><code class="language-bash">$ echo "fix: 로그인 오류 수정
+
+세션 만료 시 자동 로그아웃되지 않던 문제를 고쳤습니다." > commit_message.txt
+$ git commit -m "$(cat commit_message.txt)"
+(파일에 미리 써둔 긴 커밋 메시지가 그대로 사용됨)</code></pre>
+<p><strong>의미</strong>: 커밋 메시지가 여러 줄로 길어질 때, 파일로 작성해두고 명령치환으로 불러오면 따옴표 문제 없이 깔끔합니다.</p></li>
+<li><pre><code class="language-bash">$ git commit -m "fix: 버그 수정" -m "상세 설명은 여기에 적습니다"
+[main 1a2b3c4] fix: 버그 수정</code></pre>
+<p><strong>의미</strong>: <code>-m</code>을 두 번 쓰면 "제목 한 줄 + 빈 줄 + 본문"이라는 Git 권장 커밋 메시지 형식을 명령줄에서 바로 만들 수 있습니다.</p></li>
+<li><pre><code class="language-bash">$ echo "API_KEY=12345" > secret.env
+$ git add secret.env && git commit -m "실수로 추가"
+$ git rm --cached secret.env
+rm 'secret.env'</code></pre>
+<p><strong>의미</strong>: <code>--cached</code>는 파일은 폴더에 그대로 남기되, 앞으로의 git 추적 대상에서만 뺍니다. 실수로 커밋했던 민감 파일을 정리할 때 <code>.gitignore</code>와 함께 사용합니다.</p></li>
+<li><pre><code class="language-bash">$ git status --porcelain
+ M note.txt
+?? new.txt</code></pre>
+<p><strong>의미</strong>: <code>--porcelain</code>은 사람이 아니라 스크립트가 파싱하기 좋은 고정된 형식으로 상태를 출력합니다. "커밋 전 최종 검증"을 자동화 스크립트에 넣을 때 이 형식을 씁니다.</p></li>
+</ol>
+<hr />
+<h1 id="2-log-지나온-이력-들여다보기">2. log — 지나온 이력 들여다보기</h1>
+<p>log는 지금까지 쌓인 모든 커밋을 조회하는 명령입니다. "누가 언제 무엇을 왜 바꿨는지"를 되짚어볼 때 사용합니다.</p>
+<h2 id="log-쉬움-10">log · 쉬움 10제</h2>
+<ol>
+<li><pre><code class="language-bash">$ git log
+commit a1b2c3d... (HEAD -> main)
+Author: kdt-student <kdt@example.com>
+Date:   ...
+    docs: 첫 메모 추가</code></pre>
+<p><strong>의미</strong>: 지금까지의 모든 커밋 이력을 확인하는 기본 명령입니다.</p></li>
+<li><pre><code class="language-bash">$ git log --oneline
+a1b2c3d docs: 첫 메모 추가
+9f8e7d6 체크포인트</code></pre>
+<p><strong>의미</strong>: <code>--oneline</code>은 해시 앞자리+메시지만 간단히 보여줘 전체 흐름을 빠르게 훑을 때 씁니다.</p></li>
+<li><pre><code class="language-bash">$ git log -3
+(가장 최근 3개의 커밋만 출력)</code></pre>
+<p><strong>의미</strong>: 숫자를 붙이면 "최근 N개"만 제한해서 봅니다.</p></li>
+<li><pre><code class="language-bash">$ git log --author="kdt-student"
+(지정한 작성자의 커밋만 필터링되어 출력)</code></pre>
+<p><strong>의미</strong>: 여러 명이 협업할 때 "이 사람이 한 작업만" 골라볼 수 있습니다.</p></li>
+<li><pre><code class="language-bash">$ git log --stat
+commit a1b2c3d
+    docs: 첫 메모 추가
+ note.txt | 1 +
+ 1 file changed, 1 insertion(+)</code></pre>
+<p><strong>의미</strong>: 각 커밋마다 어떤 파일이 몇 줄 바뀌었는지 요약이 함께 표시됩니다.</p></li>
+<li><pre><code class="language-bash">$ git log -p -1
+(가장 최근 커밋의 실제 변경 내용(diff)까지 전부 표시)</code></pre>
+<p><strong>의미</strong>: <code>-p</code>(patch)는 커밋 메시지뿐 아니라 실제로 어떤 줄이 바뀌었는지 상세 내용을 보여줍니다.</p></li>
+<li><pre><code class="language-bash">$ git log --since="2026-08-01"
+(2026-08-01 이후에 만들어진 커밋만 출력)</code></pre>
+<p><strong>의미</strong>: 날짜 기준으로 이력을 필터링할 때 씁니다.</p></li>
+<li><pre><code class="language-bash">$ git log -- note.txt
+(note.txt 파일과 관련된 커밋들만 출력)</code></pre>
+<p><strong>의미</strong>: <code>-- 파일명</code>은 "이 파일과 관련된 커밋만" 필터링합니다.</p></li>
+<li><pre><code class="language-bash">$ git show a1b2c3d
+commit a1b2c3d
+    docs: 첫 메모 추가
+diff --git a/note.txt b/note.txt
++안녕하세요</code></pre>
+<p><strong>의미</strong>: 커밋 해시를 직접 지정해 "그 시점에 정확히 뭐가 바뀌었는지" 확인합니다.</p></li>
+<li><pre><code class="language-bash">$ git log --graph --oneline
+* a1b2c3d docs: 첫 메모 추가
+* 9f8e7d6 체크포인트</code></pre>
+<p><strong>의미</strong>: 커밋들이 <code>*</code> 기호와 선으로 연결된 그래프 형태로 표시됩니다. 브랜치가 갈라지고 합쳐진 모양을 볼 때 진가를 발휘합니다.</p></li>
+</ol>
+<h2 id="log-어려움-10">log · 어려움 10제</h2>
+<ol>
+<li><pre><code class="language-bash">$ git log --pretty=format:"%h %ad %s" --date=short
+a1b2c3d 2026-08-20 docs: 첫 메모 추가</code></pre>
+<p><strong>의미</strong>: <code>--pretty=format</code>으로 해시(<code>%h</code>), 날짜(<code>%ad</code>), 메시지(<code>%s</code>) 등 원하는 정보만 원하는 순서로 뽑을 수 있습니다.</p></li>
+<li><pre><code class="language-bash">$ git log --grep="fix"
+(커밋 메시지에 "fix"가 포함된 커밋만 출력)</code></pre>
+<p><strong>의미</strong>: 메시지 내용 기준으로 검색합니다. "버그 수정 이력만 모아보기" 같은 작업에 씁니다.</p></li>
+<li><pre><code class="language-bash">$ git log -S"세번째"
+(그 문자열이 추가되거나 삭제된 커밋만 찾아서 출력)</code></pre>
+<p><strong>의미</strong>: <code>-S</code>(pickaxe)는 "코드 내용 자체"에서 특정 문자열이 등장/사라진 커밋을 찾습니다. 언제 이 코드가 처음 생겼는지 추적할 때 강력합니다.</p></li>
+<li><pre><code class="language-bash">$ git mv note.txt notes.txt && git commit -m "rename: note -> notes"
+$ git log --follow -- notes.txt
+(이름이 바뀌기 전 note.txt였을 때의 이력까지 포함해서 출력)</code></pre>
+<p><strong>의미</strong>: <code>--follow</code>는 파일 이름이 변경된 경우에도 그 이전 역사까지 추적합니다.</p></li>
+<li><pre><code class="language-bash">$ git log main..feature-A
+(main에는 없고 feature-A에만 있는 커밋 목록)</code></pre>
+<p><strong>의미</strong>: 두 브랜치 사이의 차이(feature-A가 main보다 앞서 가진 커밋)를 확인할 때 씁니다.</p></li>
+<li><pre><code class="language-bash">$ git log --merges
+(병합(merge) 커밋만 걸러서 출력)</code></pre>
+<p><strong>의미</strong>: 여러 브랜치가 언제 합쳐졌는지만 추적하고 싶을 때 씁니다.</p></li>
+<li><pre><code class="language-bash">$ git log --no-merges
+(병합 커밋을 제외한 "실제 작업 커밋"만 출력)</code></pre>
+<p><strong>의미</strong>: 머지 커밋으로 지저분해진 이력에서 진짜 변경 내용만 보고 싶을 때 씁니다.</p></li>
+<li><pre><code class="language-bash">$ git log -L 1,3:notes.txt
+(notes.txt 파일의 1~3번째 줄이 각 커밋에서 어떻게 바뀌어왔는지 이력 출력)</code></pre>
+<p><strong>의미</strong>: <code>-L</code>(line)은 파일 전체가 아니라 "특정 줄 범위"의 변경 역사만 추적하는 고급 기능입니다.</p></li>
+<li><pre><code class="language-bash">$ git log --format="%H" -1 | xargs -I{} git show {}:notes.txt
+(가장 최근 커밋 시점의 notes.txt 내용이 그대로 출력)</code></pre>
+<p><strong>의미</strong>: 여러 git 명령을 파이프로 연결해 "가장 최근 커밋의 특정 파일 내용"을 한 번에 뽑아내는 조합입니다.</p></li>
+<li><pre><code class="language-bash">$ git shortlog -sn
+     8  kdt-student</code></pre>
+<p><strong>의미</strong>: 작성자별 커밋 개수가 많은 순으로 요약 출력합니다. 팀 프로젝트에서 "누가 커밋을 몇 개 했는지" 기여도를 빠르게 파악할 때 씁니다.</p></li>
+</ol>
+<hr />
+<h1 id="3-restore-reset-revert-되돌리기-3단계">3. restore / reset / revert — 되돌리기 3단계</h1>
+<p>Git의 되돌리기는 <strong>작업 폴더 → 스테이징 → 저장소(커밋)</strong> 3단계 중 "어디까지 되돌릴지"에 따라 쓰는 명령이 다릅니다. 이 구분이 Git에서 가장 헷갈리지만 가장 중요한 개념입니다.</p>
+<h2 id="되돌리기-쉬움-10">되돌리기 · 쉬움 10제</h2>
+<ol>
+<li><pre><code class="language-bash">$ echo "실수로 수정" >> notes.txt
+$ git restore notes.txt
+(notes.txt가 마지막 커밋 상태로 돌아가며, 방금 한 수정 내용이 사라짐)</code></pre>
+<p><strong>의미</strong>: restore는 "아직 스테이징하지 않은 작업 폴더의 수정"을 취소합니다.</p></li>
+<li><pre><code class="language-bash">$ echo "임시 수정" >> notes.txt
+$ git add notes.txt
+$ git restore --staged notes.txt
+(스테이징만 취소되고, 작업 폴더의 수정 내용은 그대로 남음)</code></pre>
+<p><strong>의미</strong>: <code>--staged</code>는 "add한 것만 취소"하고 파일 내용 자체는 건드리지 않습니다.</p></li>
+<li><pre><code class="language-bash">$ git status
+(현재 상태에 따라 Untracked/Modified/Staged 등이 다르게 표시)</code></pre>
+<p><strong>의미</strong>: 되돌리기 전후로 항상 <code>git status</code>를 확인해 지금 어떤 상태인지 파악하는 습관이 중요합니다.</p></li>
+<li><pre><code class="language-bash">$ git reset --soft HEAD~1
+(가장 최근 커밋이 취소되지만, 그 변경 내용은 스테이징 상태로 그대로 남음)</code></pre>
+<p><strong>의미</strong>: <code>--soft</code>는 "커밋만 취소, 스테이징은 유지"합니다. 커밋 메시지를 다시 쓰고 싶을 때 씁니다.</p></li>
+<li><pre><code class="language-bash">$ git reset --mixed HEAD~1
+(커밋도 취소되고 스테이징도 풀리지만, 파일 내용은 작업 폴더에 그대로 남음)</code></pre>
+<p><strong>의미</strong>: 옵션 없이 그냥 <code>git reset HEAD~1</code>을 쓰면 이 <code>--mixed</code>가 기본값으로 적용됩니다.</p></li>
+<li><pre><code class="language-bash">$ git reset --hard HEAD~1
+(커밋과 스테이징, 파일 내용까지 전부 그 커밋 이전 상태로 완전히 되돌아감)</code></pre>
+<p><strong>의미</strong>: <code>--hard</code>는 가장 강력하고 위험한 되돌리기입니다. 수정 내용이 통째로 사라지므로 신중해야 합니다.</p></li>
+<li><pre><code class="language-bash">$ git revert HEAD
+[main 4d5e6f7] Revert "docs: 첫 메모 추가"</code></pre>
+<p><strong>의미</strong>: revert는 되돌리되 이력을 지우지 않고 "취소했다는 기록"을 새로 남기는, 공유된 브랜치에서 안전한 방법입니다.</p></li>
+<li><pre><code class="language-bash">$ git checkout -- notes.txt
+(restore와 동일하게 작업 폴더의 수정 내용이 취소됨)</code></pre>
+<p><strong>의미</strong>: 최신 git은 restore를 권장하지만, 오래된 예제나 문서에서는 이 <code>checkout --</code> 방식을 아직도 자주 봅니다.</p></li>
+<li><pre><code class="language-bash">$ git reset HEAD notes.txt
+(notes.txt만 스테이징에서 빠지고 나머지 파일은 그대로 스테이징 유지)</code></pre>
+<p><strong>의미</strong>: <code>restore --staged</code>의 예전 표현입니다. 파일명을 지정하면 그 파일만 대상이 됩니다.</p></li>
+<li><pre><code class="language-bash">$ git log --oneline
+(reset/revert 이후 커밋 목록이 어떻게 바뀌었는지 확인)</code></pre>
+<p><strong>의미</strong>: 되돌리기 작업 후에는 항상 log로 결과를 확인하는 것이 안전합니다.</p></li>
+</ol>
+<h2 id="되돌리기-어려움-10">되돌리기 · 어려움 10제</h2>
+<ol>
+<li><pre><code class="language-bash">$ git reset --hard 9f8e7d6
+(지정한 커밋 시점 상태로 모든 것이 되돌아감)</code></pre>
+<p><strong>의미</strong>: <code>HEAD~1</code>처럼 상대적 위치가 아니라, 특정 커밋 해시를 직접 지정해 원하는 시점으로 정확히 이동합니다.</p></li>
+<li><pre><code class="language-bash">$ git reflog
+a1b2c3d HEAD@{0}: reset: moving to 9f8e7d6
+4d5e6f7 HEAD@{1}: revert: Revert "docs: 첫 메모 추가"</code></pre>
+<p><strong>의미</strong>: reset이나 checkout 등으로 "안 보이게 된" 커밋까지 포함한 모든 HEAD 이동 기록입니다. <code>reset --hard</code>로 실수로 커밋을 날려도 복구할 수 있는 최후의 안전망입니다.</p></li>
+<li><pre><code class="language-bash">$ git reset --hard HEAD@{2}
+(reflog에서 확인한 2단계 이전 상태로 정확히 되돌아감)</code></pre>
+<p><strong>의미</strong>: reflog에서 찾은 시점(<code>HEAD@{번호}</code>)으로 직접 이동해 "삭제된 것처럼 보였던" 커밋을 복구합니다.</p></li>
+<li><pre><code class="language-bash">$ git revert --no-commit HEAD~2..HEAD
+(최근 2개 커밋을 취소하는 변경사항이 스테이징에만 반영되고 커밋은 아직 안 됨)</code></pre>
+<p><strong>의미</strong>: <code>--no-commit</code>은 여러 revert를 한 번에 모아서 커밋 하나로 정리하고 싶을 때 씁니다.</p></li>
+<li><pre><code class="language-bash">$ git checkout 9f8e7d6 -- notes.txt
+(저장소 전체가 아니라 notes.txt 파일 하나만 그 커밋 시점 내용으로 교체됨)</code></pre>
+<p><strong>의미</strong>: 전체를 되돌리지 않고 "이 파일만" 예전 버전으로 가져오고 싶을 때 씁니다.</p></li>
+<li><pre><code class="language-bash">$ git revert -m 1 <머지커밋해시>
+(머지로 합쳐졌던 변경사항 전체가 취소되는 새 커밋 생성)</code></pre>
+<p><strong>의미</strong>: 일반 revert는 머지 커밋에 그냥 쓸 수 없고, <code>-m 1</code>로 "어느 부모 기준으로 되돌릴지" 지정해야 합니다.</p></li>
+<li><pre><code class="language-bash">$ git reset --keep HEAD~1
+(커밋은 취소되지만, 아직 커밋되지 않은 다른 작업 중인 변경사항은 안전하게 보존됨)</code></pre>
+<p><strong>의미</strong>: <code>--mixed</code>/<code>--hard</code>와 달리, 이미 작업 중이던(스테이징 안 된) 변경을 실수로 날리지 않도록 보호하며 되돌립니다.</p></li>
+<li><pre><code class="language-bash">$ git diff HEAD~1 HEAD
+(되돌리려는 커밋이 실제로 어떤 내용을 바꿨는지 diff로 미리 확인)</code></pre>
+<p><strong>의미</strong>: reset이나 revert를 실행하기 전에, 무엇이 취소될지 diff로 먼저 확인하는 것이 안전한 습관입니다.</p></li>
+<li><pre><code class="language-bash">$ echo "아직 커밋 안 한 소중한 작업" >> notes.txt
+$ git stash
+$ git reset --hard HEAD~1
+$ git stash pop
+(임시 저장해둔 변경사항은 reset의 영향을 받지 않고 그대로 복원됨)</code></pre>
+<p><strong>의미</strong>: reset --hard 전에 아직 커밋하지 않은 소중한 변경사항이 있다면 stash로 잠시 빼두면 안전합니다.</p></li>
+<li><pre><code class="language-bash">$ git reset --hard origin/main
+(로컬의 모든 변경사항을 버리고 원격 저장소의 main 브랜치 상태와 완전히 동일하게 맞춤)</code></pre>
+<p><strong>의미</strong>: 로컬에서 뭔가 심하게 꼬였을 때 "원격 기준으로 완전히 리셋"하는 최후의 수단입니다(로컬 변경사항은 전부 사라지므로 매우 신중해야 합니다). 원격 저장소는 D7에서 본격적으로 다룹니다.</p></li>
+</ol>
+<hr />
+<h1 id="4-branch-merge-갈라지고-합치기">4. branch / merge — 갈라지고 합치기</h1>
+<p>branch는 "원본을 건드리지 않고 안전하게 실험할 별도의 작업 공간"을 만드는 것이고, merge는 그 실험 결과를 다시 원래 흐름에 합치는 것입니다.</p>
+<h2 id="branch-merge-쉬움-10">branch/merge · 쉬움 10제</h2>
+<ol>
+<li><pre><code class="language-bash">$ git branch
+* main</code></pre>
+<p><strong>의미</strong>: 지금 저장소에 어떤 브랜치들이 있고, 내가 지금 어디 있는지(<code>*</code>) 확인합니다.</p></li>
+<li><pre><code class="language-bash">$ git branch feature-A
+(출력 없음 — feature-A 브랜치가 생성되지만 아직 이동은 안 됨)</code></pre>
+<p><strong>의미</strong>: branch 뒤에 이름만 쓰면 "만들기만" 하고 브랜치 전환은 하지 않습니다.</p></li>
+<li><pre><code class="language-bash">$ git switch feature-A
+Switched to branch 'feature-A'</code></pre>
+<p><strong>의미</strong>: switch로 그 브랜치로 이동(전환)합니다.</p></li>
+<li><pre><code class="language-bash">$ git switch -c feature-B
+Switched to a new branch 'feature-B'</code></pre>
+<p><strong>의미</strong>: <code>-c</code>(create)를 붙이면 branch+switch를 한 번에 처리합니다. 실무에서 가장 많이 쓰는 형태입니다.</p></li>
+<li><pre><code class="language-bash">$ git switch main
+Switched to branch 'main'</code></pre>
+<p><strong>의미</strong>: 언제든 이름만 지정하면 그 브랜치로 돌아갈 수 있습니다.</p></li>
+<li><pre><code class="language-bash">$ echo "feature-A 작업" >> notes.txt   # (feature-A 브랜치에서 커밋해둔 상태 가정)
+$ git switch main
+$ git merge feature-A
+Merge made by the 'ort' strategy.
+ notes.txt | 1 +</code></pre>
+<p><strong>의미</strong>: 지금 있는 브랜치(main)에 다른 브랜치(feature-A)의 내용을 합칩니다.</p></li>
+<li><pre><code class="language-bash">$ git branch -d feature-A
+Deleted branch feature-A (was 1a2b3c4).</code></pre>
+<p><strong>의미</strong>: <code>-d</code>는 이미 main에 합쳐진(안전한) 브랜치만 삭제를 허용합니다.</p></li>
+<li><pre><code class="language-bash">$ git branch -a
+* main
+  feature-B
+  remotes/origin/main</code></pre>
+<p><strong>의미</strong>: <code>-a</code>(all)로 원격 브랜치까지 포함해서 볼 수 있습니다(원격은 D7에서 본격적으로 다룹니다).</p></li>
+<li><pre><code class="language-bash">$ git branch -m feature-B feature-B-renamed
+(feature-B 브랜치가 feature-B-renamed로 이름이 바뀜)</code></pre>
+<p><strong>의미</strong>: <code>-m</code>(move/rename)으로 브랜치 이름을 잘못 지었을 때 고칠 수 있습니다.</p></li>
+<li><pre><code class="language-bash">$ git log --oneline --graph --all
+*   7a8b9c0 Merge branch 'feature-A'
+|\
+| * 1a2b3c4 feature-A 작업
+|/
+* a1b2c3d docs: 첫 메모 추가</code></pre>
+<p><strong>의미</strong>: merge 전후 커밋 구조가 어떻게 달라졌는지 눈으로 확인하는 가장 좋은 방법입니다.</p></li>
+</ol>
+<h2 id="branch-merge-어려움-10">branch/merge · 어려움 10제</h2>
+<ol>
+<li><pre><code class="language-bash">$ git merge feature-C
+Auto-merging notes.txt
+CONFLICT (content): Merge conflict in notes.txt
+Automatic merge failed; fix conflicts and then commit the result.</code></pre>
+<p><strong>의미</strong>: 두 브랜치가 같은 줄을 다르게 고쳤을 때 git이 자동으로 합치지 못하고 사람의 판단을 요청합니다.</p></li>
+<li><pre><code class="language-bash">$ cat notes.txt
+<<<<<<< HEAD
+main에서 고친 내용
+=======
+feature-C에서 고친 내용
+>>>>>>> feature-C
+$ nano notes.txt   # 마커를 지우고 원하는 내용으로 직접 정리
+$ git add notes.txt
+$ git commit
+(별도 -m 없이도 "Merge branch 'feature-C'" 형태의 기본 메시지로 커밋 완료)</code></pre>
+<p><strong>의미</strong>: 충돌은 "둘 중 하나를 고르거나 둘을 합쳐서" 사람이 직접 정리해야 하며, add로 "해결 완료"를 git에 알려줍니다.</p></li>
+<li><pre><code class="language-bash">$ git merge --abort
+(merge를 시도하기 이전 상태로 완전히 되돌아감)</code></pre>
+<p><strong>의미</strong>: 충돌 해결이 너무 복잡하거나 실수로 시작한 merge라면, <code>--abort</code>로 안전하게 중단하고 처음부터 다시 생각할 수 있습니다.</p></li>
+<li><pre><code class="language-bash">$ git merge --no-ff feature-D
+Merge made by the 'ort' strategy.</code></pre>
+<p><strong>의미</strong>: <code>--no-ff</code>는 단순히 앞으로 이동만 해도 되는 상황에서도 굳이 별도의 병합 커밋을 하나 만들어, "이 기능이 별도 브랜치에서 개발되었다"는 흔적을 이력에 남깁니다(팀 프로젝트에서 자주 쓰는 정책).</p></li>
+<li><pre><code class="language-bash">$ git branch --merged
+* main
+  feature-D</code></pre>
+<p><strong>의미</strong>: 이미 현재 브랜치에 완전히 합쳐진 브랜치 목록만 표시합니다. "삭제해도 안전한 브랜치가 어떤 것들인지" 확인할 때 씁니다.</p></li>
+<li><pre><code class="language-bash">$ git branch --no-merged
+  feature-E</code></pre>
+<p><strong>의미</strong>: 반대로 아직 합쳐지지 않은(작업 중인) 브랜치 목록만 표시합니다. "아직 살려둬야 할 브랜치"를 확인할 때 씁니다.</p></li>
+<li><pre><code class="language-bash">$ git diff main feature-E
+(두 브랜치 사이의 모든 차이(diff)가 출력)</code></pre>
+<p><strong>의미</strong>: 병합하기 전에 "합치면 정확히 무엇이 바뀌는지" 미리 확인하는 안전한 습관입니다.</p></li>
+<li><pre><code class="language-bash">$ git branch -D feature-F
+Deleted branch feature-F (was 5e6f7a8).</code></pre>
+<p><strong>의미</strong>: 소문자 <code>-d</code>는 안전장치가 있어 미병합 브랜치를 거부하지만, 대문자 <code>-D</code>는 그 안전장치를 무시하고 강제로 지웁니다.</p></li>
+<li><pre><code class="language-bash">$ git switch -c hotfix main~3
+Switched to a new branch 'hotfix'</code></pre>
+<p><strong>의미</strong>: 브랜치는 항상 최신에서 시작할 필요가 없습니다. <code>main~3</code>처럼 과거 특정 시점을 기준으로 새 작업을 시작할 수도 있습니다.</p></li>
+<li><pre><code class="language-bash">$ git switch feature-G
+$ git rebase main
+Successfully rebased and updated refs/heads/feature-G.</code></pre>
+<p><strong>의미</strong>: merge와 달리 rebase는 이력을 "일직선으로 재작성"합니다. 다만 이미 공유된 브랜치에는 절대 쓰지 않아야 한다는 원칙을 꼭 기억해야 합니다(D6 본문의 실무 확장 미션에서 자세히 다룹니다).</p></li>
+</ol>
+<hr />
+<h1 id="5-tag-gitignore-stash-핵심만-10개">5. tag · .gitignore · stash — 핵심만 10개</h1>
+<p>변형이 많지 않은 명령들이라 쉬움/어려움을 나누지 않고, <strong>꼭 필요한 10개</strong>를 표로 정리했습니다.</p>
+<div class="tw"><table>
+<thead><tr><th>번호</th><th>명령</th><th>예상 결과</th><th>의미</th></tr></thead>
+<tbody>
+<tr><td>1</td><td><code>git tag v1.0</code></td><td>현재 커밋에 v1.0이라는 이름표가 붙음</td><td>릴리스나 제출 시점에 이름을 붙여 나중에 쉽게 찾도록 표시합니다</td></tr>
+<tr><td>2</td><td><code>git tag</code></td><td><code>v1.0</code>, <code>v1.1</code> 등 지금까지 만든 태그 목록 출력</td><td>태그 전체를 확인합니다</td></tr>
+<tr><td>3</td><td><code>git tag -a v1.0 -m "1차 제출"</code></td><td>메시지가 포함된 상세 태그(annotated tag) 생성</td><td>누가 언제 왜 이 지점을 표시했는지 기록을 남길 때 씁니다</td></tr>
+<tr><td>4</td><td><code>git checkout v1.0</code></td><td>그 태그가 가리키는 커밋 시점으로 파일들이 이동(detached HEAD 상태)</td><td>과거 제출 시점의 코드를 그대로 살펴볼 때 씁니다</td></tr>
+<tr><td>5</td><td><code>git tag -d v1.0</code></td><td>v1.0 태그가 삭제됨</td><td>잘못 붙인 태그를 지울 때 씁니다</td></tr>
+<tr><td>6</td><td><code>echo "*.jpg" &gt;&gt; .gitignore</code></td><td>.gitignore 파일에 규칙이 한 줄 추가됨</td><td>특정 패턴의 파일을 git이 앞으로 무시하도록 지정합니다</td></tr>
+<tr><td>7</td><td><code>git check-ignore -v sample.jpg</code></td><td><code>.gitignore:1:*.jpg  sample.jpg</code> 처럼 어느 규칙 때문에 무시되는지 출력</td><td>왜 이 파일이 안 보이는지 원인을 진단할 때 씁니다</td></tr>
+<tr><td>8</td><td><code>git stash</code></td><td>작업 중이던 변경사항이 임시 저장되고 작업 폴더가 깨끗해짐</td><td>커밋 전 급히 다른 작업(브랜치 전환 등)을 해야 할 때 씁니다</td></tr>
+<tr><td>9</td><td><code>git stash list</code></td><td><code>stash@{0}: WIP on main: ...</code> 저장된 stash 목록 출력</td><td>지금까지 임시 저장해둔 것이 몇 개인지 확인합니다</td></tr>
+<tr><td>10</td><td><code>git stash pop</code></td><td>가장 최근 stash가 다시 적용되고 목록에서 제거됨</td><td>임시로 치워뒀던 작업을 다시 이어서 할 때 씁니다</td></tr>
+</tbody>
+</table></div>
+<hr />
+<h2 id="한눈에-정리">한눈에 정리</h2>
+<div class="tw"><table>
+<thead><tr><th>명령어</th><th>한 줄 정의</th><th>가장 많이 쓰는 옵션</th><th>실무에서 이럴 때 쓴다</th></tr></thead>
+<tbody>
+<tr><td>add / commit</td><td>변경사항을 준비하고 저장 시점을 남긴다</td><td><code>-m -am -A -p --amend</code></td><td>의미 단위로 작업을 나눠 커밋할 때</td></tr>
+<tr><td>log</td><td>지나온 커밋 이력을 조회한다</td><td><code>--oneline --graph --author --grep</code></td><td>누가 무엇을 언제 왜 바꿨는지 추적할 때</td></tr>
+<tr><td>restore/reset/revert</td><td>변경사항이나 커밋을 되돌린다</td><td><code>--staged --soft --hard revert</code></td><td>실수한 수정 취소, 안전한 공개 이력 되돌리기</td></tr>
+<tr><td>branch / merge</td><td>작업을 나누고 다시 합친다</td><td><code>switch -c merge --no-ff -d/-D</code></td><td>기능별로 독립 개발 후 팀 브랜치에 통합할 때</td></tr>
+<tr><td>tag / gitignore / stash</td><td>특정 지점을 표시하고, 파일을 무시하고, 작업을 잠시 치운다</td><td><code>tag -a check-ignore stash pop</code></td><td>제출 시점 표시, 민감 파일 제외, 급한 브랜치 전환</td></tr>
+</tbody>
+</table></div>
+<p><strong>다음 단계</strong>: 위 예제를 전부 따라 해봤다면, D6 본문(<a href="06.html">06.html</a>)의 "실무 확장 미션"으로 돌아가 cherry-pick·rebase까지 포함한 실제 프로젝트 워크플로우에 이 명령어들을 적용해 보세요.</p>
+    <nav class="pager"><a href="06.html"><span class="k">← 이전 · D6</span><span class="v">Git 기초</span></a><a class="next" href="07.html"><span class="k">다음 · D7 →</span><span class="v">GitHub 협업과 데이터 보안</span></a></nav>
+  </main>
+</div>
+<script>
+(function(){
+  var links=[].slice.call(document.querySelectorAll('.toc a'));
+  if(!links.length)return;
+  var map={},targets=[];
+  links.forEach(function(a){
+    var el=document.getElementById(decodeURIComponent(a.getAttribute('href').slice(1)));
+    if(el){map[el.id]=a;targets.push(el);}
+  });
+  var cur=null;
+  var io=new IntersectionObserver(function(es){
+    es.forEach(function(e){
+      if(e.isIntersecting){
+        if(cur)cur.classList.remove('active');
+        cur=map[e.target.id];
+        if(cur){cur.classList.add('active');
+          var r=document.querySelector('.rail');
+          if(r&&r.scrollHeight>r.clientHeight){
+            var t=cur.offsetTop-r.clientHeight/2;
+            if(Math.abs(r.scrollTop-t)>90)r.scrollTop=t;
+          }
+        }
+      }
+    });
+  },{rootMargin:'-76px 0px -72% 0px',threshold:0});
+  targets.forEach(function(t){io.observe(t);});
+})();
+</script>
+</body>
+</html>
