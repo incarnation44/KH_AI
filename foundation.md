@@ -10,16 +10,20 @@
 
 ---
 
-## 2. 하드웨어 및 작업 인프라
-* **메인 PC (Ildo 본체)**:
-  * CPU: AMD Ryzen 5 5600X (6C/12T)
-  * GPU: AMD Radeon RX 6600 (8GB VRAM)
-  * RAM: 32 GB DDR4
-  * 메인 SSD (C:): OS 및 개발 도구 전용
-  * 보조 SSD (D:): `D:\KH_AI` (모든 교재, 학습 소스, 상태 장부 영구 보관소)
+## 2. 하드웨어 및 3대 기기 인프라 매핑 (절대 혼동 금지)
+* **1. 학원 컴퓨터 (Academy PC)**:
+  * 계정 / 경로: `user1` / `D:\KH_AI` (수업 및 강사 예제 작업)
+  * 환경: 윈도우 Anaconda `pytest (Python 3.11)` + WSL Ubuntu
+* **2. 메인 데스크톱 (Ildo 본체)**:
+  * CPU/GPU/RAM: AMD Ryzen 5 5600X / AMD Radeon RX 6600 (8GB VRAM 외장) / 32GB DDR4
+  * 저장소: C: (OS/도구), D: (미디어/보조 SSD), E: (데이터)
+* **3. 💻 서브 노트북 (Ildo-Laptop / Dell Latitude 7440 - 현재 작업 기기)**:
+  * CPU/GPU/RAM: Intel Core i5-1345U (10C/12T) / Intel Iris Xe Graphics (내장) / 32GB LPDDR5
+  * 저장소 경로: **`C:\KH_AI`** (단일 고속 NVMe C 드라이브)
+  * 환경: 윈도우 Miniconda `pytest (Python 3.11.16)` + WSL Ubuntu 24.04 (`~/kdt-linux` 연동)
 * **작업 환경 이원화 원칙**:
-  * **윈도우 (D:\KH_AI)**: 정규 교재, 강의 예제 파일, 통합 상태 문서.
-  * **우분투 (WSL: ~/kdt-linux)**: 리눅스 커맨드라인 실습 전용 샌드박스.
+  * **윈도우 (`C:\KH_AI` / `D:\KH_AI`)**: 정규 교재, 강의 예제 파일, 통합 상태 문서.
+  * **우분투 (WSL: `~/kdt-linux`)**: 리눅스 커맨드라인 실습 전용 샌드박스.
 
 ---
 

@@ -1,0 +1,15 @@
+{
+    "python-envs.defaultEnvManager": "ms-python.python:conda",
+    "python-envs.defaultPackageManager": "ms-python.python:conda",
+    "python.condaPath": "C:\\Users\\ildoc\\miniconda3\\Scripts\\conda.exe",
+    "python.defaultInterpreterPath": "C:\\Users\\ildoc\\miniconda3\\envs\\pytest\\python.exe",
+    "python.terminal.activateEnvironment": true,
+    "git.openRepositoryInParentFolders": "always",
+    "terminal.integrated.defaultProfile.windows": "PowerShell",
+    "terminal.integrated.profiles.windows": {
+        "PowerShell": {
+            "source": "PowerShell",
+            "args": ["-NoExit", "-Command", "conda activate pytest"]
+        }
+    }
+}
