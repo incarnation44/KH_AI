@@ -1,0 +1,631 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Git 왕초보 실습 가이드 · 교과 1 · 리눅스</title>
+<link rel="preconnect" href="https://cdn.jsdelivr.net">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fontsource/jetbrains-mono@5.0.20/index.min.css">
+<style>
+/* ============ 토큰 ============ */
+:root{
+  --paper:#FAFAFB; --card:#FFFFFF;
+  --ink:#161B22; --ink2:#495364; --ink3:#828D9E;
+  --rule:#E4E8ED; --rule2:#F0F2F5;
+  --spec:#14539A;          /* 청사진 잉크 — 구조 · 링크 */
+  --spec-soft:#EAF1FA;
+  --warn:#A85408;          /* 신호 앰버 — 경고 · 보안 */
+  --warn-soft:#FDF3E7;
+  --ok:#0B6E5F;            /* 검수 통과 — 체크포인트 */
+  --ok-soft:#E7F3F0;
+  --term:#0E141B; --term-ink:#DCE6F0; --term-rule:#232C38;
+  --mono:"JetBrains Mono",ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+  --sans:"Pretendard Variable",Pretendard,-apple-system,BlinkMacSystemFont,
+         "Segoe UI","Malgun Gothic","Apple SD Gothic Neo","Noto Sans KR",sans-serif;
+  --rail:264px;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth;scroll-padding-top:84px}
+@media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}*{animation:none!important;transition:none!important}}
+body{
+  margin:0;background:var(--paper);color:var(--ink);font-family:var(--sans);
+  font-size:16px;line-height:1.78;-webkit-font-smoothing:antialiased;
+  word-break:keep-all;overflow-wrap:anywhere;
+}
+
+/* ============ 상단 바 ============ */
+.topbar{
+  position:sticky;top:0;z-index:40;background:rgba(250,250,251,.92);
+  backdrop-filter:blur(10px);border-bottom:1px solid var(--rule);
+}
+.topbar .in{max-width:1400px;margin:0 auto;padding:0 24px;height:56px;
+  display:flex;align-items:center;gap:18px}
+.brand{font-family:var(--mono);font-size:11px;letter-spacing:.1em;color:var(--ink3);
+  text-transform:uppercase;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.brand b{color:var(--spec);font-weight:700}
+.navbtns{margin-left:auto;display:flex;gap:8px;flex-shrink:0}
+.navbtns a{font-family:var(--mono);font-size:11px;letter-spacing:.06em;
+  text-decoration:none;color:var(--ink2);border:1px solid var(--rule);
+  border-radius:6px;padding:6px 11px;background:var(--card);transition:.15s}
+.navbtns a:hover{border-color:var(--spec);color:var(--spec)}
+.navbtns a.home{background:var(--spec);color:#fff;border-color:var(--spec)}
+.navbtns a.home:hover{filter:brightness(1.12)}
+
+/* ============ 레이아웃 ============ */
+.wrap{max-width:1400px;margin:0 auto;padding:0 24px;display:grid;
+  grid-template-columns:var(--rail) minmax(0,1fr);gap:44px;align-items:start}
+.rail{position:sticky;top:56px;max-height:calc(100vh - 56px);overflow-y:auto;
+  padding:28px 0 60px;scrollbar-width:thin}
+.rail::-webkit-scrollbar{width:6px}
+.rail::-webkit-scrollbar-thumb{background:var(--rule);border-radius:3px}
+main{padding:36px 0 120px;min-width:0;max-width:920px}
+
+/* ============ 시그니처: 일차 스파인 ============ */
+.spine-h{font-family:var(--mono);font-size:10px;letter-spacing:.14em;
+  color:var(--ink3);text-transform:uppercase;margin:0 0 12px 2px}
+.spine{list-style:none;margin:0 0 30px;padding:0;position:relative}
+.spine::before{content:"";position:absolute;left:19px;top:14px;bottom:14px;
+  width:1px;background:var(--rule)}
+.spine li{position:relative}
+.spine a{display:grid;grid-template-columns:38px 40px minmax(0,1fr);align-items:center;gap:6px;
+  padding:5px 8px 5px 0;text-decoration:none;color:var(--ink2);border-radius:6px}
+.spine a:hover{background:var(--rule2)}
+.spine .dot{position:relative;z-index:1;justify-self:center;width:9px;height:9px;
+  border-radius:50%;background:var(--card);border:1.5px solid var(--rule)}
+.spine .lbl{font-family:var(--mono);font-size:11.5px;letter-spacing:.04em}
+.spine .ttl{font-size:12.5px;line-height:1.35;color:var(--ink3);
+  overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.spine a[aria-current]{background:var(--spec-soft)}
+.spine a[aria-current] .dot{background:var(--spec);border-color:var(--spec);
+  box-shadow:0 0 0 3px rgba(20,83,154,.14)}
+.spine a[aria-current] .lbl{color:var(--spec);font-weight:700}
+.spine a[aria-current] .ttl{color:var(--ink)}
+.spine .done .dot{background:var(--rule);border-color:var(--rule)}
+
+/* ============ 문서 내 목차 ============ */
+.toc-h{font-family:var(--mono);font-size:10px;letter-spacing:.14em;color:var(--ink3);
+  text-transform:uppercase;margin:0 0 10px 2px;padding-top:22px;border-top:1px solid var(--rule)}
+.toc{list-style:none;margin:0;padding:0}
+.toc li{margin:0}
+.toc a{display:block;padding:5px 10px;font-size:13.5px;line-height:1.45;
+  text-decoration:none;color:var(--ink2);border-left:2px solid transparent;border-radius:0 5px 5px 0}
+.toc a:hover{background:var(--rule2);color:var(--ink)}
+.toc .lv1>a{font-weight:700;color:var(--ink);margin-top:12px;font-size:13px;
+  font-family:var(--mono);letter-spacing:.02em}
+.toc .lv2>a{padding-left:16px}
+.toc a.active{border-left-color:var(--spec);background:var(--spec-soft);color:var(--spec);font-weight:600}
+
+/* ============ 문서 헤더 ============ */
+.dochead{margin:0 0 40px;padding-bottom:26px;border-bottom:2px solid var(--ink)}
+.eyebrow{font-family:var(--mono);font-size:11px;letter-spacing:.14em;color:var(--spec);
+  text-transform:uppercase;margin-bottom:12px}
+.dochead h1{margin:0;padding:0;background:none;color:var(--ink);border-radius:0;
+  font-size:clamp(26px,3.3vw,38px);line-height:1.24;font-weight:800;letter-spacing:-.025em}
+.dochead .sub{margin:12px 0 0;color:var(--ink2);font-size:15px}
+/* 진도 트랙 — 60시간 중 현재 위치 */
+.track{margin-top:22px}
+.track .bar{height:5px;background:var(--rule);border-radius:3px;overflow:hidden;display:flex}
+.track .bar i{display:block;height:100%}
+.track .bar .past{background:var(--rule)}
+.track .bar .now{background:var(--spec)}
+.track .cap{display:flex;justify-content:space-between;margin-top:8px;max-width:640px;
+  font-family:var(--mono);font-size:10.5px;color:var(--ink3);letter-spacing:.04em}
+.track .bar{max-width:640px}
+
+/* ============ 본문 타이포 ============ */
+main h1{font-size:22px;font-weight:800;letter-spacing:-.01em;margin:64px 0 20px;
+  padding:14px 18px;background:var(--ink);color:#fff;border-radius:8px}
+main h1:first-of-type{margin-top:8px}
+main h2{font-size:19.5px;font-weight:750;margin:48px 0 14px;padding-bottom:9px;
+  border-bottom:1px solid var(--rule);letter-spacing:-.01em;scroll-margin-top:80px}
+main h3{font-size:16.5px;font-weight:700;margin:34px 0 10px;color:var(--ink);
+  scroll-margin-top:80px}
+main h4{font-size:15px;font-weight:700;margin:24px 0 8px;color:var(--ink2)}
+main p{margin:0 0 15px}
+main ul,main ol{margin:0 0 16px;padding-left:22px}
+main li{margin:5px 0}
+main li>ul,main li>ol{margin:6px 0}
+main hr{border:0;border-top:1px solid var(--rule);margin:46px 0}
+main strong{font-weight:700}
+main a{color:var(--spec);text-underline-offset:3px}
+
+/* 체크포인트 · 경고 헤딩 */
+main h3.cp,main h4.cp{background:var(--ok-soft);color:var(--ok);border-left:3px solid var(--ok);
+  padding:9px 14px;border-radius:0 7px 7px 0;font-size:15px}
+main h3.warn,main h4.warn,main h2.warn{background:var(--warn-soft);color:var(--warn);
+  border-left:3px solid var(--warn);border-bottom:0;padding:9px 14px;border-radius:0 7px 7px 0;font-size:15px}
+
+/* ============ 코드 ============ */
+main :not(pre)>code{font-family:var(--mono);font-size:.855em;background:var(--spec-soft);
+  color:#0F3F76;padding:1.5px 5px;border-radius:4px;word-break:break-all}
+main pre{background:var(--term);color:var(--term-ink);border-radius:10px;
+  padding:16px 18px;overflow-x:auto;margin:0 0 18px;font-size:13.5px;line-height:1.7;
+  border:1px solid var(--term-rule)}
+main pre code{font-family:var(--mono);background:none;color:inherit;padding:0;font-size:inherit}
+main pre::-webkit-scrollbar{height:8px}
+main pre::-webkit-scrollbar-thumb{background:#2C3846;border-radius:4px}
+
+/* ============ 표 ============ */
+.tw{overflow-x:auto;margin:0 0 20px;border:1px solid var(--rule);border-radius:9px;background:var(--card)}
+main table{border-collapse:collapse;width:100%;font-size:14px;min-width:min(100%,420px)}
+main th,main td{padding:9px 13px;border-bottom:1px solid var(--rule2);
+  text-align:left;vertical-align:top;line-height:1.6}
+main th{background:#F5F7F9;font-weight:700;font-size:12.5px;letter-spacing:.02em;
+  color:var(--ink2);white-space:nowrap;border-bottom:1px solid var(--rule)}
+main tbody tr:last-child td{border-bottom:0}
+main tbody tr:hover{background:#FBFCFD}
+main td code{white-space:nowrap}
+
+/* ============ 인용 ============ */
+main blockquote{margin:0 0 18px;padding:13px 18px;background:var(--card);
+  border:1px solid var(--rule);border-left:3px solid var(--spec);border-radius:0 8px 8px 0;
+  color:var(--ink2);font-size:14.5px}
+main blockquote p:last-child{margin-bottom:0}
+
+/* ============ 하단 이동 ============ */
+.pager{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:70px;
+  padding-top:26px;border-top:1px solid var(--rule)}
+.pager a{display:block;padding:15px 18px;border:1px solid var(--rule);border-radius:10px;
+  text-decoration:none;background:var(--card);transition:.15s}
+.pager a:hover{border-color:var(--spec);box-shadow:0 2px 10px rgba(20,83,154,.07)}
+.pager .k{font-family:var(--mono);font-size:10px;letter-spacing:.12em;color:var(--ink3);
+  text-transform:uppercase;display:block;margin-bottom:5px}
+.pager .v{font-size:14.5px;font-weight:650;color:var(--ink);line-height:1.4}
+.pager .next{text-align:right}
+.pager .empty{border-style:dashed;opacity:.4;pointer-events:none}
+
+/* ============ 색인 페이지 ============ */
+.hero{padding:56px 0 40px;border-bottom:2px solid var(--ink);margin-bottom:44px}
+.hero h1{margin:14px 0 0;padding:0;background:none;color:var(--ink);border-radius:0;
+  font-size:clamp(30px,4.4vw,48px);line-height:1.18;font-weight:800;letter-spacing:-.03em}
+.hero .eyebrow{margin-bottom:0}
+.hero .lede{margin:20px 0 0;font-size:16.5px;line-height:1.68;color:var(--ink2);max-width:60ch}
+.stats{display:flex;flex-wrap:wrap;gap:36px;margin-top:34px}
+.stat .n{font-family:var(--mono);font-size:27px;font-weight:700;color:var(--spec);
+  letter-spacing:-.02em;line-height:1}
+.stat .l{font-family:var(--mono);font-size:10.5px;letter-spacing:.12em;color:var(--ink3);
+  text-transform:uppercase;margin-top:7px}
+.cards{display:grid;gap:12px;margin-bottom:60px}
+.card{display:grid;grid-template-columns:74px 1fr auto;align-items:center;gap:20px;
+  padding:17px 22px;background:var(--card);border:1px solid var(--rule);border-radius:11px;
+  text-decoration:none;color:inherit;transition:.15s}
+.card:hover{border-color:var(--spec);transform:translateX(3px);
+  box-shadow:0 3px 14px rgba(20,83,154,.08)}
+.card .key{font-family:var(--mono);font-size:15px;font-weight:700;color:var(--spec);
+  letter-spacing:.02em}
+.card .key small{display:block;font-size:9.5px;color:var(--ink3);font-weight:400;
+  letter-spacing:.1em;margin-top:3px}
+.card .t{font-size:16px;font-weight:700;line-height:1.35}
+.card .d{font-size:13.5px;color:#78818E;margin-top:4px;line-height:1.55}
+.card .h{font-family:var(--mono);font-size:11px;color:var(--ink3);white-space:nowrap;
+  letter-spacing:.04em}
+.idx-sec{font-family:var(--mono);font-size:10.5px;letter-spacing:.14em;color:var(--ink3);
+  text-transform:uppercase;margin:34px 0 12px}
+.idx-sec:first-child{margin-top:0}
+.note{background:var(--warn-soft);border:1px solid #F0DFC6;border-left:3px solid var(--warn);
+  border-radius:0 10px 10px 0;padding:18px 22px;margin-bottom:56px;font-size:14.5px;color:#6B3A08}
+.note b{color:var(--warn)}
+.note ul{margin:9px 0 0;padding-left:20px}
+
+/* ============ 반응형 ============ */
+@media (max-width:1080px){
+  .wrap{grid-template-columns:1fr;gap:0}
+  .rail{position:static;max-height:none;overflow:visible;padding:22px 0 0;
+    border-bottom:1px solid var(--rule);margin-bottom:8px}
+  .spine{display:flex;flex-wrap:wrap;gap:5px;margin-bottom:20px}
+  .spine::before{display:none}
+  .spine a{grid-template-columns:auto;padding:6px 11px;border:1px solid var(--rule);border-radius:7px}
+  .spine .dot,.spine .ttl{display:none}
+  .toc-h{padding-top:16px}
+  .toc{columns:2;column-gap:20px;max-height:230px;overflow-y:auto;
+    border:1px solid var(--rule);border-radius:9px;padding:8px;background:var(--card)}
+  .toc .lv1>a{margin-top:0}
+  main{padding:22px 0 80px}
+}
+@media (max-width:620px){
+  body{font-size:15.5px}
+  .wrap,.topbar .in{padding:0 15px}
+  .toc{columns:1;max-height:200px}
+  .pager{grid-template-columns:1fr}
+  .pager .next{text-align:left}
+  .card{grid-template-columns:56px 1fr;gap:14px}
+  .card .h{grid-column:2;margin-top:5px}
+  main h1{font-size:19px;padding:12px 14px}
+  main pre{font-size:12.5px;padding:13px 14px}
+}
+
+/* ============ 인쇄 ============ */
+@media print{
+  :root{--paper:#fff}
+  .topbar,.rail,.pager,.track{display:none!important}
+  .wrap{display:block;max-width:none;padding:0}
+  main{padding:0}
+  body{font-size:10.5pt;line-height:1.62}
+  main h1{background:none;color:#000;border:1.5pt solid #000;padding:7pt 10pt;
+    font-size:15pt;margin:22pt 0 11pt;page-break-after:avoid}
+  main h2,main h3,main h4{page-break-after:avoid}
+  main h2{font-size:13pt;margin:16pt 0 7pt}
+  main h3{font-size:11.5pt}
+  main pre{background:#F6F7F9;color:#111;border:.5pt solid #CBD2DA;
+    font-size:8.6pt;page-break-inside:avoid;white-space:pre-wrap;word-break:break-all}
+  main pre code{color:#111}
+  main :not(pre)>code{background:#EFF2F5;color:#111}
+  main table{font-size:9pt;page-break-inside:avoid}
+  .tw{overflow:visible;border-color:#CBD2DA}
+  main blockquote{page-break-inside:avoid}
+  a{color:#000;text-decoration:none}
+  .dochead{page-break-after:avoid}
+  @page{margin:15mm 14mm}
+}
+</style>
+</head>
+<body>
+<header class="topbar"><div class="in">
+  <div class="brand">KDT · AI 캠퍼스 [비솔] Vision AI &amp; 산업분야 Vertical AI 융합 전문가 양성 · <b>교과 1 · 리눅스</b></div>
+  <nav class="navbtns">
+    <a class="home" href="index.html">전체 목차</a>
+    <a href="#" onclick="window.print();return false;">인쇄 / PDF</a>
+  </nav>
+</div></header>
+
+<div class="wrap">
+  <aside class="rail">
+    <p class="spine-h">교과 1 · 60H 전체</p>
+    <ul class="spine"><li><a class="done" href="00.html"><span class="dot"></span><span class="lbl">PLAN</span><span class="ttl">강의 기획서</span></a></li>
+<li><a class="done" href="01.html"><span class="dot"></span><span class="lbl">D1</span><span class="ttl">리눅스 시작과 파일 시스템</span></a></li>
+<li><a class="done" href="01-2.html"><span class="dot"></span><span class="lbl">D1+</span><span class="ttl">OS 개론 · 시스템 구조와 시스템콜</span></a></li>
+<li><a class="done" href="02.html"><span class="dot"></span><span class="lbl">D2</span><span class="ttl">권한 · 아카이브 · 텍스트 스트림</span></a></li>
+<li><a class="done" href="03.html"><span class="dot"></span><span class="lbl">D3</span><span class="ttl">편집기와 텍스트 처리</span></a></li>
+<li><a class="done" href="03-2.html"><span class="dot"></span><span class="lbl">D3+</span><span class="ttl">명령어 연습 부록 · grep·sed·awk·vim</span></a></li>
+<li><a class="done" href="04.html"><span class="dot"></span><span class="lbl">D4</span><span class="ttl">셸 스크립트 · 프로세스 · 자동화</span></a></li>
+<li><a class="done" href="04-2.html"><span class="dot"></span><span class="lbl">D4+</span><span class="ttl">명령어 연습 부록 · 셸·프로세스</span></a></li>
+<li><a class="done" href="05.html"><span class="dot"></span><span class="lbl">D5</span><span class="ttl">Anaconda 환경과 데이터셋 구조화</span></a></li>
+<li><a class="done" href="05-2.html"><span class="dot"></span><span class="lbl">D5+</span><span class="ttl">명령어 연습 부록 · conda·pip</span></a></li>
+<li><a class="done" href="06.html"><span class="dot"></span><span class="lbl">D6</span><span class="ttl">Git 기초</span></a></li>
+<li><a class="" href="06-1.html" aria-current="page"><span class="dot"></span><span class="lbl">D6★</span><span class="ttl">Git 왕초보 실습 가이드</span></a></li>
+<li><a class="" href="06-2.html"><span class="dot"></span><span class="lbl">D6+</span><span class="ttl">명령어 연습 부록 · git</span></a></li>
+<li><a class="" href="07.html"><span class="dot"></span><span class="lbl">D7</span><span class="ttl">GitHub 협업과 데이터 보안</span></a></li>
+<li><a class="" href="08.html"><span class="dot"></span><span class="lbl">D8</span><span class="ttl">부분 파이널 프로젝트</span></a></li>
+<li><a class="" href="99.html"><span class="dot"></span><span class="lbl">APX</span><span class="ttl">부록 · 치트시트 &amp; 트러블슈팅</span></a></li></ul>
+    <p class="toc-h">이 문서 안에서</p>
+    <ul class="toc"><li class="lv2"><a href="#git이-뭔가요-아주-쉬운-비유부터">Git이 뭔가요? 아주 쉬운 비유부터</a></li>
+<li class="lv2"><a href="#오늘-만들-것">오늘 만들 것</a></li>
+<li class="lv1"><a href="#step-0-준비물-확인과-최초-설정">STEP 0. 준비물 확인과 최초 설정</a></li>
+<li class="lv1"><a href="#step-1-저장소-시작하기-git-init">STEP 1. 저장소 시작하기 — git init</a></li>
+<li class="lv1"><a href="#step-2-첫-파일-만들고-상태-보기-git-status">STEP 2. 첫 파일 만들고 상태 보기 — git status</a></li>
+<li class="lv1"><a href="#step-3-포스트잇-붙이기-git-add">STEP 3. 포스트잇 붙이기 — git add</a></li>
+<li class="lv1"><a href="#step-4-도장-찍기-git-commit">STEP 4. 도장 찍기 — git commit</a></li>
+<li class="lv1"><a href="#step-5-목차-확인하기-git-log">STEP 5. 목차 확인하기 — git log</a></li>
+<li class="lv1"><a href="#step-6-수정하고-무엇이-바뀌었는지-보기-git-diff">STEP 6. 수정하고 무엇이 바뀌었는지 보기 — git diff</a></li>
+<li class="lv1"><a href="#step-7-두-번째-도장-찍기">STEP 7. 두 번째 도장 찍기</a></li>
+<li class="lv1"><a href="#step-8-실수-되돌리기-git-restore">STEP 8. 실수 되돌리기 — git restore</a></li>
+<li class="lv1"><a href="#step-9-보기-싫은-파일-숨기기-gitignore">STEP 9. 보기 싫은 파일 숨기기 — .gitignore</a></li>
+<li class="lv1"><a href="#step-10-실험용-노트-만들기-git-branch">STEP 10. 실험용 노트 만들기 — git branch</a></li>
+<li class="lv1"><a href="#step-11-실험-노트에서-작업하고-저장하기">STEP 11. 실험 노트에서 작업하고 저장하기</a></li>
+<li class="lv1"><a href="#step-12-성공한-실험을-원본에-합치기-git-merge">STEP 12. 성공한 실험을 원본에 합치기 — git merge</a></li>
+<li class="lv1"><a href="#step-13-두-사람이-같은-줄을-고치면-충돌">STEP 13. 두 사람이 같은 줄을 고치면? — 충돌</a></li>
+<li class="lv1"><a href="#step-14-완성본에-이름표-붙이기-git-tag">STEP 14. 완성본에 이름표 붙이기 — git tag</a></li>
+<li class="lv2"><a href="#전체-흐름-한눈에-보기">전체 흐름 한눈에 보기</a></li>
+<li class="lv2"><a href="#오늘-쓴-명령어-요약">오늘 쓴 명령어 요약</a></li>
+<li class="lv2"><a href="#다음-단계">다음 단계</a></li></ul>
+  </aside>
+
+  <main>
+    <div class="dochead">
+      <div class="eyebrow">D6★ &nbsp;/&nbsp; 교과 1 · 리눅스</div>
+      <h1>Git 왕초보 실습 가이드 — 저장소 만들기부터 브랜치 병합까지</h1>
+      <p class="sub">하나의 작은 프로젝트를 처음부터 끝까지 직접 관리해보며, Git의 전체 흐름을 손으로 익힙니다</p>
+    </div>
+    <blockquote>
+<p>이 문서는 D6 본문(<a href="06.html">06.html</a>)보다 <strong>훨씬 쉬운 말</strong>로, 하나의 이야기를 따라가듯 Git을 처음부터 끝까지 체험하는 실습 가이드입니다. 용어를 몰라도 괜찮습니다. 순서대로 따라 치기만 하면 됩니다.</p>
+</blockquote>
+<hr />
+<h2 id="git이-뭔가요-아주-쉬운-비유부터">Git이 뭔가요? 아주 쉬운 비유부터</h2>
+<p>Git은 <strong>"되돌리기 버튼이 달린 일기장"</strong>이라고 생각하면 됩니다.</p>
+<ul>
+<li>보통 파일은 저장할 때마다 이전 내용을 덮어씁니다. 어제 쓴 내용이 뭐였는지 알 방법이 없습니다.</li>
+<li>Git으로 관리하는 폴더는 "저장할 때마다" 그 순간의 스냅샷(사진)을 별도로 남깁니다.</li>
+<li>그래서 나중에 "3일 전 상태로 돌아가고 싶다", "누가 언제 이 부분을 고쳤는지 보고 싶다"가 전부 가능해집니다.</li>
+</ul>
+<p>게임으로 치면 <strong>"저장 포인트"</strong>이고, 사진으로 치면 <strong>"앨범에 꽂아둔 사진 한 장 한 장"</strong>입니다. 그 저장 포인트 하나하나를 Git에서는 <strong>커밋(commit)</strong>이라고 부릅니다.</p>
+<h2 id="오늘-만들-것">오늘 만들 것</h2>
+<p>거창한 프로젝트가 아니라, <strong>내가 리눅스 수업에서 배운 걸 정리하는 학습 노트 폴더</strong>를 만들고, 그걸 Git으로 관리해보겠습니다. 실무에서도 딱 이 흐름 그대로, 폴더 하나 → 파일 몇 개 → 저장 → 수정 → 저장을 무한 반복합니다.</p>
+<hr />
+<h2 id="step-0-준비물-확인과-최초-설정">STEP 0. 준비물 확인과 최초 설정</h2>
+<p>Git이 설치되어 있는지 먼저 확인하고, "이 컴퓨터에서 커밋할 때 내 이름을 이렇게 남길게"라고 딱 한 번만 알려줍니다.</p>
+<pre><code class="language-bash">$ git --version
+git version 2.43.0
+
+$ git config --global user.name "내이름"
+$ git config --global user.email "my-email@example.com"
+
+$ git config --global -l
+user.name=내이름
+user.email=my-email@example.com</code></pre>
+<p><strong>설명</strong>: <code>--global</code>은 "이 컴퓨터 전체에서 항상 이 이름을 쓰겠다"는 뜻입니다. 편지 봉투에 항상 같은 보내는 사람 이름을 쓰는 것과 같아서, 한 번만 설정해두면 앞으로 만드는 모든 저장소에 자동으로 적용됩니다. 이 단계는 <strong>컴퓨터 하나당 딱 한 번만</strong> 하면 됩니다.</p>
+<hr />
+<h2 id="step-1-저장소-시작하기-git-init">STEP 1. 저장소 시작하기 — git init</h2>
+<p>일기장을 쓰기 전에 먼저 "이 폴더는 이제부터 Git이 관리하는 폴더"라고 선언해야 합니다.</p>
+<pre><code class="language-bash">$ mkdir -p ~/kdt-linux/my-notes
+$ cd ~/kdt-linux/my-notes
+$ git init
+Initialized empty Git repository in /home/kdt/kdt-linux/my-notes/.git/</code></pre>
+<p><strong>설명</strong>: <code>git init</code>은 지금 있는 폴더 안에 <code>.git</code>이라는 보이지 않는 폴더를 하나 만듭니다. 이 <code>.git</code> 폴더 안에 앞으로의 모든 저장 기록(커밋 이력)이 차곡차곡 쌓입니다. 이 폴더가 생기는 순간부터 이 자리는 더 이상 평범한 폴더가 아니라 <strong>"Git 저장소"</strong>가 됩니다. 처음이자 마지막으로 딱 한 번만 실행합니다.</p>
+<hr />
+<h2 id="step-2-첫-파일-만들고-상태-보기-git-status">STEP 2. 첫 파일 만들고 상태 보기 — git status</h2>
+<pre><code class="language-bash">$ echo "# 리눅스 학습 노트" > notes.md
+$ echo "오늘 배운 것: cd, ls, mkdir" >> notes.md
+
+$ git status
+On branch main
+
+No commits yet
+
+Untracked files:
+  (use "git add <file>..." to include in what will be committed)
+        notes.md
+
+nothing added to commit but untracked files present (use "git add" to track)</code></pre>
+<p><strong>설명</strong>: <code>git status</code>는 "지금 이 폴더 상태가 어떤지" 알려주는, Git에서 <strong>가장 자주 쓰는 명령</strong>입니다. <code>Untracked files</code>는 "이 파일은 아직 Git에게 소개된 적이 없다"는 뜻입니다. 방금 만든 <code>notes.md</code>가 아직 Git의 관리 대상이 아니라는 걸 알려주는 겁니다.</p>
+<blockquote>
+<p><strong>습관 팁</strong>: 뭔가 헷갈릴 때는 일단 <code>git status</code>부터 치세요. 지금 상황이 무엇인지 항상 알려줍니다.</p>
+</blockquote>
+<hr />
+<h2 id="step-3-포스트잇-붙이기-git-add">STEP 3. 포스트잇 붙이기 — git add</h2>
+<p>사진을 찍기 전에 "이번 사진에는 이 사람 저 사람을 넣을게"라고 정하듯이, 이번 저장(커밋)에 어떤 파일을 포함시킬지 먼저 골라야 합니다. 이 과정을 <strong>스테이징(staging)</strong>이라고 부릅니다.</p>
+<pre><code class="language-bash">$ git add notes.md
+
+$ git status
+On branch main
+
+No commits yet
+
+Changes to be committed:
+  (use "git rm --cached <file>..." to unstage)
+        new file:   notes.md</code></pre>
+<p><strong>설명</strong>: <code>git add 파일명</code>은 그 파일에 "이번 커밋에 넣을 포스트잇"을 붙이는 것과 같습니다. <code>git status</code>를 다시 확인해보면 <code>Untracked</code>였던 파일이 <code>Changes to be committed</code>(커밋될 예정)로 바뀐 것을 볼 수 있습니다. 아직 저장(커밋)된 건 아니고, "저장 대기 상태"일 뿐입니다.</p>
+<hr />
+<h2 id="step-4-도장-찍기-git-commit">STEP 4. 도장 찍기 — git commit</h2>
+<p>포스트잇을 붙인 내용을 이제 진짜로 "저장 포인트"로 확정합니다. 이 순간부터는 되돌아올 수 있는 지점이 하나 생깁니다.</p>
+<pre><code class="language-bash">$ git commit -m "첫 학습 노트 작성"
+[main (root-commit) 3f4a1c2] 첫 학습 노트 작성
+ 1 file changed, 2 insertions(+)
+ create mode 100644 notes.md</code></pre>
+<p><strong>설명</strong>: <code>-m "메시지"</code>는 "이 저장 포인트에 어떤 이름표를 붙일지"입니다. 나중에 이력을 볼 때 이 메시지만 보고도 "아, 이때 이런 작업을 했었지"를 알 수 있어야 하므로, 짧더라도 내용이 드러나게 쓰는 것이 좋습니다. <code>3f4a1c2</code> 같은 문자열은 이 커밋의 고유한 이름표(해시)입니다 — 사람으로 치면 주민등록번호 같은 겁니다.</p>
+<blockquote>
+<p><strong>정리</strong>: 지금까지 <code>수정 → add(포스트잇) → commit(도장)</code> 3단계를 한 번 완주했습니다. 이 3단계가 Git 사용의 99%를 차지합니다. 앞으로는 이 3단계를 계속 반복할 뿐입니다.</p>
+</blockquote>
+<hr />
+<h2 id="step-5-목차-확인하기-git-log">STEP 5. 목차 확인하기 — git log</h2>
+<pre><code class="language-bash">$ git log
+commit 3f4a1c2d5e6f7a8b9c0d1e2f3a4b5c6d7e8f9a0b (HEAD -> main)
+Author: 내이름 <my-email@example.com>
+Date:   Wed Sep 2 10:00:00 2026 +0900
+
+    첫 학습 노트 작성</code></pre>
+<p><strong>설명</strong>: <code>git log</code>는 지금까지 찍은 모든 도장(커밋)을 최신순으로 보여주는, 말 그대로 <strong>일기장 목차</strong>입니다. 지금은 1개뿐이지만 앞으로 계속 쌓이게 됩니다. 목록이 길어지면 <code>git log --oneline</code>으로 한 줄씩 간단히 볼 수 있습니다.</p>
+<pre><code class="language-bash">$ git log --oneline
+3f4a1c2 첫 학습 노트 작성</code></pre>
+<hr />
+<h2 id="step-6-수정하고-무엇이-바뀌었는지-보기-git-diff">STEP 6. 수정하고 무엇이 바뀌었는지 보기 — git diff</h2>
+<p>이제 노트에 내용을 좀 더 추가해보겠습니다.</p>
+<pre><code class="language-bash">$ echo "오늘 배운 것: grep, sed, awk" >> notes.md
+
+$ git diff
+diff --git a/notes.md b/notes.md
+index a1b2c3d..e4f5g6h 100644
+--- a/notes.md
++++ b/notes.md
+@@ -1,2 +1,3 @@
+ # 리눅스 학습 노트
+ 오늘 배운 것: cd, ls, mkdir
++오늘 배운 것: grep, sed, awk</code></pre>
+<p><strong>설명</strong>: <code>git diff</code>는 "마지막 저장(커밋) 이후로 무엇이 달라졌는지"를 보여줍니다. <code>+</code>로 시작하는 줄은 새로 추가된 내용이고, <code>-</code>로 시작하는 줄이 있다면 그건 지워진 내용입니다. 커밋하기 전에 "내가 뭘 바꿨더라?"를 확인하는 습관은 아주 중요합니다.</p>
+<hr />
+<h2 id="step-7-두-번째-도장-찍기">STEP 7. 두 번째 도장 찍기</h2>
+<p>STEP 3, 4에서 했던 <code>add → commit</code>을 그대로 한 번 더 반복합니다.</p>
+<pre><code class="language-bash">$ git add notes.md
+$ git commit -m "grep, sed, awk 학습 내용 추가"
+[main 7b8c9d0] grep, sed, awk 학습 내용 추가
+ 1 file changed, 1 insertion(+)
+
+$ git log --oneline
+7b8c9d0 grep, sed, awk 학습 내용 추가
+3f4a1c2 첫 학습 노트 작성</code></pre>
+<p><strong>설명</strong>: 이제 저장 포인트가 2개로 늘었습니다. 이렇게 <strong>"조금 고치고 저장, 조금 고치고 저장"</strong>을 반복하는 것이 Git을 쓰는 일상입니다. 한 번에 너무 많은 내용을 몰아서 커밋하지 말고, 의미 있는 작업 단위마다 자주 커밋하는 것이 좋은 습관입니다.</p>
+<hr />
+<h2 id="step-8-실수-되돌리기-git-restore">STEP 8. 실수 되돌리기 — git restore</h2>
+<p>이번엔 일부러 실수를 내보겠습니다.</p>
+<pre><code class="language-bash">$ echo "asdfasdf 실수로 아무거나 입력함" >> notes.md
+$ cat notes.md
+# 리눅스 학습 노트
+오늘 배운 것: cd, ls, mkdir
+오늘 배운 것: grep, sed, awk
+asdfasdf 실수로 아무거나 입력함
+
+$ git restore notes.md
+
+$ cat notes.md
+# 리눅스 학습 노트
+오늘 배운 것: cd, ls, mkdir
+오늘 배운 것: grep, sed, awk</code></pre>
+<p><strong>설명</strong>: <code>git restore 파일명</code>은 "이 파일을 <strong>마지막으로 저장(커밋)했던 상태</strong>로 되돌려줘"라는 명령입니다. 아직 <code>add</code>도 안 하고 <code>commit</code>도 안 한, 즉 저장하기 전의 실수라면 이렇게 깔끔하게 취소할 수 있습니다. 이래서 자주 커밋해두는 것이 좋습니다 — 커밋해둔 지점까지는 언제든 안전하게 돌아갈 수 있으니까요.</p>
+<hr />
+<h2 id="step-9-보기-싫은-파일-숨기기-gitignore">STEP 9. 보기 싫은 파일 숨기기 — .gitignore</h2>
+<p>노트를 정리하다 보면 임시 파일이나, Git에 올리고 싶지 않은 파일이 생길 수 있습니다.</p>
+<pre><code class="language-bash">$ touch temp_draft.tmp
+$ git status
+Untracked files:
+        temp_draft.tmp
+
+$ echo "*.tmp" > .gitignore
+$ git status
+Untracked files:
+        .gitignore</code></pre>
+<p><strong>설명</strong>: <code>.gitignore</code>라는 이름의 파일 안에 패턴을 적어두면, Git이 그 패턴에 맞는 파일을 <strong>아예 목록에서 빼줍니다</strong>. 위에서는 <code>*.tmp</code>(확장자가 tmp인 모든 파일)를 무시하도록 지정했더니, <code>temp_draft.tmp</code>가 <code>git status</code>에서 더 이상 보이지 않게 되었습니다. 반면 <code>.gitignore</code> 파일 자신은 새로 생긴 파일이니 그대로 add/commit해서 남겨두면 됩니다.</p>
+<pre><code class="language-bash">$ git add .gitignore
+$ git commit -m "임시 파일 무시 설정 추가"</code></pre>
+<hr />
+<h2 id="step-10-실험용-노트-만들기-git-branch">STEP 10. 실험용 노트 만들기 — git branch</h2>
+<p>이번엔 "원본은 안전하게 두고, 새로운 실험을 해보고 싶다"는 상황을 만들어보겠습니다. 이럴 때 쓰는 것이 <strong>브랜치(branch)</strong>입니다 — 원본 노트를 복사해서 낙서장을 하나 더 만드는 것과 비슷합니다.</p>
+<pre><code class="language-bash">$ git branch
+* main
+
+$ git switch -c git-정리
+Switched to a new branch 'git-정리'
+
+$ git branch
+  main
+* git-정리</code></pre>
+<p><strong>설명</strong>: <code>git branch</code>는 지금 있는 갈래(브랜치) 목록을 보여줍니다. <code>*</code>가 붙은 것이 지금 내가 있는 곳입니다. <code>git switch -c 새이름</code>은 "새 브랜치를 만들면서 동시에 그리로 이동"하는 명령입니다. 지금 <code>main</code>이라는 원본 노트는 그대로 두고, <code>git-정리</code>라는 복사본 노트로 넘어온 상태입니다. 여기서 무슨 짓을 해도 <code>main</code>은 전혀 영향받지 않습니다.</p>
+<hr />
+<h2 id="step-11-실험-노트에서-작업하고-저장하기">STEP 11. 실험 노트에서 작업하고 저장하기</h2>
+<pre><code class="language-bash">$ echo "오늘 배운 것: git init, add, commit" >> notes.md
+$ git add notes.md
+$ git commit -m "git 기초 명령어 정리 추가"
+[git-정리 a1b2c3d] git 기초 명령어 정리 추가</code></pre>
+<p><strong>설명</strong>: 지금까지와 똑같은 <code>add → commit</code>입니다. 다른 점은, 이 커밋이 <code>main</code>이 아니라 <code>git-정리</code>라는 브랜치에만 기록된다는 것입니다. 지금 <code>main</code> 브랜치로 가서 <code>notes.md</code>를 열어보면 방금 추가한 줄이 <strong>보이지 않습니다</strong> — 서로 다른 노트니까요.</p>
+<hr />
+<h2 id="step-12-성공한-실험을-원본에-합치기-git-merge">STEP 12. 성공한 실험을 원본에 합치기 — git merge</h2>
+<p>실험이 마음에 들었으니, 이제 원본 노트에 이 내용을 반영해보겠습니다.</p>
+<pre><code class="language-bash">$ git switch main
+Switched to branch 'main'
+
+$ cat notes.md
+# 리눅스 학습 노트
+오늘 배운 것: cd, ls, mkdir
+오늘 배운 것: grep, sed, awk
+(git-정리 브랜치에서 추가한 줄은 아직 안 보임)
+
+$ git merge git-정리
+Updating 7b8c9d0..a1b2c3d
+Fast-forward
+ notes.md | 1 +
+ 1 file changed, 1 insertion(+)
+
+$ cat notes.md
+# 리눅스 학습 노트
+오늘 배운 것: cd, ls, mkdir
+오늘 배운 것: grep, sed, awk
+오늘 배운 것: git init, add, commit</code></pre>
+<p><strong>설명</strong>: <code>git switch main</code>으로 먼저 원본 노트로 돌아온 다음, <code>git merge 브랜치이름</code>으로 "저 브랜치에서 있었던 변경사항을 지금 여기(main)로 가져와서 합쳐줘"라고 지시합니다. 합치기가 끝나면 <code>main</code>에도 그 내용이 반영됩니다. 이제 실험이 끝났으니 다 쓴 실험 노트는 정리해도 됩니다.</p>
+<pre><code class="language-bash">$ git branch -d git-정리
+Deleted branch git-정리 (was a1b2c3d).</code></pre>
+<hr />
+<h2 id="step-13-두-사람이-같은-줄을-고치면-충돌">STEP 13. 두 사람이 같은 줄을 고치면? — 충돌</h2>
+<p>브랜치를 나눠서 작업하다 보면, 원본과 실험 노트에서 <strong>같은 줄을 서로 다르게</strong> 고치는 경우가 생깁니다. 이럴 때 Git은 "둘 중 뭐가 맞는지 몰라서" 자동으로 합치지 못하고 사람에게 물어봅니다. 아주 간단한 상황으로 직접 체험해보겠습니다.</p>
+<pre><code class="language-bash"># main에서 첫 줄을 수정
+$ echo "# 나의 리눅스 학습 노트 (완성본)" > notes.md
+$ git commit -am "제목을 완성본으로 수정"
+
+# 실험 브랜치를 하나 새로 만들어서, main과 다르게 첫 줄을 수정
+$ git switch -c 제목변경-실험
+$ echo "# 리눅스 정리노트 (버전2)" > notes.md
+$ git commit -am "제목을 버전2로 수정"
+
+$ git switch main
+$ git merge 제목변경-실험
+Auto-merging notes.md
+CONFLICT (content): Merge conflict in notes.md
+Automatic merge failed; fix conflicts and then commit the result.</code></pre>
+<p><strong>설명</strong>: 두 브랜치가 같은 첫 줄을 서로 다르게 고쳤기 때문에 <code>CONFLICT</code>(충돌)이 발생했습니다. 당황할 필요 없습니다. 파일을 열어보면 아래처럼 <strong>양쪽 내용이 표시(마커)와 함께</strong> 남아 있습니다.</p>
+<pre><code class="language-bash">$ cat notes.md
+<<<<<<< HEAD
+# 나의 리눅스 학습 노트 (완성본)
+=======
+# 리눅스 정리노트 (버전2)
+>>>>>>> 제목변경-실험
+오늘 배운 것: cd, ls, mkdir
+...</code></pre>
+<p><strong>설명</strong>: <code>&lt;&lt;&lt;&lt;&lt;&lt;&lt; HEAD</code>부터 <code>=======</code>까지는 "지금 내가 있던 쪽(main)"의 내용이고, <code>=======</code>부터 <code>&gt;&gt;&gt;&gt;&gt;&gt;&gt;</code>까지는 "합치려던 쪽(실험 브랜치)"의 내용입니다. 이걸 사람이 직접 보고, 어느 쪽을 남길지(혹은 둘을 합쳐 새로 쓸지) 정한 뒤 <strong>마커 기호는 전부 지우고</strong> 원하는 최종 내용만 남기면 됩니다.</p>
+<pre><code class="language-bash"># 에디터로 열어서 마커를 지우고 원하는 제목만 남긴다
+$ nano notes.md
+# (예: "# 나의 리눅스 학습 노트 (완성본)" 한 줄만 남기고 저장)
+
+$ git add notes.md
+$ git commit -m "제목 충돌 해결 — 완성본으로 통일"
+[main 5e6f7a8] 제목 충돌 해결 — 완성본으로 통일</code></pre>
+<p><strong>설명</strong>: 충돌 마커를 지우고 원하는 내용으로 정리한 뒤 <code>add</code>하면, Git에게 "이제 이 파일은 정리 끝났어"라고 알리는 것입니다. 그다음 <code>commit</code>을 하면(이번엔 메시지를 직접 적어줘야 합니다) 충돌 해결이 완료됩니다.</p>
+<pre><code class="language-bash">$ git branch -d 제목변경-실험</code></pre>
+<blockquote>
+<p><strong>겁먹지 마세요</strong>: 충돌은 Git이 고장난 게 아니라, "너 이거 사람이 직접 확인해야 할 것 같아"라고 정직하게 알려주는 것뿐입니다. 팀 프로젝트(교과 14·15)에서도 자주 만나는 아주 정상적인 상황입니다.</p>
+</blockquote>
+<hr />
+<h2 id="step-14-완성본에-이름표-붙이기-git-tag">STEP 14. 완성본에 이름표 붙이기 — git tag</h2>
+<p>중요한 시점(예: 제출본, 완성본)에는 나중에 쉽게 찾을 수 있도록 이름표를 붙여둘 수 있습니다.</p>
+<pre><code class="language-bash">$ git tag v1.0
+$ git tag
+v1.0
+
+$ git log --oneline
+5e6f7a8 (HEAD -> main, tag: v1.0) 제목 충돌 해결 — 완성본으로 통일
+...</code></pre>
+<p><strong>설명</strong>: <code>git tag 이름</code>은 지금 이 커밋에 책갈피를 꽂아두는 것과 같습니다. 나중에 커밋이 수백 개로 늘어나도, <code>v1.0</code>이라는 이름표만 기억하면 그 지점을 바로 찾아갈 수 있습니다.</p>
+<hr />
+<h2 id="전체-흐름-한눈에-보기">전체 흐름 한눈에 보기</h2>
+<pre><code>[작업 폴더]          [스테이징]           [저장소(.git)]
+notes.md 수정   --add-->  포스트잇 붙음  --commit-->  저장 포인트 생성
+     ↑                                                    │
+     └──────────────────── restore ──────────────────────┘
+                       (커밋 전이라면 여기로 되돌릴 수 있음)
+
+[main]  ──switch -c──▶ [실험 브랜치]
+   ▲                         │
+   └────────merge───────────┘
+      (실험이 성공하면 다시 합침, 충돌나면 사람이 직접 정리)
+</code></pre>
+<p>오늘 한 것을 말로 풀면 이렇습니다: <strong>"폴더를 Git 저장소로 만들고(init) → 파일을 고칠 때마다 add·commit을 반복하고 → 필요하면 브랜치로 안전하게 실험하고 → merge로 다시 합치고 → 중요한 지점엔 tag를 붙인다."</strong> 이 흐름이 Git 사용의 전부입니다. D6 본문(<a href="06.html">06.html</a>)에서는 이 각각을 조금 더 깊이 있게, 팀 프로젝트 규칙과 함께 다룹니다.</p>
+<h2 id="오늘-쓴-명령어-요약">오늘 쓴 명령어 요약</h2>
+<div class="tw"><table>
+<thead><tr><th>명령어</th><th>비유</th><th>언제 쓰나</th></tr></thead>
+<tbody>
+<tr><td><code>git init</code></td><td>일기장 겉표지에 사인하기</td><td>새 프로젝트를 시작할 때 딱 한 번</td></tr>
+<tr><td><code>git status</code></td><td>지금 상황판 보기</td><td>헷갈릴 때마다 항상</td></tr>
+<tr><td><code>git add</code></td><td>사진 찍기 전 포스트잇 붙이기</td><td>이번에 저장할 파일을 고를 때</td></tr>
+<tr><td><code>git commit -m "..."</code></td><td>도장 찍어 확정하기</td><td>의미 있는 작업이 끝났을 때마다</td></tr>
+<tr><td><code>git log</code></td><td>일기장 목차 보기</td><td>이력을 확인하고 싶을 때</td></tr>
+<tr><td><code>git diff</code></td><td>수정 전후 비교하기</td><td>커밋하기 전 최종 확인</td></tr>
+<tr><td><code>git restore</code></td><td>방금 실수 지우개로 지우기</td><td>커밋 전 실수를 취소할 때</td></tr>
+<tr><td><code>.gitignore</code></td><td>보기 싫은 파일 서랍에 숨기기</td><td>임시 파일·민감 파일을 관리 대상에서 뺄 때</td></tr>
+<tr><td><code>git branch</code> / <code>switch -c</code></td><td>실험용 낙서장 만들기</td><td>원본을 안 건드리고 새로운 걸 시도할 때</td></tr>
+<tr><td><code>git merge</code></td><td>낙서장에서 성공한 부분을 원본에 옮겨 붙이기</td><td>실험이 끝나고 합칠 때</td></tr>
+<tr><td><code>git tag</code></td><td>중요한 페이지에 책갈피 꽂기</td><td>제출본·완성본 시점을 표시할 때</td></tr>
+</tbody>
+</table></div>
+<h2 id="다음-단계">다음 단계</h2>
+<p>지금까지는 전부 <strong>내 컴퓨터 안에서만</strong> 일어난 일입니다. 실제 팀 프로젝트에서는 이 저장소를 GitHub라는 온라인 공간에 올려서 팀원들과 함께 봐야 합니다 — 그 내용은 <strong>D7(GitHub 협업과 데이터 보안)</strong>에서 이어집니다. 오늘 배운 add·commit·branch·merge는 GitHub를 쓸 때도 <strong>완전히 똑같이</strong> 사용되니, 지금 손에 익혀두면 D7이 훨씬 수월합니다.</p>
+<p>더 다양한 상황의 명령어를 짧게 반복 연습하고 싶다면 D6 부록(<a href="06-2.html">06-2.html</a>)의 "명령어 연습 부록"으로 이어가 보세요.</p>
+    <nav class="pager"><a href="06.html"><span class="k">← 이전 · D6</span><span class="v">Git 기초</span></a><a class="next" href="06-2.html"><span class="k">다음 · D6+ →</span><span class="v">명령어 연습 부록 · git</span></a></nav>
+  </main>
+</div>
+<script>
+(function(){
+  var links=[].slice.call(document.querySelectorAll('.toc a'));
+  if(!links.length)return;
+  var map={},targets=[];
+  links.forEach(function(a){
+    var el=document.getElementById(decodeURIComponent(a.getAttribute('href').slice(1)));
+    if(el){map[el.id]=a;targets.push(el);}
+  });
+  var cur=null;
+  var io=new IntersectionObserver(function(es){
+    es.forEach(function(e){
+      if(e.isIntersecting){
+        if(cur)cur.classList.remove('active');
+        cur=map[e.target.id];
+        if(cur){cur.classList.add('active');
+          var r=document.querySelector('.rail');
+          if(r&&r.scrollHeight>r.clientHeight){
+            var t=cur.offsetTop-r.clientHeight/2;
+            if(Math.abs(r.scrollTop-t)>90)r.scrollTop=t;
+          }
+        }
+      }
+    });
+  },{rootMargin:'-76px 0px -72% 0px',threshold:0});
+  targets.forEach(function(t){io.observe(t);});
+})();
+</script>
+</body>
+</html>

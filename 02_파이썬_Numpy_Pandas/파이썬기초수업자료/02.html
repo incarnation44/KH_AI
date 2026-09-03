@@ -1,0 +1,1966 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>2일차 · 조건문 · 반복문 · 자료구조 | 파이썬 기초</title>
+<style>
+@import url('https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.css');
+@import url('https://cdn.jsdelivr.net/npm/@fontsource/jetbrains-mono@5.0.20/index.min.css');
+:root{
+  --ink:#1b1f27; --ink2:#4b5563; --ink3:#8a93a3;
+  --bg:#fbfbfd; --card:#fff; --rule:#e6e8ee; --rule2:#f1f2f6;
+  --accent:#2f6feb; --accent-soft:#eaf1ff;
+  --good:#1a8f5c; --good-soft:#e8f8f0;
+  --warn:#b8790a; --warn-soft:#fdf3e3;
+  --mono:'JetBrains Mono',ui-monospace,monospace;
+  --sans:'Pretendard Variable',-apple-system,'Malgun Gothic',sans-serif;
+  --rail:250px;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--sans);
+  line-height:1.75;font-size:15.5px;-webkit-font-smoothing:antialiased}
+h1,h2,h3,h4{line-height:1.35;letter-spacing:-.01em}
+a{color:var(--accent)}
+code{font-family:var(--mono);font-size:.88em;background:var(--rule2);padding:.12em .42em;border-radius:5px;
+  word-break:break-word}
+kbd{font-family:var(--mono);font-size:.82em;background:#fff;border:1px solid var(--rule);
+  border-bottom-width:2px;border-radius:5px;padding:.1em .45em}
+.opt{font-size:.85em;color:var(--ink3);font-weight:400}
+
+.topbar{position:sticky;top:0;z-index:30;background:rgba(251,251,253,.94);backdrop-filter:blur(8px);
+  border-bottom:1px solid var(--rule)}
+.topbar .in{max-width:1420px;margin:0 auto;padding:11px 24px;display:flex;justify-content:space-between;align-items:center}
+.brand{font-size:13.5px;color:var(--ink2)} .brand b{color:var(--ink)}
+.navbtns a{margin-left:15px;font-size:12.8px;text-decoration:none;color:var(--ink2);font-weight:600}
+.navbtns a:hover{color:var(--accent)}
+
+.wrap{max-width:1420px;margin:0 auto;padding:0 24px;display:grid;
+  grid-template-columns:var(--rail) minmax(0,1fr);gap:44px;align-items:start}
+.rail{position:sticky;top:54px;max-height:calc(100vh - 54px);overflow-y:auto;padding:26px 0 60px;scrollbar-width:thin}
+.rail::-webkit-scrollbar{width:6px}
+.rail::-webkit-scrollbar-thumb{background:var(--rule);border-radius:3px}
+main{padding:34px 0 90px;min-width:0}
+@media (max-width:940px){.wrap{grid-template-columns:1fr;gap:0}.rail{position:static;max-height:none;
+  border-bottom:1px solid var(--rule);margin-bottom:20px}}
+
+.spine-h,.toc-h{font-family:var(--mono);font-size:9.5px;letter-spacing:.15em;color:var(--ink3);
+  text-transform:uppercase;margin:0 0 11px 2px}
+.spine{list-style:none;margin:0 0 26px;padding:0;position:relative}
+.spine::before{content:"";position:absolute;left:15px;top:14px;bottom:14px;width:1px;background:var(--rule)}
+.spine a{display:grid;grid-template-columns:32px 1fr;align-items:center;gap:6px;
+  padding:7px 8px 7px 0;text-decoration:none;color:var(--ink2);border-radius:6px}
+.spine a:hover{background:var(--rule2)}
+.spine .dot{position:relative;z-index:1;justify-self:center;width:9px;height:9px;border-radius:50%;
+  background:var(--card);border:1.5px solid var(--rule)}
+.spine .ttl{font-size:12.6px;line-height:1.4;color:var(--ink3)}
+.spine a[aria-current] .dot{background:var(--accent);border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-soft)}
+.spine a[aria-current] .ttl{color:var(--ink);font-weight:700}
+.spine .done .dot{background:var(--rule);border-color:var(--rule)}
+
+.toc{list-style:none;margin:0;padding:18px 0 0;border-top:1px solid var(--rule)}
+.toc a{display:block;padding:5px 10px;font-size:13.2px;line-height:1.45;text-decoration:none;
+  color:var(--ink2);border-left:2px solid transparent;border-radius:0 5px 5px 0}
+.toc a:hover{background:var(--rule2);color:var(--ink);border-left-color:var(--accent)}
+
+.dochead{margin-bottom:34px;padding-bottom:22px;border-bottom:1px solid var(--rule)}
+.eyebrow{font-family:var(--mono);font-size:11.5px;letter-spacing:.1em;color:var(--accent);margin-bottom:9px}
+.dochead h1{font-size:29px;margin:0 0 10px}
+.dochead .sub{color:var(--ink2);font-size:15.5px;max-width:760px;margin:0}
+
+section{margin:56px 0}
+section h2{font-size:21.5px;padding-bottom:9px;border-bottom:2.5px solid var(--ink);
+  display:inline-block;margin:0 0 20px}
+section h3{font-size:16.5px;margin:28px 0 10px}
+section h3.grp{margin-top:40px;padding:9px 14px;border-radius:8px;font-size:15px;
+  background:var(--rule2);border-left:3px solid var(--ink3)}
+.grp-sub{font-weight:400;font-size:12.5px;color:var(--ink3);margin-left:8px}
+h4.exh{font-size:14.8px;margin:26px 0 8px;display:flex;align-items:center;gap:9px;flex-wrap:wrap}
+.exno{display:inline-block;font-family:var(--mono);font-size:10.5px;letter-spacing:.03em;
+  padding:2.5px 9px;border-radius:999px;font-weight:700;white-space:nowrap}
+.exno.basic{background:var(--accent-soft);color:var(--accent)}
+.exno.applied{background:var(--warn-soft);color:var(--warn)}
+.exdesc{margin:10px 0 0;font-size:14.3px;color:var(--ink2);padding-left:2px}
+
+.box{border-radius:12px;padding:15px 18px;margin:18px 0;border:1px solid var(--rule)}
+.box.concept{background:var(--accent-soft);border-color:#cfe0fb}
+.box.tip{background:var(--good-soft);border-color:#c8ecd9}
+.box.warn{background:var(--warn-soft);border-color:#f3ddb0}
+.box .box-h{font-weight:700;font-size:13.6px;margin-bottom:6px}
+.box p:first-of-type{margin-top:0} .box p:last-child{margin-bottom:0}
+.box ul{padding-left:20px}
+.box table{margin:8px 0;background:rgba(255,255,255,.55)}
+
+.code{background:#1c2130;border-radius:11px;margin:13px 0 4px;overflow:hidden}
+.code.out-block{margin-top:6px;background:#171b26}
+.code .code-h{display:flex;justify-content:space-between;align-items:center;padding:7px 14px;
+  background:#141824;font-family:var(--mono);font-size:11.2px;color:#8b93ab;letter-spacing:.02em}
+.code pre{margin:0;padding:15px 18px;overflow-x:auto;font-family:var(--mono);font-size:12.9px;
+  line-height:1.68;color:#e6e9f2;white-space:pre}
+.code .c{color:#6a9955} .code .s{color:#ce9178} .code .k{color:#c586c0}
+.code .n{color:#b5cea8} .code .f{color:#dcdcaa} .code .prompt{color:#7ee787}
+.code .out{color:#a8b2c9}
+.copybtn{background:#2a3145;border:1px solid #394159;color:#c7cede;font-family:var(--mono);
+  font-size:10.8px;padding:3px 10px;border-radius:6px;cursor:pointer}
+.copybtn:hover{background:#394159}
+.copybtn.copied{background:var(--good);border-color:var(--good);color:#fff}
+
+table{width:100%;border-collapse:collapse;margin:15px 0;font-size:13.8px}
+th,td{border:1px solid var(--rule);padding:8px 12px;text-align:left;vertical-align:top}
+th{background:var(--rule2);font-weight:700;font-size:12.8px}
+.strdiag{overflow-x:auto}
+table.idx{width:auto;font-family:var(--mono);font-size:13px;text-align:center}
+table.idx td{padding:5px 13px;text-align:center}
+table.idx .lbl{background:var(--rule2);font-family:var(--sans);font-size:12px;font-weight:700}
+
+.checklist{list-style:none;padding:0;margin:16px 0;display:grid;gap:8px}
+.checklist li{display:flex;gap:10px;align-items:flex-start;font-size:14.2px;color:var(--ink2)}
+.checklist li::before{content:"☐";color:var(--accent);font-size:15px;line-height:1.5;flex-shrink:0}
+
+.tryit{border:1.5px dashed var(--ink3);border-radius:12px;padding:15px 18px;margin:22px 0 0;background:#fff}
+.tryit .box-h{font-weight:700;font-size:13.6px;margin-bottom:5px}
+.tryit p{margin:0;font-size:14.2px;color:var(--ink2)}
+
+details{border:1px solid var(--rule);border-radius:10px;margin:14px 0;background:var(--card)}
+details summary{cursor:pointer;padding:11px 16px;font-weight:600;font-size:13.6px;color:var(--ink2);list-style:none}
+details summary::-webkit-details-marker{display:none}
+details summary::before{content:"▸ ";color:var(--accent)}
+details[open] summary::before{content:"▾ "}
+details .inner{padding:0 16px 14px}
+
+.pager{display:flex;justify-content:space-between;gap:16px;margin-top:64px;padding-top:24px;border-top:1px solid var(--rule)}
+.pager a{flex:1;text-decoration:none;padding:14px 18px;border:1px solid var(--rule);border-radius:12px;color:var(--ink)}
+.pager a:hover{border-color:var(--accent);background:var(--accent-soft)}
+.pager a.next{text-align:right}
+.pager .k{display:block;font-family:var(--mono);font-size:10.8px;color:var(--ink3);margin-bottom:3px}
+.pager .v{font-weight:700;font-size:13.8px}
+.pager .empty{flex:1}
+svg.diagram{max-width:100%;height:auto;display:block;margin:18px auto}
+ol,ul{padding-left:22px} ol li,ul li{margin:4px 0}
+
+@media print{
+  .topbar,.rail,.pager,.copybtn{display:none}
+  .wrap{display:block;padding:0}
+  body{font-size:11pt} .code pre{font-size:9pt}
+  section{page-break-inside:avoid}
+}
+</style>
+</head>
+<body>
+<header class="topbar"><div class="in">
+  <div class="brand">파이썬 기초 · <b>2일차 조건문 · 반복문 · 자료구조</b></div>
+  <nav class="navbtns">
+    <a href="index.html">전체 목차</a>
+    <a href="#" onclick="window.print();return false;">인쇄 / PDF</a>
+  </nav>
+</div></header>
+<div class="wrap">
+  <aside class="rail">
+    <p class="spine-h">전체 일정</p>
+    <ul class="spine"><li><a class="done" href="01.html"><span class="dot"></span><span class="ttl">1일차 · 개발환경과 기본 문법</span></a></li>
+<li><a class="" href="02.html" aria-current="page"><span class="dot"></span><span class="ttl">2일차 · 조건문 · 반복문 · 자료구조</span></a></li>
+<li><a class="" href="03.html"><span class="dot"></span><span class="ttl">3일차 · 함수 · 파일 · 예외처리 · 클래스</span></a></li></ul>
+    <p class="toc-h">이 문서 안에서</p>
+    <ul class="toc"><li><a href="#start2">2일차에서 배우는 것</a></li>
+<li><a href="#if">조건문 — if / elif / else</a></li>
+<li><a href="#loop">반복문 — for / while</a></li>
+<li><a href="#list">리스트 — 여러 값을 순서대로 담기</a></li>
+<li><a href="#dict">딕셔너리 — 이름표(key)로 값 찾기</a></li>
+<li><a href="#tuple-set">튜플과 집합</a></li>
+<li><a href="#comprehension">리스트 컴프리헨션 — 한 줄로 리스트 만들기</a></li>
+<li><a href="#check2">2일차 확인해보기</a></li></ul>
+  </aside>
+  <main>
+    <div class="dochead">
+      <div class="eyebrow">DAY 2</div>
+      <h1>조건문 · 반복문 · 자료구조</h1>
+      <p class="sub">여러 개의 값을 한 번에 판단하고, 반복 처리하고, 구조화해서 저장하는 방법을 배웁니다.</p>
+    </div>
+    
+<section>
+<h2 id="start2">2일차에서 배우는 것</h2>
+<p>1일차에서는 값 하나를 저장하고 계산했습니다.
+2일차에서는 <b>여러 개의 값을 한꺼번에</b> 다루는 방법을 배웁니다.
+이 두 가지가 결합되는 순간, 파이썬은 비로소 "사람 대신 일해주는 도구"가 됩니다.</p>
+
+<svg class="diagram" viewBox="0 0 700 130" xmlns="http://www.w3.org/2000/svg">
+  <rect x="20" y="35" width="140" height="60" rx="10" fill="#eaf1ff" stroke="#2f6feb" stroke-width="1.5"/>
+  <text x="90" y="60" text-anchor="middle" font-family="sans-serif" font-size="13" font-weight="700" fill="#2f6feb">조건문</text>
+  <text x="90" y="80" text-anchor="middle" font-family="sans-serif" font-size="11.5" fill="#4b5563">상황에 따라 판단</text>
+
+  <text x="180" y="70" text-anchor="middle" font-size="18" fill="#8a93a3">+</text>
+
+  <rect x="200" y="35" width="140" height="60" rx="10" fill="#e8f8f0" stroke="#1a8f5c" stroke-width="1.5"/>
+  <text x="270" y="60" text-anchor="middle" font-family="sans-serif" font-size="13" font-weight="700" fill="#1a8f5c">반복문</text>
+  <text x="270" y="80" text-anchor="middle" font-family="sans-serif" font-size="11.5" fill="#4b5563">자동으로 여러 번</text>
+
+  <text x="360" y="70" text-anchor="middle" font-size="18" fill="#8a93a3">+</text>
+
+  <rect x="380" y="35" width="140" height="60" rx="10" fill="#fdf3e3" stroke="#b8790a" stroke-width="1.5"/>
+  <text x="450" y="60" text-anchor="middle" font-family="sans-serif" font-size="13" font-weight="700" fill="#b8790a">자료구조</text>
+  <text x="450" y="80" text-anchor="middle" font-family="sans-serif" font-size="11.5" fill="#4b5563">여러 값을 저장</text>
+
+  <text x="543" y="70" text-anchor="middle" font-size="16" fill="#8a93a3">=</text>
+
+  <rect x="560" y="35" width="120" height="60" rx="10" fill="#1b1f27"/>
+  <text x="620" y="62" text-anchor="middle" font-family="sans-serif" font-size="12.5" font-weight="700" fill="#fff">데이터 처리</text>
+  <text x="620" y="80" text-anchor="middle" font-family="sans-serif" font-size="11" fill="#c7cede">프로그램</text>
+</svg>
+
+<div class="box tip">
+<div class="box-h">💡 오늘의 핵심 감각</div>
+<p>"이 작업을 100번 해야 한다면?"이라는 질문을 계속 던져보세요.
+같은 코드를 복사·붙여넣기 하고 있다면 <b>반복문을 써야 한다는 신호</b>이고,
+비슷한 변수를 여러 개 만들고 있다면 <b>리스트나 딕셔너리를 써야 한다는 신호</b>입니다.</p>
+</div>
+</section>
+
+<section>
+<h2 id="if">조건문 — if / elif / else</h2>
+
+<p>조건문은 <b>"상황에 따라 다르게 행동하기"</b>입니다.
+검출된 이물이 어떤 종류인지 판정하거나, 신뢰도에 따라 등급을 나누거나,
+데이터가 정상인지 검사하는 일 모두 조건문으로 처리합니다.</p>
+
+<h3>기본 구조</h3>
+<div class="code"><div class="code-h"><span>구조</span></div><pre><span class="k">if</span> 조건1:
+    조건1이 참일 때 실행
+<span class="k">elif</span> 조건2:
+    조건1은 거짓이고 조건2가 참일 때 실행
+<span class="k">else</span>:
+    위 조건이 모두 거짓일 때 실행</pre></div>
+
+<div class="box concept">
+<div class="box-h">📌 파이썬은 들여쓰기로 블록을 구분합니다</div>
+<p>다른 언어가 중괄호 <code>{ }</code>로 묶는 부분을, 파이썬은 <b>들여쓰기</b>로 표현합니다.
+콜론(<code>:</code>) 다음 줄부터 <b>스페이스 4칸</b> 들여 쓴 부분이 "조건이 참일 때 실행할 코드"입니다.
+들여쓰기가 맞지 않으면 <code>IndentationError</code>가 발생하므로, 탭과 스페이스를 섞어 쓰지 않도록 주의합니다.</p>
+</div>
+
+<div class="box warn">
+<div class="box-h">⚠️ elif는 "앞 조건이 모두 거짓일 때만" 검사합니다</div>
+<p><code>if</code>를 여러 번 나열하면 모든 조건을 각각 검사하지만, <code>elif</code>는 위에서부터 순서대로 보다가
+<b>처음 맞는 곳에서 멈춥니다</b>. 등급을 나눌 때 <code>if conf &gt;= 0.9</code> 다음에 <code>elif conf &gt;= 0.7</code>을 쓰면
+0.95는 첫 조건에서 걸려 "상"이 되고, 두 번째는 검사하지 않습니다.</p>
+</div>
+
+<h3 class="grp">기본 예제 <span class="grp-sub">문법 자체에 익숙해지기</span></h3>
+<h4 class="exh"><span class="exno basic">기본 1</span>가장 단순한 if</h4>
+<div class="code"><div class="code-h"><span>d2_if_01.py</span><button class="copybtn">복사</button></div><pre><span class="c"># [목적] 조건이 참일 때만 코드를 실행하는 기본 형태</span>
+<span class="c"># [설명] 콜론(:)과 들여쓰기가 조건문의 필수 요소입니다.</span>
+
+score = <span class="n">85</span>
+
+<span class="k">if</span> score &gt;= <span class="n">60</span>:
+    <span class="f">print</span>(<span class="s">&quot;합격입니다&quot;</span>)
+
+<span class="f">print</span>(<span class="s">&quot;검사 종료&quot;</span>)     <span class="c"># 들여쓰기 없음 = 조건과 무관하게 항상 실행</span></pre></div>
+<div class="code out-block"><div class="code-h"><span>실행 결과</span></div><pre><span class="out">합격입니다
+검사 종료</span></pre></div>
+<p class="exdesc">마지막 <code>print</code>는 들여쓰기가 없으므로 조건문 밖에 있습니다. 들여쓰기 하나가 "조건 안/밖"을 가르므로 눈으로 정렬을 꼭 확인하는 습관이 필요합니다.</p>
+<h4 class="exh"><span class="exno basic">기본 2</span>if - else 로 두 갈래 나누기</h4>
+<div class="code"><div class="code-h"><span>d2_if_02.py</span><button class="copybtn">복사</button></div><pre><span class="c"># [목적] 조건이 참일 때와 거짓일 때를 각각 처리한다</span>
+<span class="c"># [설명] else에는 조건을 쓰지 않습니다.</span>
+
+temperature = <span class="n">5</span>
+
+<span class="k">if</span> temperature &gt;= <span class="n">20</span>:
+    <span class="f">print</span>(<span class="s">&quot;따뜻합니다&quot;</span>)
+<span class="k">else</span>:
+    <span class="f">print</span>(<span class="s">&quot;춥습니다&quot;</span>)
+
+<span class="c"># 짝수/홀수 판별</span>
+number = <span class="n">7</span>
+<span class="k">if</span> number % <span class="n">2</span> == <span class="n">0</span>:
+    <span class="f">print</span>(number, <span class="s">&quot;은(는) 짝수&quot;</span>)
+<span class="k">else</span>:
+    <span class="f">print</span>(number, <span class="s">&quot;은(는) 홀수&quot;</span>)</pre></div>
+<div class="code out-block"><div class="code-h"><span>실행 결과</span></div><pre><span class="out">춥습니다
+7 은(는) 홀수</span></pre></div>
+<p class="exdesc"><code>else</code>는 "나머지 모든 경우"를 뜻하므로 조건을 따로 적지 않습니다. 두 갈래로만 나뉘는 판정에는 이 형태가 가장 읽기 쉽습니다.</p>
+<h4 class="exh"><span class="exno basic">기본 3</span>elif로 여러 갈래 나누기</h4>
+<div class="code"><div class="code-h"><span>d2_if_03.py</span><button class="copybtn">복사</button></div><pre><span class="c"># [목적] 세 가지 이상의 경우를 순서대로 판정한다</span>
+<span class="c"># [설명] 위에서부터 검사하다가 처음 맞는 곳에서 멈춥니다.</span>
+
+score = <span class="n">78</span>
+
+<span class="k">if</span> score &gt;= <span class="n">90</span>:
+    grade = <span class="s">&quot;A&quot;</span>
+<span class="k">elif</span> score &gt;= <span class="n">80</span>:
+    grade = <span class="s">&quot;B&quot;</span>
+<span class="k">elif</span> score &gt;= <span class="n">70</span>:
+    grade = <span class="s">&quot;C&quot;</span>
+<span class="k">elif</span> score &gt;= <span class="n">60</span>:
+    grade = <span class="s">&quot;D&quot;</span>
+<span class="k">else</span>:
+    grade = <span class="s">&quot;F&quot;</span>
+
+<span class="f">print</span>(<span class="s">f&quot;점수 {score} -&gt; 등급 {grade}&quot;</span>)</pre></div>
+<div class="code out-block"><div class="code-h"><span>실행 결과</span></div><pre><span class="out">점수 78 -&gt; 등급 C</span></pre></div>
+<p class="exdesc">구간을 나눌 때는 <b>큰 값부터 순서대로</b> 쓰는 것이 요령입니다. 78은 90·80을 통과하지 못하고 70에서 걸려 "C"가 됩니다. 순서를 반대로 쓰면 모든 점수가 첫 조건에 걸려버립니다.</p>
+<h4 class="exh"><span class="exno basic">기본 4</span>여러 조건을 and · or로 묶기</h4>
+<div class="code"><div class="code-h"><span>d2_if_04.py</span><button class="copybtn">복사</button></div><pre><span class="c"># [목적] 두 개 이상의 조건을 하나의 판정으로 결합한다</span>
+<span class="c"># [설명] and는 모두 만족, or는 하나라도 만족.</span>
+
+age = <span class="n">25</span>
+has_ticket = <span class="k">True</span>
+
+<span class="k">if</span> age &gt;= <span class="n">18</span> <span class="k">and</span> has_ticket:
+    <span class="f">print</span>(<span class="s">&quot;입장 가능&quot;</span>)
+<span class="k">else</span>:
+    <span class="f">print</span>(<span class="s">&quot;입장 불가&quot;</span>)
+
+<span class="c"># or 사용</span>
+day = <span class="s">&quot;토요일&quot;</span>
+<span class="k">if</span> day == <span class="s">&quot;토요일&quot;</span> <span class="k">or</span> day == <span class="s">&quot;일요일&quot;</span>:
+    <span class="f">print</span>(<span class="s">&quot;주말입니다&quot;</span>)
+
+<span class="c"># in 을 쓰면 더 간결</span>
+<span class="k">if</span> day <span class="k">in</span> [<span class="s">&quot;토요일&quot;</span>, <span class="s">&quot;일요일&quot;</span>]:
+    <span class="f">print</span>(<span class="s">&quot;주말입니다 (in 버전)&quot;</span>)</pre></div>
+<div class="code out-block"><div class="code-h"><span>실행 결과</span></div><pre><span class="out">입장 가능
+주말입니다
+주말입니다 (in 버전)</span></pre></div>
+<p class="exdesc">같은 변수를 여러 값과 비교할 때는 <code>or</code>를 반복하는 대신 <code>in [목록]</code>을 쓰면 훨씬 짧고 읽기 좋습니다. 값이 늘어나도 목록만 고치면 됩니다.</p>
+<h4 class="exh"><span class="exno basic">기본 5</span>중첩 조건문과 조건부 표현식</h4>
+<div class="code"><div class="code-h"><span>d2_if_05.py</span><button class="copybtn">복사</button></div><pre><span class="c"># [목적] 조건문 안에 조건문을 넣는 방법과 한 줄 축약형</span>
+<span class="c"># [설명] 중첩은 들여쓰기가 한 단계 더 깊어집니다.</span>
+
+is_logged_in = <span class="k">True</span>
+is_admin = <span class="k">False</span>
+
+<span class="k">if</span> is_logged_in:
+    <span class="k">if</span> is_admin:
+        <span class="f">print</span>(<span class="s">&quot;관리자 화면&quot;</span>)
+    <span class="k">else</span>:
+        <span class="f">print</span>(<span class="s">&quot;일반 사용자 화면&quot;</span>)
+<span class="k">else</span>:
+    <span class="f">print</span>(<span class="s">&quot;로그인이 필요합니다&quot;</span>)
+
+<span class="c"># 한 줄로 쓰는 조건부 표현식</span>
+status = <span class="s">&quot;관리자&quot;</span> <span class="k">if</span> is_admin <span class="k">else</span> <span class="s">&quot;일반&quot;</span>
+<span class="f">print</span>(<span class="s">&quot;권한:&quot;</span>, status)</pre></div>
+<div class="code out-block"><div class="code-h"><span>실행 결과</span></div><pre><span class="out">일반 사용자 화면
+권한: 일반</span></pre></div>
+<p class="exdesc"><code>값A if 조건 else 값B</code>는 간단한 두 갈래 선택을 한 줄로 처리합니다. 다만 조건이 복잡해지면 오히려 읽기 어려우므로, 단순한 경우에만 사용하는 것이 좋습니다.</p>
+<h3 class="grp">실무 예제 <span class="grp-sub">프로젝트에서 바로 쓰이는 형태</span></h3>
+<h4 class="exh"><span class="exno applied">실무 1</span>이물 클래스 번호를 이름으로 판정</h4>
+<div class="code"><div class="code-h"><span>d2_if_a1.py</span><button class="copybtn">복사</button></div><pre><span class="c"># [목적] 라벨의 클래스ID를 사람이 읽을 수 있는 이름으로 변환한다</span>
+<span class="c"># [설명] 교과 8의 이물 분류 6종 기준을 그대로 적용합니다.</span>
+<span class="c">#        4번(고무장갑)은 사용하지 않는 클래스입니다.</span>
+
+class_id = <span class="n">5</span>
+
+<span class="k">if</span> class_id == <span class="n">1</span>:
+    name = <span class="s">&quot;나뭇잎류&quot;</span>
+<span class="k">elif</span> class_id == <span class="n">2</span>:
+    name = <span class="s">&quot;플라스틱·돌·금속 등&quot;</span>
+<span class="k">elif</span> class_id == <span class="n">3</span>:
+    name = <span class="s">&quot;나뭇가지류&quot;</span>
+<span class="k">elif</span> class_id == <span class="n">4</span>:
+    name = <span class="s">&quot;고무장갑 (사용하지 않는 분류)&quot;</span>
+<span class="k">elif</span> class_id == <span class="n">5</span>:
+    name = <span class="s">&quot;병해·갈변&quot;</span>
+<span class="k">elif</span> class_id == <span class="n">6</span>:
+    name = <span class="s">&quot;파·고추&quot;</span>
+<span class="k">else</span>:
+    name = <span class="s">&quot;등록되지 않은 클래스&quot;</span>
+
+<span class="f">print</span>(<span class="s">f&quot;클래스 {class_id} =&gt; {name}&quot;</span>)</pre></div>
+<div class="code out-block"><div class="code-h"><span>실행 결과</span></div><pre><span class="out">클래스 5 =&gt; 병해·갈변</span></pre></div>
+<p class="exdesc">실무에서는 이런 긴 <code>elif</code> 체인 대신 딕셔너리를 쓰는 경우가 많지만(뒤에서 배웁니다), 조건마다 다른 처리가 필요할 때는 여전히 조건문이 적합합니다.</p>
+<h4 class="exh"><span class="exno applied">실무 2</span>검출 결과 OK/NG 판정 로직</h4>
+<div class="code"><div class="code-h"><span>d2_if_a2.py</span><button class="copybtn">복사</button></div><pre><span class="c"># [목적] 제품검사 시스템의 최종 판정 로직을 구현한다</span>
+<span class="c"># [설명] 교과 14 프로젝트의 핵심 판정부에 해당합니다.</span>
+
+detected_count = <span class="n">2</span>          <span class="c"># 검출된 이물 개수</span>
+max_confidence = <span class="n">0.93</span>       <span class="c"># 가장 확신하는 검출의 신뢰도</span>
+threshold = <span class="n">0.7</span>
+
+<span class="k">if</span> detected_count == <span class="n">0</span>:
+    verdict = <span class="s">&quot;OK&quot;</span>
+    reason = <span class="s">&quot;이물 없음&quot;</span>
+<span class="k">elif</span> max_confidence &lt; threshold:
+    verdict = <span class="s">&quot;보류&quot;</span>
+    reason = <span class="s">f&quot;검출되었으나 신뢰도 낮음 ({max_confidence:.0%})&quot;</span>
+<span class="k">else</span>:
+    verdict = <span class="s">&quot;NG&quot;</span>
+    reason = <span class="s">f&quot;이물 {detected_count}건 검출 (최대 신뢰도 {max_confidence:.0%})&quot;</span>
+
+<span class="f">print</span>(<span class="s">f&quot;판정: {verdict}&quot;</span>)
+<span class="f">print</span>(<span class="s">f&quot;사유: {reason}&quot;</span>)</pre></div>
+<div class="code out-block"><div class="code-h"><span>실행 결과</span></div><pre><span class="out">판정: NG
+사유: 이물 2건 검출 (최대 신뢰도 93%)</span></pre></div>
+<p class="exdesc">판정 결과만 내는 것이 아니라 <b>사유까지 함께 남기는 것</b>이 실무 시스템의 조건입니다. 나중에 오판정을 분석할 때 "왜 이렇게 판정했는지" 추적할 수 있어야 하기 때문입니다.</p>
+<h4 class="exh"><span class="exno applied">실무 3</span>라벨 데이터 유효성 검사</h4>
+<div class="code"><div class="code-h"><span>d2_if_a3.py</span><button class="copybtn">복사</button></div><pre><span class="c"># [목적] 라벨 한 줄이 올바른 형식인지 여러 단계로 검사한다</span>
+<span class="c"># [설명] 데이터 품질 평가(10점) 항목과 직결되는 작업입니다.</span>
+
+line = <span class="s">&quot;3 0.42 0.35 1.20 0.08&quot;</span>      <span class="c"># 세 번째 값이 1을 초과 -&gt; 오류</span>
+parts = line.split()
+
+<span class="k">if</span> <span class="f">len</span>(parts) != <span class="n">5</span>:
+    result = <span class="s">&quot;오류: 컬럼이 5개가 아님&quot;</span>
+<span class="k">elif</span> <span class="k">not</span> parts[<span class="n">0</span>].isdigit():
+    result = <span class="s">&quot;오류: 클래스ID가 숫자가 아님&quot;</span>
+<span class="k">elif</span> <span class="f">int</span>(parts[<span class="n">0</span>]) <span class="k">not</span> <span class="k">in</span> [<span class="n">1</span>, <span class="n">2</span>, <span class="n">3</span>, <span class="n">5</span>, <span class="n">6</span>]:
+    result = <span class="s">&quot;오류: 등록되지 않은 클래스ID&quot;</span>
+<span class="k">else</span>:
+    coords = [<span class="f">float</span>(p) <span class="k">for</span> p <span class="k">in</span> parts[<span class="n">1</span>:]]
+    <span class="k">if</span> <span class="f">min</span>(coords) &lt; <span class="n">0</span> <span class="k">or</span> <span class="f">max</span>(coords) &gt; <span class="n">1</span>:
+        result = <span class="s">&quot;오류: 좌표가 0~1 범위를 벗어남&quot;</span>
+    <span class="k">else</span>:
+        result = <span class="s">&quot;정상&quot;</span>
+
+<span class="f">print</span>(<span class="s">f&quot;검사 대상: {line}&quot;</span>)
+<span class="f">print</span>(<span class="s">f&quot;결과: {result}&quot;</span>)</pre></div>
+<div class="code out-block"><div class="code-h"><span>실행 결과</span></div><pre><span class="out">검사 대상: 3 0.42 0.35 1.20 0.08
+결과: 오류: 좌표가 0~1 범위를 벗어남</span></pre></div>
+<p class="exdesc">검사를 <b>순서대로 배치</b>한 점이 중요합니다. 컬럼 개수를 먼저 확인해야 <code>parts[0]</code>에 접근할 때 오류가 안 나고, 숫자인지 확인해야 <code>int()</code>가 안전합니다. 검사 순서 자체가 방어 로직입니다.</p>
+<h4 class="exh"><span class="exno applied">실무 4</span>성능 목표 달성 여부 종합 판정</h4>
+<div class="code"><div class="code-h"><span>d2_if_a4.py</span><button class="copybtn">복사</button></div><pre><span class="c"># [목적] 프로젝트 목표 성능 3가지를 모두 검사해 종합 판정한다</span>
+<span class="c"># [설명] 교과 15 기준: AP 0.7 / Top-1 80% / 30 FPS</span>
+
+pose_ap = <span class="n">0.72</span>
+action_acc = <span class="n">0.83</span>
+fps = <span class="n">27.5</span>
+
+pass_ap = pose_ap &gt;= <span class="n">0.7</span>
+pass_acc = action_acc &gt;= <span class="n">0.80</span>
+pass_fps = fps &gt;= <span class="n">30</span>
+
+<span class="f">print</span>(<span class="s">f&quot;Pose AP      : {pose_ap:.2f}  -&gt; {&#x27;통과&#x27; if pass_ap else &#x27;미달&#x27;}&quot;</span>)
+<span class="f">print</span>(<span class="s">f&quot;Action Top-1 : {action_acc:.0%}  -&gt; {&#x27;통과&#x27; if pass_acc else &#x27;미달&#x27;}&quot;</span>)
+<span class="f">print</span>(<span class="s">f&quot;속도          : {fps:.1f} FPS -&gt; {&#x27;통과&#x27; if pass_fps else &#x27;미달&#x27;}&quot;</span>)
+<span class="f">print</span>(<span class="s">&quot;-&quot;</span> * <span class="n">34</span>)
+
+<span class="k">if</span> pass_ap <span class="k">and</span> pass_acc <span class="k">and</span> pass_fps:
+    <span class="f">print</span>(<span class="s">&quot;종합 판정: 전 항목 목표 달성&quot;</span>)
+<span class="k">elif</span> pass_ap <span class="k">and</span> pass_acc:
+    <span class="f">print</span>(<span class="s">&quot;종합 판정: 정확도는 달성, 속도 최적화 필요&quot;</span>)
+<span class="k">else</span>:
+    <span class="f">print</span>(<span class="s">&quot;종합 판정: 모델 성능 개선 필요&quot;</span>)</pre></div>
+<div class="code out-block"><div class="code-h"><span>실행 결과</span></div><pre><span class="out">Pose AP      : 0.72  -&gt; 통과
+Action Top-1 : 83%  -&gt; 통과
+속도          : 27.5 FPS -&gt; 미달
+----------------------------------
+종합 판정: 정확도는 달성, 속도 최적화 필요</span></pre></div>
+<p class="exdesc">"전부 통과 / 일부 통과 / 미달"처럼 <b>단계적으로 판정</b>하면 다음에 무엇을 해야 하는지가 명확해집니다. 조건의 순서가 곧 우선순위를 나타냅니다.</p>
+<h4 class="exh"><span class="exno applied">실무 5</span>파일 종류에 따라 처리 분기하기</h4>
+<div class="code"><div class="code-h"><span>d2_if_a5.py</span><button class="copybtn">복사</button></div><pre><span class="c"># [목적] 확장자를 보고 어떤 처리를 할지 결정한다</span>
+<span class="c"># [설명] 데이터셋 폴더 정리 스크립트의 기본 구조입니다.</span>
+
+file_name = <span class="s">&quot;kimchi_0042.txt&quot;</span>
+ext = file_name.split(<span class="s">&quot;.&quot;</span>)[-<span class="n">1</span>].lower()
+
+<span class="k">if</span> ext <span class="k">in</span> [<span class="s">&quot;jpg&quot;</span>, <span class="s">&quot;jpeg&quot;</span>, <span class="s">&quot;png&quot;</span>, <span class="s">&quot;bmp&quot;</span>]:
+    category = <span class="s">&quot;이미지&quot;</span>
+    action = <span class="s">&quot;학습 데이터로 복사&quot;</span>
+<span class="k">elif</span> ext == <span class="s">&quot;txt&quot;</span>:
+    category = <span class="s">&quot;라벨&quot;</span>
+    action = <span class="s">&quot;형식 검증 후 복사&quot;</span>
+<span class="k">elif</span> ext <span class="k">in</span> [<span class="s">&quot;csv&quot;</span>, <span class="s">&quot;json&quot;</span>]:
+    category = <span class="s">&quot;메타데이터&quot;</span>
+    action = <span class="s">&quot;별도 폴더로 이동&quot;</span>
+<span class="k">elif</span> ext <span class="k">in</span> [<span class="s">&quot;md&quot;</span>, <span class="s">&quot;yaml&quot;</span>, <span class="s">&quot;yml&quot;</span>]:
+    category = <span class="s">&quot;설정/문서&quot;</span>
+    action = <span class="s">&quot;그대로 유지&quot;</span>
+<span class="k">else</span>:
+    category = <span class="s">&quot;알 수 없음&quot;</span>
+    action = <span class="s">&quot;건너뛰기&quot;</span>
+
+<span class="f">print</span>(<span class="s">f&quot;파일 : {file_name}&quot;</span>)
+<span class="f">print</span>(<span class="s">f&quot;종류 : {category}&quot;</span>)
+<span class="f">print</span>(<span class="s">f&quot;처리 : {action}&quot;</span>)</pre></div>
+<div class="code out-block"><div class="code-h"><span>실행 결과</span></div><pre><span class="out">파일 : kimchi_0042.txt
+종류 : 라벨
+처리 : 형식 검증 후 복사</span></pre></div>
+<p class="exdesc"><code>.lower()</code>로 소문자 변환을 먼저 하는 이유는 <code>.JPG</code>와 <code>.jpg</code>를 같게 취급하기 위해서입니다. 실제 촬영 장비마다 확장자 대소문자가 달라서 이 처리를 빠뜨리면 파일이 누락됩니다.</p>
+<div class="tryit"><div class="box-h">✍️ 직접 해보기</div><p><code>d2_if_a3.py</code>의 검사 로직에 "bbox의 너비나 높이가 0이면 오류"라는 조건을 추가해 보세요. 어느 위치에 넣어야 안전한지도 함께 생각해 보세요.</p></div>
+</section>
+<section>
+<h2 id="loop">반복문 — for / while</h2>
+
+<p>수천 장의 이미지를 손으로 하나씩 처리할 수는 없습니다.
+반복문은 <b>"같은 작업을 자동으로 여러 번"</b> 실행하게 해주는, 프로그래밍의 가장 강력한 도구입니다.</p>
+
+<table>
+<tr><th></th><th><code>for</code></th><th><code>while</code></th></tr>
+<tr><td>쓰는 상황</td><td>처리할 목록이 정해져 있을 때</td><td>조건이 만족되는 동안 계속</td></tr>
+<tr><td>예시</td><td>파일 100개를 하나씩 검사</td><td>올바른 값이 입력될 때까지 반복</td></tr>
+<tr><td>끝나는 시점</td><td>목록을 다 돌면 자동 종료</td><td>조건이 거짓이 되어야 종료</td></tr>
+</table>
+
+<h3>반복 제어 키워드</h3>
+<table>
+<tr><th>키워드</th><th>하는 일</th></tr>
+<tr><td><code>break</code></td><td>반복을 즉시 완전히 중단</td></tr>
+<tr><td><code>continue</code></td><td>이번 회차만 건너뛰고 다음으로</td></tr>
+<tr><td><code>range(a, b, c)</code></td><td>a부터 b 직전까지 c씩 증가하는 숫자 생성</td></tr>
+<tr><td><code>enumerate(목록)</code></td><td>순번과 값을 함께 꺼냄</td></tr>
+<tr><td><code>zip(A, B)</code></td><td>두 목록을 짝지어 함께 꺼냄</td></tr>
+</table>
+
+<div class="box warn">
+<div class="box-h">⚠️ while 무한 루프 주의</div>
+<p><code>while</code>의 조건이 영원히 참이면 프로그램이 멈추지 않습니다.
+반복 안에서 <b>조건에 영향을 주는 값이 반드시 바뀌는지</b> 확인하세요.
+실행이 멈추지 않을 때는 터미널에서 <code>Ctrl + C</code>로 강제 종료할 수 있습니다.</p>
+</div>
+
+<h3 class="grp">기본 예제 <span class="grp-sub">문법 자체에 익숙해지기</span></h3>
+<h4 class="exh"><span class="exno basic">기본 1</span>for로 목록 순회하기</h4>
+<div class="code"><div class="code-h"><span>d2_loop_01.py</span><button class="copybtn">복사</button></div><pre><span class="c"># [목적] 리스트의 값을 하나씩 꺼내 반복 처리한다</span>
+<span class="c"># [설명] &quot;for 변수 in 목록:&quot; 형태가 기본입니다.</span>
+
+fruits = [<span class="s">&quot;사과&quot;</span>, <span class="s">&quot;바나나&quot;</span>, <span class="s">&quot;딸기&quot;</span>]
+
+<span class="k">for</span> fruit <span class="k">in</span> fruits:
+    <span class="f">print</span>(<span class="s">&quot;과일:&quot;</span>, fruit)
+
+<span class="f">print</span>(<span class="s">&quot;---&quot;</span>)
+
+<span class="c"># 문자열도 한 글자씩 순회 가능</span>
+<span class="k">for</span> ch <span class="k">in</span> <span class="s">&quot;파이썬&quot;</span>:
+    <span class="f">print</span>(ch)</pre></div>
+<div class="code out-block"><div class="code-h"><span>실행 결과</span></div><pre><span class="out">과일: 사과
+과일: 바나나
+과일: 딸기
+---
+파
+이
+썬</span></pre></div>
+<p class="exdesc"><code>fruit</code>이라는 변수 이름은 자유롭게 정할 수 있습니다. 목록에서 값을 하나 꺼내 이 이름에 담고, 블록을 실행하고, 다시 다음 값을 꺼내는 과정이 목록 끝까지 반복됩니다.</p>
+<h4 class="exh"><span class="exno basic">기본 2</span>range로 정해진 횟수만큼 반복</h4>
+<div class="code"><div class="code-h"><span>d2_loop_02.py</span><button class="copybtn">복사</button></div><pre><span class="c"># [목적] 숫자를 자동 생성해 정해진 횟수만큼 반복한다</span>
+<span class="c"># [설명] range(끝) / range(시작, 끝) / range(시작, 끝, 간격)</span>
+
+<span class="k">for</span> i <span class="k">in</span> <span class="f">range</span>(<span class="n">3</span>):              <span class="c"># 0, 1, 2</span>
+    <span class="f">print</span>(<span class="s">&quot;i =&quot;</span>, i)
+
+<span class="f">print</span>(<span class="s">&quot;---&quot;</span>)
+<span class="k">for</span> i <span class="k">in</span> <span class="f">range</span>(<span class="n">1</span>, <span class="n">4</span>):           <span class="c"># 1, 2, 3 (끝 번호는 제외)</span>
+    <span class="f">print</span>(<span class="s">&quot;i =&quot;</span>, i)
+
+<span class="f">print</span>(<span class="s">&quot;---&quot;</span>)
+<span class="k">for</span> i <span class="k">in</span> <span class="f">range</span>(<span class="n">0</span>, <span class="n">10</span>, <span class="n">3</span>):       <span class="c"># 0, 3, 6, 9 (3씩 증가)</span>
+    <span class="f">print</span>(<span class="s">&quot;i =&quot;</span>, i)</pre></div>
+<div class="code out-block"><div class="code-h"><span>실행 결과</span></div><pre><span class="out">i = 0
+i = 1
+i = 2
+---
+i = 1
+i = 2
+i = 3
+---
+i = 0
+i = 3
+i = 6
+i = 9</span></pre></div>
+<p class="exdesc"><code>range</code>는 <b>끝 번호를 포함하지 않습니다</b>. <code>range(1, 4)</code>가 1,2,3인 이유입니다. 1부터 10까지 돌고 싶으면 <code>range(1, 11)</code>이라고 써야 합니다.</p>
+<h4 class="exh"><span class="exno basic">기본 3</span>enumerate로 순번과 값 함께 꺼내기</h4>
+<div class="code"><div class="code-h"><span>d2_loop_03.py</span><button class="copybtn">복사</button></div><pre><span class="c"># [목적] 몇 번째 데이터인지 알아야 할 때 사용한다</span>
+<span class="c"># [설명] enumerate는 (순번, 값) 쌍을 만들어 줍니다.</span>
+
+files = [<span class="s">&quot;a.jpg&quot;</span>, <span class="s">&quot;b.jpg&quot;</span>, <span class="s">&quot;c.jpg&quot;</span>]
+
+<span class="k">for</span> idx, name <span class="k">in</span> <span class="f">enumerate</span>(files):
+    <span class="f">print</span>(idx, name)
+
+<span class="f">print</span>(<span class="s">&quot;---&quot;</span>)
+<span class="c"># 1번부터 세고 싶을 때</span>
+<span class="k">for</span> idx, name <span class="k">in</span> <span class="f">enumerate</span>(files, start=<span class="n">1</span>):
+    <span class="f">print</span>(<span class="s">f&quot;{idx}번째 파일: {name}&quot;</span>)</pre></div>
+<div class="code out-block"><div class="code-h"><span>실행 결과</span></div><pre><span class="out">0 a.jpg
+1 b.jpg
+2 c.jpg
+---
+1번째 파일: a.jpg
+2번째 파일: b.jpg
+3번째 파일: c.jpg</span></pre></div>
+<p class="exdesc">오류가 난 데이터의 위치를 보고해야 할 때 <code>enumerate</code>가 필수입니다. <code>start=1</code>을 주면 사람이 읽기 편한 1부터 세어줍니다.</p>
+<h4 class="exh"><span class="exno basic">기본 4</span>break와 continue</h4>
+<div class="code"><div class="code-h"><span>d2_loop_04.py</span><button class="copybtn">복사</button></div><pre><span class="c"># [목적] 반복을 중간에 멈추거나 건너뛰는 방법</span>
+<span class="c"># [설명] break는 완전 종료, continue는 이번 회차만 건너뜀</span>
+
+<span class="c"># break : 찾으면 즉시 종료</span>
+<span class="k">for</span> i <span class="k">in</span> <span class="f">range</span>(<span class="n">1</span>, <span class="n">11</span>):
+    <span class="k">if</span> i == <span class="n">4</span>:
+        <span class="f">print</span>(<span class="s">&quot;4를 찾아서 중단&quot;</span>)
+        <span class="k">break</span>
+    <span class="f">print</span>(<span class="s">&quot;검사 중:&quot;</span>, i)
+
+<span class="f">print</span>(<span class="s">&quot;=== continue ===&quot;</span>)
+
+<span class="c"># continue : 짝수는 건너뛰기</span>
+<span class="k">for</span> i <span class="k">in</span> <span class="f">range</span>(<span class="n">1</span>, <span class="n">7</span>):
+    <span class="k">if</span> i % <span class="n">2</span> == <span class="n">0</span>:
+        <span class="k">continue</span>
+    <span class="f">print</span>(<span class="s">&quot;홀수:&quot;</span>, i)</pre></div>
+<div class="code out-block"><div class="code-h"><span>실행 결과</span></div><pre><span class="out">검사 중: 1
+검사 중: 2
+검사 중: 3
+4를 찾아서 중단
+=== continue ===
+홀수: 1
+홀수: 3
+홀수: 5</span></pre></div>
+<p class="exdesc">수천 개 파일 중 조건에 맞는 첫 항목만 찾으면 되는 경우 <code>break</code>로 즉시 빠져나오면 시간이 크게 절약됩니다. <code>continue</code>는 "처리할 필요 없는 항목 건너뛰기"에 씁니다.</p>
+<h4 class="exh"><span class="exno basic">기본 5</span>while과 누적 계산</h4>
+<div class="code"><div class="code-h"><span>d2_loop_05.py</span><button class="copybtn">복사</button></div><pre><span class="c"># [목적] 조건이 유지되는 동안 반복하며 값을 누적한다</span>
+<span class="c"># [설명] 반복 안에서 조건 변수가 반드시 변해야 합니다.</span>
+
+total = <span class="n">0</span>
+i = <span class="n">1</span>
+
+<span class="k">while</span> i &lt;= <span class="n">5</span>:
+    total += i          <span class="c"># 누적 합</span>
+    <span class="f">print</span>(<span class="s">f&quot;i={i}, 누적합={total}&quot;</span>)
+    i += <span class="n">1</span>              <span class="c"># 이 줄이 없으면 무한 루프!</span>
+
+<span class="f">print</span>(<span class="s">&quot;최종 합계:&quot;</span>, total)</pre></div>
+<div class="code out-block"><div class="code-h"><span>실행 결과</span></div><pre><span class="out">i=1, 누적합=1
+i=2, 누적합=3
+i=3, 누적합=6
+i=4, 누적합=10
+i=5, 누적합=15
+최종 합계: 15</span></pre></div>
+<p class="exdesc"><code>i += 1</code>을 빠뜨리면 <code>i</code>가 영원히 1이라 조건이 계속 참이 되어 프로그램이 멈추지 않습니다. <code>while</code>을 쓸 때는 항상 "이 반복이 언제 끝나는가?"를 먼저 확인하세요.</p>
+<h3 class="grp">실무 예제 <span class="grp-sub">프로젝트에서 바로 쓰이는 형태</span></h3>
+<h4 class="exh"><span class="exno applied">실무 1</span>여러 검출 결과 일괄 처리</h4>
+<div class="code"><div class="code-h"><span>d2_loop_a1.py</span><button class="copybtn">복사</button></div><pre><span class="c"># [목적] 한 이미지에서 나온 여러 검출 결과를 순회하며 필터링한다</span>
+<span class="c"># [설명] 모델 출력 후처리 단계의 전형적인 형태입니다.</span>
+
+confidences = [<span class="n">0.92</span>, <span class="n">0.55</span>, <span class="n">0.81</span>, <span class="n">0.40</span>, <span class="n">0.77</span>, <span class="n">0.68</span>]
+threshold = <span class="n">0.7</span>
+
+accepted = <span class="n">0</span>
+rejected = <span class="n">0</span>
+
+<span class="k">for</span> idx, conf <span class="k">in</span> <span class="f">enumerate</span>(confidences, start=<span class="n">1</span>):
+    <span class="k">if</span> conf &gt;= threshold:
+        <span class="f">print</span>(<span class="s">f&quot;[채택] {idx}번 검출 (신뢰도 {conf:.0%})&quot;</span>)
+        accepted += <span class="n">1</span>
+    <span class="k">else</span>:
+        <span class="f">print</span>(<span class="s">f&quot;[제외] {idx}번 검출 (신뢰도 {conf:.0%})&quot;</span>)
+        rejected += <span class="n">1</span>
+
+<span class="f">print</span>(<span class="s">&quot;-&quot;</span> * <span class="n">32</span>)
+<span class="f">print</span>(<span class="s">f&quot;전체 {len(confidences)}건 중 채택 {accepted}건 / 제외 {rejected}건&quot;</span>)</pre></div>
+<div class="code out-block"><div class="code-h"><span>실행 결과</span></div><pre><span class="out">[채택] 1번 검출 (신뢰도 92%)
+[제외] 2번 검출 (신뢰도 55%)
+[채택] 3번 검출 (신뢰도 81%)
+[제외] 4번 검출 (신뢰도 40%)
+[채택] 5번 검출 (신뢰도 77%)
+[제외] 6번 검출 (신뢰도 68%)
+--------------------------------
+전체 6건 중 채택 3건 / 제외 3건</span></pre></div>
+<p class="exdesc">반복하면서 <b>개수를 세는 변수(accepted, rejected)</b>를 밖에 미리 만들어 두는 것이 핵심 패턴입니다. 반복문 안에서 만들면 매번 초기화되어 카운트가 되지 않습니다.</p>
+<h4 class="exh"><span class="exno applied">실무 2</span>데이터셋 파일명 일괄 생성</h4>
+<div class="code"><div class="code-h"><span>d2_loop_a2.py</span><button class="copybtn">복사</button></div><pre><span class="c"># [목적] 클래스별로 정해진 장수만큼 파일명을 자동 생성한다</span>
+<span class="c"># [설명] 촬영 계획을 세우거나 파일 목록을 만들 때 사용합니다.</span>
+
+classes = [<span class="s">&quot;leaf&quot;</span>, <span class="s">&quot;plastic&quot;</span>, <span class="s">&quot;branch&quot;</span>, <span class="s">&quot;disease&quot;</span>, <span class="s">&quot;pepper&quot;</span>]
+per_class = <span class="n">3</span>
+
+total = <span class="n">0</span>
+<span class="k">for</span> class_name <span class="k">in</span> classes:
+    <span class="k">for</span> i <span class="k">in</span> <span class="f">range</span>(<span class="n">1</span>, per_class + <span class="n">1</span>):
+        file_name = <span class="s">f&quot;conveyor_{class_name}_{i:03d}.jpg&quot;</span>
+        <span class="f">print</span>(file_name)
+        total += <span class="n">1</span>
+
+<span class="f">print</span>(<span class="s">&quot;-&quot;</span> * <span class="n">30</span>)
+<span class="f">print</span>(<span class="s">f&quot;총 {len(classes)}개 클래스 x {per_class}장 = {total}장&quot;</span>)</pre></div>
+<div class="code out-block"><div class="code-h"><span>실행 결과</span></div><pre><span class="out">conveyor_leaf_001.jpg
+conveyor_leaf_002.jpg
+conveyor_leaf_003.jpg
+conveyor_plastic_001.jpg
+conveyor_plastic_002.jpg
+conveyor_plastic_003.jpg
+conveyor_branch_001.jpg
+conveyor_branch_002.jpg
+conveyor_branch_003.jpg
+conveyor_disease_001.jpg
+conveyor_disease_002.jpg
+conveyor_disease_003.jpg
+conveyor_pepper_001.jpg
+conveyor_pepper_002.jpg
+conveyor_pepper_003.jpg
+------------------------------
+총 5개 클래스 x 3장 = 15장</span></pre></div>
+<p class="exdesc">반복문 안에 반복문이 들어간 <b>이중 반복</b>입니다. 바깥은 클래스, 안쪽은 장수를 담당합니다. 교과 14의 "최소 500장·5종 이상" 요건을 이런 식으로 계산해 촬영 계획을 세울 수 있습니다.</p>
+<h4 class="exh"><span class="exno applied">실무 3</span>이미지-라벨 짝 검사하기</h4>
+<div class="code"><div class="code-h"><span>d2_loop_a3.py</span><button class="copybtn">복사</button></div><pre><span class="c"># [목적] 이미지마다 대응하는 라벨 파일이 있는지 확인한다</span>
+<span class="c"># [설명] 데이터셋 무결성 검사의 가장 기본이 되는 항목입니다.</span>
+
+images = [<span class="s">&quot;img_001.jpg&quot;</span>, <span class="s">&quot;img_002.jpg&quot;</span>, <span class="s">&quot;img_003.jpg&quot;</span>, <span class="s">&quot;img_004.jpg&quot;</span>]
+labels = [<span class="s">&quot;img_001.txt&quot;</span>, <span class="s">&quot;img_003.txt&quot;</span>, <span class="s">&quot;img_004.txt&quot;</span>]
+
+missing = []
+
+<span class="k">for</span> img <span class="k">in</span> images:
+    expected_label = img.replace(<span class="s">&quot;.jpg&quot;</span>, <span class="s">&quot;.txt&quot;</span>)
+    <span class="k">if</span> expected_label <span class="k">in</span> labels:
+        <span class="f">print</span>(<span class="s">f&quot;[OK]   {img}&quot;</span>)
+    <span class="k">else</span>:
+        <span class="f">print</span>(<span class="s">f&quot;[누락] {img} -&gt; {expected_label} 없음&quot;</span>)
+        missing.append(img)
+
+<span class="f">print</span>(<span class="s">&quot;-&quot;</span> * <span class="n">40</span>)
+<span class="k">if</span> missing:
+    <span class="f">print</span>(<span class="s">f&quot;라벨이 없는 이미지 {len(missing)}건: {missing}&quot;</span>)
+<span class="k">else</span>:
+    <span class="f">print</span>(<span class="s">&quot;모든 이미지에 라벨이 존재합니다.&quot;</span>)</pre></div>
+<div class="code out-block"><div class="code-h"><span>실행 결과</span></div><pre><span class="out">[OK]   img_001.jpg
+[누락] img_002.jpg -&gt; img_002.txt 없음
+[OK]   img_003.jpg
+[OK]   img_004.jpg
+----------------------------------------
+라벨이 없는 이미지 1건: [&#x27;img_002.jpg&#x27;]</span></pre></div>
+<p class="exdesc">리눅스 과정에서 <code>comm</code> 명령으로 하던 이미지-라벨 짝 검사를 파이썬으로 옮긴 것입니다. 결과를 <code>missing</code> 리스트에 모아두면 이후 리포트로 저장하거나 자동 수정에 활용할 수 있습니다.</p>
+<h4 class="exh"><span class="exno applied">실무 4</span>학습 로그에서 최고 성능 찾기</h4>
+<div class="code"><div class="code-h"><span>d2_loop_a4.py</span><button class="copybtn">복사</button></div><pre><span class="c"># [목적] 여러 epoch의 성능 기록에서 최고값과 그 시점을 찾는다</span>
+<span class="c"># [설명] 어느 체크포인트를 최종 모델로 쓸지 결정할 때 필요합니다.</span>
+
+map_history = [<span class="n">0.312</span>, <span class="n">0.541</span>, <span class="n">0.663</span>, <span class="n">0.702</span>, <span class="n">0.755</span>, <span class="n">0.741</span>, <span class="n">0.768</span>, <span class="n">0.752</span>]
+
+best_map = <span class="n">0</span>
+best_epoch = <span class="n">0</span>
+
+<span class="k">for</span> epoch, value <span class="k">in</span> <span class="f">enumerate</span>(map_history, start=<span class="n">1</span>):
+    marker = <span class="s">&quot;&quot;</span>
+    <span class="k">if</span> value &gt; best_map:
+        best_map = value
+        best_epoch = epoch
+        marker = <span class="s">&quot;  &lt;- 최고 갱신&quot;</span>
+    <span class="f">print</span>(<span class="s">f&quot;Epoch {epoch:2d} | mAP50 {value:.3f}{marker}&quot;</span>)
+
+<span class="f">print</span>(<span class="s">&quot;-&quot;</span> * <span class="n">36</span>)
+<span class="f">print</span>(<span class="s">f&quot;최고 성능: Epoch {best_epoch} (mAP50 {best_map:.3f})&quot;</span>)
+<span class="f">print</span>(<span class="s">f&quot;목표 0.7 달성: {&#x27;예&#x27; if best_map &gt;= 0.7 else &#x27;아니오&#x27;}&quot;</span>)</pre></div>
+<div class="code out-block"><div class="code-h"><span>실행 결과</span></div><pre><span class="out">Epoch  1 | mAP50 0.312  &lt;- 최고 갱신
+Epoch  2 | mAP50 0.541  &lt;- 최고 갱신
+Epoch  3 | mAP50 0.663  &lt;- 최고 갱신
+Epoch  4 | mAP50 0.702  &lt;- 최고 갱신
+Epoch  5 | mAP50 0.755  &lt;- 최고 갱신
+Epoch  6 | mAP50 0.741
+Epoch  7 | mAP50 0.768  &lt;- 최고 갱신
+Epoch  8 | mAP50 0.752
+------------------------------------
+최고 성능: Epoch 7 (mAP50 0.768)
+목표 0.7 달성: 예</span></pre></div>
+<p class="exdesc">"지금까지의 최고값"을 담을 변수를 0으로 시작해 두고, 더 큰 값을 만날 때마다 갱신하는 것이 <b>최댓값 찾기의 정석</b>입니다. 후반 epoch에서 성능이 떨어지는 것(과적합)도 눈으로 확인할 수 있습니다.</p>
+<h4 class="exh"><span class="exno applied">실무 5</span>클래스별 검출 개수 집계</h4>
+<div class="code"><div class="code-h"><span>d2_loop_a5.py</span><button class="copybtn">복사</button></div><pre><span class="c"># [목적] 여러 검출 결과를 클래스별로 세어 분포를 파악한다</span>
+<span class="c"># [설명] 데이터 불균형을 확인하는 필수 작업입니다.</span>
+
+detected_ids = [<span class="n">1</span>, <span class="n">6</span>, <span class="n">1</span>, <span class="n">3</span>, <span class="n">1</span>, <span class="n">6</span>, <span class="n">2</span>, <span class="n">1</span>, <span class="n">3</span>, <span class="n">6</span>, <span class="n">1</span>, <span class="n">5</span>]
+class_names = {<span class="n">1</span>: <span class="s">&quot;나뭇잎류&quot;</span>, <span class="n">2</span>: <span class="s">&quot;플라스틱류&quot;</span>, <span class="n">3</span>: <span class="s">&quot;나뭇가지류&quot;</span>,
+               <span class="n">5</span>: <span class="s">&quot;병해·갈변&quot;</span>, <span class="n">6</span>: <span class="s">&quot;파·고추&quot;</span>}
+
+counts = {}
+<span class="k">for</span> cid <span class="k">in</span> detected_ids:
+    <span class="k">if</span> cid <span class="k">in</span> counts:
+        counts[cid] += <span class="n">1</span>
+    <span class="k">else</span>:
+        counts[cid] = <span class="n">1</span>
+
+total = <span class="f">len</span>(detected_ids)
+<span class="f">print</span>(<span class="s">f&quot;{&#x27;클래스&#x27;:&lt;12}{&#x27;개수&#x27;:&gt;5}{&#x27;비율&#x27;:&gt;9}&quot;</span>)
+<span class="f">print</span>(<span class="s">&quot;-&quot;</span> * <span class="n">27</span>)
+<span class="k">for</span> cid <span class="k">in</span> <span class="f">sorted</span>(counts):
+    name = class_names[cid]
+    n = counts[cid]
+    <span class="f">print</span>(<span class="s">f&quot;{name:&lt;12}{n:&gt;5}{n/total:&gt;9.1%}&quot;</span>)
+<span class="f">print</span>(<span class="s">&quot;-&quot;</span> * <span class="n">27</span>)
+<span class="f">print</span>(<span class="s">f&quot;{&#x27;합계&#x27;:&lt;12}{total:&gt;5}&quot;</span>)</pre></div>
+<div class="code out-block"><div class="code-h"><span>실행 결과</span></div><pre><span class="out">클래스            개수       비율
+---------------------------
+나뭇잎류            5    41.7%
+플라스틱류           1     8.3%
+나뭇가지류           2    16.7%
+병해·갈변           1     8.3%
+파·고추            3    25.0%
+---------------------------
+합계             12</span></pre></div>
+<p class="exdesc">나뭇잎류가 전체의 41%를 차지하는 <b>데이터 불균형</b>이 한눈에 보입니다. 이런 상태로 학습하면 모델이 특정 클래스만 잘 맞추게 되므로, 촬영 단계에서 균형을 맞추도록 조정해야 합니다.</p>
+<div class="tryit"><div class="box-h">✍️ 직접 해보기</div><p><code>d2_loop_a5.py</code>에서 가장 적게 검출된 클래스를 찾아 "추가 촬영 권장"이라고 표시해 보세요. 최솟값 찾기는 최댓값 찾기(<code>d2_loop_a4.py</code>)를 뒤집으면 됩니다.</p></div>
+</section>
+<section>
+<h2 id="list">리스트 — 여러 값을 순서대로 담기</h2>
+
+<p>리스트는 대괄호 <code>[ ]</code>로 여러 값을 <b>순서대로</b> 담는 상자입니다.
+bbox 좌표들, 파일명 목록, 신뢰도 값들처럼 "같은 종류의 값이 여러 개"일 때 사용합니다.</p>
+
+<h3>자주 쓰는 리스트 메서드</h3>
+<table>
+<tr><th>메서드</th><th>하는 일</th></tr>
+<tr><td><code>.append(값)</code></td><td>맨 뒤에 값 하나 추가</td></tr>
+<tr><td><code>.extend(목록)</code></td><td>다른 리스트의 값들을 모두 추가</td></tr>
+<tr><td><code>.insert(위치, 값)</code></td><td>지정한 위치에 값 끼워 넣기</td></tr>
+<tr><td><code>.remove(값)</code></td><td>해당 값을 가진 첫 항목 삭제</td></tr>
+<tr><td><code>.pop(위치)</code></td><td>해당 위치 값을 꺼내면서 삭제</td></tr>
+<tr><td><code>.sort()</code></td><td>리스트 자체를 정렬 (원본 변경)</td></tr>
+<tr><td><code>sorted(리스트)</code></td><td>정렬된 <b>새 리스트</b>를 반환 (원본 유지)</td></tr>
+<tr><td><code>.count(값)</code></td><td>해당 값이 몇 개 있는지</td></tr>
+<tr><td><code>.index(값)</code></td><td>해당 값이 몇 번째에 있는지</td></tr>
+</table>
+
+<div class="box concept">
+<div class="box-h">📌 sort()와 sorted()의 차이</div>
+<p><code>리스트.sort()</code>는 원본을 직접 바꾸고 아무것도 돌려주지 않습니다.
+<code>sorted(리스트)</code>는 원본은 그대로 두고 정렬된 새 리스트를 만들어 줍니다.
+원본 순서를 유지해야 할 때는 반드시 <code>sorted()</code>를 쓰세요.</p>
+</div>
+
+<h3 class="grp">기본 예제 <span class="grp-sub">문법 자체에 익숙해지기</span></h3>
+<h4 class="exh"><span class="exno basic">기본 1</span>리스트 만들고 값 꺼내기</h4>
+<div class="code"><div class="code-h"><span>d2_list_01.py</span><button class="copybtn">복사</button></div><pre><span class="c"># [목적] 리스트 생성과 인덱싱, 슬라이싱의 기본</span>
+<span class="c"># [설명] 문자열과 마찬가지로 0번부터 시작합니다.</span>
+
+numbers = [<span class="n">10</span>, <span class="n">20</span>, <span class="n">30</span>, <span class="n">40</span>, <span class="n">50</span>]
+
+<span class="f">print</span>(numbers)
+<span class="f">print</span>(<span class="s">&quot;첫 값:&quot;</span>, numbers[<span class="n">0</span>])
+<span class="f">print</span>(<span class="s">&quot;마지막 값:&quot;</span>, numbers[-<span class="n">1</span>])
+<span class="f">print</span>(<span class="s">&quot;일부 구간:&quot;</span>, numbers[<span class="n">1</span>:<span class="n">4</span>])
+<span class="f">print</span>(<span class="s">&quot;길이:&quot;</span>, <span class="f">len</span>(numbers))
+
+<span class="c"># 값 바꾸기</span>
+numbers[<span class="n">0</span>] = <span class="n">99</span>
+<span class="f">print</span>(<span class="s">&quot;변경 후:&quot;</span>, numbers)</pre></div>
+<div class="code out-block"><div class="code-h"><span>실행 결과</span></div><pre><span class="out">[10, 20, 30, 40, 50]
+첫 값: 10
+마지막 값: 50
+일부 구간: [20, 30, 40]
+길이: 5
+변경 후: [99, 20, 30, 40, 50]</span></pre></div>
+<p class="exdesc">리스트는 문자열과 달리 <b>값을 바꿀 수 있습니다</b>. <code>numbers[0] = 99</code>처럼 특정 위치에 새 값을 넣을 수 있는 점이 문자열과의 큰 차이입니다.</p>
+<h4 class="exh"><span class="exno basic">기본 2</span>값 추가하고 삭제하기</h4>
+<div class="code"><div class="code-h"><span>d2_list_02.py</span><button class="copybtn">복사</button></div><pre><span class="c"># [목적] append, insert, remove, pop 사용법</span>
+<span class="c"># [설명] 빈 리스트로 시작해 값을 채워가는 것이 일반적인 패턴입니다.</span>
+
+items = []
+items.append(<span class="s">&quot;사과&quot;</span>)
+items.append(<span class="s">&quot;바나나&quot;</span>)
+items.append(<span class="s">&quot;딸기&quot;</span>)
+<span class="f">print</span>(<span class="s">&quot;추가 후:&quot;</span>, items)
+
+items.insert(<span class="n">1</span>, <span class="s">&quot;포도&quot;</span>)        <span class="c"># 1번 위치에 끼워넣기</span>
+<span class="f">print</span>(<span class="s">&quot;insert 후:&quot;</span>, items)
+
+items.remove(<span class="s">&quot;바나나&quot;</span>)          <span class="c"># 값으로 삭제</span>
+<span class="f">print</span>(<span class="s">&quot;remove 후:&quot;</span>, items)
+
+last = items.pop()             <span class="c"># 마지막 값 꺼내며 삭제</span>
+<span class="f">print</span>(<span class="s">&quot;pop한 값:&quot;</span>, last, <span class="s">&quot;/ 남은 것:&quot;</span>, items)</pre></div>
+<div class="code out-block"><div class="code-h"><span>실행 결과</span></div><pre><span class="out">추가 후: [&#x27;사과&#x27;, &#x27;바나나&#x27;, &#x27;딸기&#x27;]
+insert 후: [&#x27;사과&#x27;, &#x27;포도&#x27;, &#x27;바나나&#x27;, &#x27;딸기&#x27;]
+remove 후: [&#x27;사과&#x27;, &#x27;포도&#x27;, &#x27;딸기&#x27;]
+pop한 값: 딸기 / 남은 것: [&#x27;사과&#x27;, &#x27;포도&#x27;]</span></pre></div>
+<p class="exdesc"><code>append</code>로 하나씩 쌓아가는 방식이 반복문과 함께 가장 많이 쓰입니다. <code>pop()</code>은 값을 돌려주면서 삭제하므로, 처리 대기 목록을 하나씩 소진할 때 유용합니다.</p>
+<h4 class="exh"><span class="exno basic">기본 3</span>정렬하기 — sort와 sorted</h4>
+<div class="code"><div class="code-h"><span>d2_list_03.py</span><button class="copybtn">복사</button></div><pre><span class="c"># [목적] 리스트를 정렬하는 두 가지 방법의 차이를 확인한다</span>
+<span class="c"># [설명] sort()는 원본 변경, sorted()는 새 리스트 반환</span>
+
+scores = [<span class="n">78</span>, <span class="n">92</span>, <span class="n">55</span>, <span class="n">88</span>, <span class="n">63</span>]
+
+new_list = <span class="f">sorted</span>(scores)              <span class="c"># 원본 유지</span>
+<span class="f">print</span>(<span class="s">&quot;원본  :&quot;</span>, scores)
+<span class="f">print</span>(<span class="s">&quot;정렬본:&quot;</span>, new_list)
+
+scores.sort()                          <span class="c"># 원본 자체를 정렬</span>
+<span class="f">print</span>(<span class="s">&quot;sort 후 원본:&quot;</span>, scores)
+
+scores.sort(reverse=<span class="k">True</span>)              <span class="c"># 내림차순</span>
+<span class="f">print</span>(<span class="s">&quot;내림차순:&quot;</span>, scores)</pre></div>
+<div class="code out-block"><div class="code-h"><span>실행 결과</span></div><pre><span class="out">원본  : [78, 92, 55, 88, 63]
+정렬본: [55, 63, 78, 88, 92]
+sort 후 원본: [55, 63, 78, 88, 92]
+내림차순: [92, 88, 78, 63, 55]</span></pre></div>
+<p class="exdesc">실무에서는 원본 데이터를 보존해야 하는 경우가 많아 <code>sorted()</code>를 더 자주 씁니다. 정렬 결과를 새 변수에 담는 습관을 들이면 원본이 의도치 않게 바뀌는 실수를 막을 수 있습니다.</p>
+<h4 class="exh"><span class="exno basic">기본 4</span>리스트 통계 함수</h4>
+<div class="code"><div class="code-h"><span>d2_list_04.py</span><button class="copybtn">복사</button></div><pre><span class="c"># [목적] 합계·최대·최소·평균을 구하는 내장 함수를 사용한다</span>
+<span class="c"># [설명] 반복문 없이 한 줄로 처리할 수 있습니다.</span>
+
+values = [<span class="n">0.92</span>, <span class="n">0.55</span>, <span class="n">0.81</span>, <span class="n">0.40</span>, <span class="n">0.77</span>]
+
+<span class="f">print</span>(<span class="s">&quot;개수:&quot;</span>, <span class="f">len</span>(values))
+<span class="f">print</span>(<span class="s">&quot;합계:&quot;</span>, <span class="f">sum</span>(values))
+<span class="f">print</span>(<span class="s">&quot;최댓값:&quot;</span>, <span class="f">max</span>(values))
+<span class="f">print</span>(<span class="s">&quot;최솟값:&quot;</span>, <span class="f">min</span>(values))
+<span class="f">print</span>(<span class="s">&quot;평균:&quot;</span>, <span class="f">sum</span>(values) / <span class="f">len</span>(values))
+<span class="f">print</span>(<span class="s">&quot;평균(반올림):&quot;</span>, <span class="f">round</span>(<span class="f">sum</span>(values) / <span class="f">len</span>(values), <span class="n">3</span>))
+
+<span class="f">print</span>(<span class="s">&quot;0.81의 위치:&quot;</span>, values.index(<span class="n">0.81</span>))</pre></div>
+<div class="code out-block"><div class="code-h"><span>실행 결과</span></div><pre><span class="out">개수: 5
+합계: 3.45
+최댓값: 0.92
+최솟값: 0.4
+평균: 0.6900000000000001
+평균(반올림): 0.69
+0.81의 위치: 2</span></pre></div>
+<p class="exdesc"><code>sum</code>, <code>max</code>, <code>min</code>은 반복문으로 직접 구현할 수도 있지만, 내장 함수가 훨씬 빠르고 오류도 적습니다. 다음 교과에서 배울 Numpy는 이런 계산을 대규모 데이터에서도 순식간에 처리합니다.</p>
+<h4 class="exh"><span class="exno basic">기본 5</span>중첩 리스트 다루기</h4>
+<div class="code"><div class="code-h"><span>d2_list_05.py</span><button class="copybtn">복사</button></div><pre><span class="c"># [목적] 리스트 안에 리스트가 들어간 구조를 이해한다</span>
+<span class="c"># [설명] 표(행과 열) 형태의 데이터를 표현할 때 사용합니다.</span>
+
+matrix = [
+    [<span class="n">1</span>, <span class="n">2</span>, <span class="n">3</span>],
+    [<span class="n">4</span>, <span class="n">5</span>, <span class="n">6</span>],
+    [<span class="n">7</span>, <span class="n">8</span>, <span class="n">9</span>],
+]
+
+<span class="f">print</span>(<span class="s">&quot;전체:&quot;</span>, matrix)
+<span class="f">print</span>(<span class="s">&quot;두 번째 행:&quot;</span>, matrix[<span class="n">1</span>])
+<span class="f">print</span>(<span class="s">&quot;두 번째 행의 세 번째 값:&quot;</span>, matrix[<span class="n">1</span>][<span class="n">2</span>])
+
+<span class="f">print</span>(<span class="s">&quot;--- 전체 순회 ---&quot;</span>)
+<span class="k">for</span> row <span class="k">in</span> matrix:
+    <span class="k">for</span> value <span class="k">in</span> row:
+        <span class="f">print</span>(value, end=<span class="s">&quot; &quot;</span>)
+    <span class="f">print</span>()          <span class="c"># 행이 끝나면 줄바꿈</span></pre></div>
+<div class="code out-block"><div class="code-h"><span>실행 결과</span></div><pre><span class="out">전체: [[1, 2, 3], [4, 5, 6], [7, 8, 9]]
+두 번째 행: [4, 5, 6]
+두 번째 행의 세 번째 값: 6
+--- 전체 순회 ---
+1 2 3 
+4 5 6 
+7 8 9</span></pre></div>
+<p class="exdesc"><code>matrix[1][2]</code>처럼 대괄호를 두 번 쓰면 "두 번째 행의 세 번째 값"에 접근합니다. 이미지 데이터가 정확히 이런 2차원(또는 3차원) 구조이며, Numpy 배열도 같은 방식으로 접근합니다.</p>
+<h3 class="grp">실무 예제 <span class="grp-sub">프로젝트에서 바로 쓰이는 형태</span></h3>
+<h4 class="exh"><span class="exno applied">실무 1</span>bbox 좌표 리스트 처리</h4>
+<div class="code"><div class="code-h"><span>d2_list_a1.py</span><button class="copybtn">복사</button></div><pre><span class="c"># [목적] 한 이미지에서 검출된 여러 bbox의 면적을 계산하고 정렬한다</span>
+<span class="c"># [설명] bbox 형식: [x, y, width, height]</span>
+
+boxes = [
+    [<span class="n">120</span>, <span class="n">85</span>, <span class="n">40</span>, <span class="n">30</span>],
+    [<span class="n">300</span>, <span class="n">210</span>, <span class="n">55</span>, <span class="n">60</span>],
+    [<span class="n">10</span>, <span class="n">10</span>, <span class="n">20</span>, <span class="n">15</span>],
+    [<span class="n">450</span>, <span class="n">120</span>, <span class="n">80</span>, <span class="n">45</span>],
+]
+
+areas = []
+<span class="k">for</span> box <span class="k">in</span> boxes:
+    area = box[<span class="n">2</span>] * box[<span class="n">3</span>]
+    areas.append(area)
+    <span class="f">print</span>(<span class="s">f&quot;bbox {box} -&gt; 면적 {area}&quot;</span>)
+
+<span class="f">print</span>(<span class="s">&quot;-&quot;</span> * <span class="n">36</span>)
+<span class="f">print</span>(<span class="s">&quot;전체 면적 합:&quot;</span>, <span class="f">sum</span>(areas))
+<span class="f">print</span>(<span class="s">&quot;가장 큰 검출 면적:&quot;</span>, <span class="f">max</span>(areas))
+<span class="f">print</span>(<span class="s">&quot;가장 큰 검출의 순번:&quot;</span>, areas.index(<span class="f">max</span>(areas)))
+<span class="f">print</span>(<span class="s">&quot;평균 면적:&quot;</span>, <span class="f">round</span>(<span class="f">sum</span>(areas) / <span class="f">len</span>(areas), <span class="n">1</span>))</pre></div>
+<div class="code out-block"><div class="code-h"><span>실행 결과</span></div><pre><span class="out">bbox [120, 85, 40, 30] -&gt; 면적 1200
+bbox [300, 210, 55, 60] -&gt; 면적 3300
+bbox [10, 10, 20, 15] -&gt; 면적 300
+bbox [450, 120, 80, 45] -&gt; 면적 3600
+------------------------------------
+전체 면적 합: 8400
+가장 큰 검출 면적: 3600
+가장 큰 검출의 순번: 3
+평균 면적: 2100.0</span></pre></div>
+<p class="exdesc">가장 큰 검출을 찾은 뒤 <code>.index()</code>로 <b>그것이 몇 번째였는지</b>까지 알아내는 것이 포인트입니다. 이 순번으로 원본 <code>boxes</code>에서 해당 좌표를 다시 꺼낼 수 있습니다.</p>
+<h4 class="exh"><span class="exno applied">실무 2</span>신뢰도 기준으로 검출 결과 정렬하기</h4>
+<div class="code"><div class="code-h"><span>d2_list_a2.py</span><button class="copybtn">복사</button></div><pre><span class="c"># [목적] 신뢰도가 높은 순서로 검출 결과를 정렬해 상위만 남긴다</span>
+<span class="c"># [설명] Top-K 결과만 표시하는 화면 구성에 쓰입니다.</span>
+
+results = [
+    [<span class="s">&quot;나뭇잎류&quot;</span>, <span class="n">0.92</span>],
+    [<span class="s">&quot;파·고추&quot;</span>, <span class="n">0.55</span>],
+    [<span class="s">&quot;플라스틱류&quot;</span>, <span class="n">0.81</span>],
+    [<span class="s">&quot;병해·갈변&quot;</span>, <span class="n">0.40</span>],
+    [<span class="s">&quot;나뭇가지류&quot;</span>, <span class="n">0.77</span>],
+]
+
+<span class="c"># 두 번째 값(신뢰도) 기준 내림차순 정렬</span>
+results.sort(key=<span class="k">lambda</span> item: item[<span class="n">1</span>], reverse=<span class="k">True</span>)
+
+<span class="f">print</span>(<span class="s">&quot;=== 신뢰도 높은 순 ===&quot;</span>)
+<span class="k">for</span> name, conf <span class="k">in</span> results:
+    <span class="f">print</span>(<span class="s">f&quot;{name:&lt;12} {conf:.0%}&quot;</span>)
+
+<span class="f">print</span>(<span class="s">&quot;\n=== 상위 3개만 ===&quot;</span>)
+<span class="k">for</span> name, conf <span class="k">in</span> results[:<span class="n">3</span>]:
+    <span class="f">print</span>(<span class="s">f&quot;{name:&lt;12} {conf:.0%}&quot;</span>)</pre></div>
+<div class="code out-block"><div class="code-h"><span>실행 결과</span></div><pre><span class="out">=== 신뢰도 높은 순 ===
+나뭇잎류         92%
+플라스틱류        81%
+나뭇가지류        77%
+파·고추         55%
+병해·갈변        40%
+
+=== 상위 3개만 ===
+나뭇잎류         92%
+플라스틱류        81%
+나뭇가지류        77%</span></pre></div>
+<p class="exdesc"><code>key=lambda item: item[1]</code>은 "각 항목의 1번 위치 값을 기준으로 정렬하라"는 뜻입니다. <code>lambda</code>는 이름 없는 짧은 함수로, 지금은 "정렬 기준을 지정하는 문법" 정도로 이해하면 충분합니다.</p>
+<h4 class="exh"><span class="exno applied">실무 3</span>데이터셋을 Train/Val/Test로 나누기</h4>
+<div class="code"><div class="code-h"><span>d2_list_a3.py</span><button class="copybtn">복사</button></div><pre><span class="c"># [목적] 파일 목록을 7:1.5:1.5 비율로 실제로 분할한다</span>
+<span class="c"># [설명] 슬라이싱으로 구간을 잘라 나눕니다.</span>
+
+files = [<span class="s">f&quot;img_{i:03d}.jpg&quot;</span> <span class="k">for</span> i <span class="k">in</span> <span class="f">range</span>(<span class="n">1</span>, <span class="n">21</span>)]   <span class="c"># 20장 가정</span>
+total = <span class="f">len</span>(files)
+
+train_end = <span class="f">int</span>(total * <span class="n">0.7</span>)
+val_end = train_end + <span class="f">int</span>(total * <span class="n">0.15</span>)
+
+train = files[:train_end]
+val = files[train_end:val_end]
+test = files[val_end:]
+
+<span class="f">print</span>(<span class="s">f&quot;전체 {total}장&quot;</span>)
+<span class="f">print</span>(<span class="s">f&quot;Train {len(train)}장: {train[0]} ~ {train[-1]}&quot;</span>)
+<span class="f">print</span>(<span class="s">f&quot;Val   {len(val)}장: {val}&quot;</span>)
+<span class="f">print</span>(<span class="s">f&quot;Test  {len(test)}장: {test}&quot;</span>)
+<span class="f">print</span>(<span class="s">f&quot;검증 - 합계 일치: {len(train)+len(val)+len(test) == total}&quot;</span>)</pre></div>
+<div class="code out-block"><div class="code-h"><span>실행 결과</span></div><pre><span class="out">전체 20장
+Train 14장: img_001.jpg ~ img_014.jpg
+Val   3장: [&#x27;img_015.jpg&#x27;, &#x27;img_016.jpg&#x27;, &#x27;img_017.jpg&#x27;]
+Test  3장: [&#x27;img_018.jpg&#x27;, &#x27;img_019.jpg&#x27;, &#x27;img_020.jpg&#x27;]
+검증 - 합계 일치: True</span></pre></div>
+<p class="exdesc">슬라이싱의 <b>경계 계산</b>이 핵심입니다. <code>files[:14]</code>, <code>files[14:17]</code>, <code>files[17:]</code>처럼 앞 구간의 끝이 다음 구간의 시작이 되게 하면 겹치거나 빠지는 파일이 없습니다.</p>
+<h4 class="exh"><span class="exno applied">실무 4</span>이상치(outlier) 검출하기</h4>
+<div class="code"><div class="code-h"><span>d2_list_a4.py</span><button class="copybtn">복사</button></div><pre><span class="c"># [목적] 평균에서 크게 벗어난 값을 찾아낸다</span>
+<span class="c"># [설명] 라벨링 오류나 촬영 불량을 걸러내는 데 활용합니다.</span>
+
+areas = [<span class="n">1200</span>, <span class="n">3300</span>, <span class="n">1150</span>, <span class="n">1300</span>, <span class="n">45</span>, <span class="n">1250</span>, <span class="n">8900</span>, <span class="n">1180</span>]
+
+avg = <span class="f">sum</span>(areas) / <span class="f">len</span>(areas)
+<span class="f">print</span>(<span class="s">f&quot;평균 면적: {avg:.1f}&quot;</span>)
+
+normal = []
+outliers = []
+
+<span class="k">for</span> a <span class="k">in</span> areas:
+    <span class="k">if</span> a &lt; avg * <span class="n">0.3</span> <span class="k">or</span> a &gt; avg * <span class="n">2.5</span>:
+        outliers.append(a)
+    <span class="k">else</span>:
+        normal.append(a)
+
+<span class="f">print</span>(<span class="s">f&quot;정상 범위 ({len(normal)}건): {normal}&quot;</span>)
+<span class="f">print</span>(<span class="s">f&quot;이상치   ({len(outliers)}건): {outliers}&quot;</span>)
+<span class="f">print</span>(<span class="s">f&quot;이상치 제외 평균: {sum(normal)/len(normal):.1f}&quot;</span>)</pre></div>
+<div class="code out-block"><div class="code-h"><span>실행 결과</span></div><pre><span class="out">평균 면적: 2290.6
+정상 범위 (6건): [1200, 3300, 1150, 1300, 1250, 1180]
+이상치   (2건): [45, 8900]
+이상치 제외 평균: 1563.3</span></pre></div>
+<p class="exdesc">평균을 기준으로 너무 작거나 큰 값을 골라내는 간단한 이상치 검출입니다. 면적 45는 라벨 실수, 8900은 잘못 그린 bbox일 가능성이 높으므로 <b>수동 확인 대상</b>으로 분류하는 것이 실무 흐름입니다.</p>
+<h4 class="exh"><span class="exno applied">실무 5</span>여러 목록을 짝지어 처리하기 (zip)</h4>
+<div class="code"><div class="code-h"><span>d2_list_a5.py</span><button class="copybtn">복사</button></div><pre><span class="c"># [목적] 파일명, 클래스, 신뢰도 세 목록을 나란히 묶어 처리한다</span>
+<span class="c"># [설명] zip은 여러 리스트를 동시에 순회하게 해줍니다.</span>
+
+files = [<span class="s">&quot;img_001.jpg&quot;</span>, <span class="s">&quot;img_002.jpg&quot;</span>, <span class="s">&quot;img_003.jpg&quot;</span>]
+classes = [<span class="s">&quot;나뭇잎류&quot;</span>, <span class="s">&quot;파·고추&quot;</span>, <span class="s">&quot;플라스틱류&quot;</span>]
+confs = [<span class="n">0.92</span>, <span class="n">0.55</span>, <span class="n">0.81</span>]
+
+<span class="f">print</span>(<span class="s">f&quot;{&#x27;파일명&#x27;:&lt;14}{&#x27;클래스&#x27;:&lt;12}{&#x27;신뢰도&#x27;:&gt;7}  판정&quot;</span>)
+<span class="f">print</span>(<span class="s">&quot;-&quot;</span> * <span class="n">44</span>)
+
+ng_count = <span class="n">0</span>
+<span class="k">for</span> f, c, conf <span class="k">in</span> <span class="f">zip</span>(files, classes, confs):
+    verdict = <span class="s">&quot;NG&quot;</span> <span class="k">if</span> conf &gt;= <span class="n">0.7</span> <span class="k">else</span> <span class="s">&quot;보류&quot;</span>
+    <span class="k">if</span> verdict == <span class="s">&quot;NG&quot;</span>:
+        ng_count += <span class="n">1</span>
+    <span class="f">print</span>(<span class="s">f&quot;{f:&lt;14}{c:&lt;12}{conf:&gt;7.0%}  {verdict}&quot;</span>)
+
+<span class="f">print</span>(<span class="s">&quot;-&quot;</span> * <span class="n">44</span>)
+<span class="f">print</span>(<span class="s">f&quot;NG 판정: {ng_count}건 / 전체 {len(files)}건&quot;</span>)</pre></div>
+<div class="code out-block"><div class="code-h"><span>실행 결과</span></div><pre><span class="out">파일명           클래스             신뢰도  판정
+--------------------------------------------
+img_001.jpg   나뭇잎류            92%  NG
+img_002.jpg   파·고추            55%  보류
+img_003.jpg   플라스틱류           81%  NG
+--------------------------------------------
+NG 판정: 2건 / 전체 3건</span></pre></div>
+<p class="exdesc"><code>zip</code>은 세 리스트에서 같은 순번의 값을 하나씩 짝지어 꺼내줍니다. 인덱스 번호로 <code>files[i]</code>, <code>classes[i]</code>처럼 접근하는 것보다 훨씬 읽기 쉽고 실수가 적습니다.</p>
+<div class="tryit"><div class="box-h">✍️ 직접 해보기</div><p><code>d2_list_a2.py</code>의 <code>results</code>에서 신뢰도 0.7 이상인 항목만 남기고, 그 개수와 평균 신뢰도를 계산해 출력해 보세요.</p></div>
+</section>
+<section>
+<h2 id="dict">딕셔너리 — 이름표(key)로 값 찾기</h2>
+
+<p>리스트가 <b>순서(번호)</b>로 값을 찾는다면, 딕셔너리는 <b>이름표(key)</b>로 값을 찾습니다.
+중괄호 <code>{ }</code> 안에 <code>key: value</code> 쌍을 적습니다.</p>
+
+<div class="box concept">
+<div class="box-h">📌 언제 리스트, 언제 딕셔너리?</div>
+<p><b>리스트</b>: 같은 종류의 값이 여러 개 나열될 때 (신뢰도 5개, 파일명 100개)<br>
+<b>딕셔너리</b>: 서로 다른 성격의 값이 하나의 대상을 설명할 때 (한 검출의 클래스·좌표·신뢰도)<br>
+실무에서는 <b>딕셔너리를 담은 리스트</b> 형태가 가장 많이 쓰입니다.</p>
+</div>
+
+<h3>자주 쓰는 딕셔너리 메서드</h3>
+<table>
+<tr><th>메서드</th><th>하는 일</th></tr>
+<tr><td><code>.keys()</code></td><td>모든 key 목록</td></tr>
+<tr><td><code>.values()</code></td><td>모든 value 목록</td></tr>
+<tr><td><code>.items()</code></td><td>(key, value) 쌍 목록 — 순회할 때 사용</td></tr>
+<tr><td><code>.get(key, 기본값)</code></td><td>key가 없어도 오류 없이 기본값 반환</td></tr>
+<tr><td><code>key in 딕셔너리</code></td><td>해당 key가 있는지 확인</td></tr>
+<tr><td><code>del 딕셔너리[key]</code></td><td>항목 삭제</td></tr>
+</table>
+
+<h3 class="grp">기본 예제 <span class="grp-sub">문법 자체에 익숙해지기</span></h3>
+<h4 class="exh"><span class="exno basic">기본 1</span>딕셔너리 만들고 값 꺼내기</h4>
+<div class="code"><div class="code-h"><span>d2_dict_01.py</span><button class="copybtn">복사</button></div><pre><span class="c"># [목적] key로 값을 저장하고 조회하는 기본 동작</span>
+<span class="c"># [설명] 리스트의 [0] 대신 [&quot;이름&quot;]으로 접근합니다.</span>
+
+person = {<span class="s">&quot;name&quot;</span>: <span class="s">&quot;홍길동&quot;</span>, <span class="s">&quot;age&quot;</span>: <span class="n">25</span>, <span class="s">&quot;city&quot;</span>: <span class="s">&quot;서울&quot;</span>}
+
+<span class="f">print</span>(person)
+<span class="f">print</span>(<span class="s">&quot;이름:&quot;</span>, person[<span class="s">&quot;name&quot;</span>])
+<span class="f">print</span>(<span class="s">&quot;나이:&quot;</span>, person[<span class="s">&quot;age&quot;</span>])
+<span class="f">print</span>(<span class="s">&quot;항목 수:&quot;</span>, <span class="f">len</span>(person))
+
+<span class="c"># 값 수정 / 새 항목 추가</span>
+person[<span class="s">&quot;age&quot;</span>] = <span class="n">26</span>
+person[<span class="s">&quot;job&quot;</span>] = <span class="s">&quot;데이터 분석가&quot;</span>
+<span class="f">print</span>(<span class="s">&quot;수정 후:&quot;</span>, person)</pre></div>
+<div class="code out-block"><div class="code-h"><span>실행 결과</span></div><pre><span class="out">{&#x27;name&#x27;: &#x27;홍길동&#x27;, &#x27;age&#x27;: 25, &#x27;city&#x27;: &#x27;서울&#x27;}
+이름: 홍길동
+나이: 25
+항목 수: 3
+수정 후: {&#x27;name&#x27;: &#x27;홍길동&#x27;, &#x27;age&#x27;: 26, &#x27;city&#x27;: &#x27;서울&#x27;, &#x27;job&#x27;: &#x27;데이터 분석가&#x27;}</span></pre></div>
+<p class="exdesc">없는 key에 값을 넣으면 <b>새 항목이 추가</b>되고, 있는 key에 넣으면 <b>덮어쓰기</b>가 됩니다. 이 성질 덕분에 개수 세기 같은 작업을 간단히 구현할 수 있습니다.</p>
+<h4 class="exh"><span class="exno basic">기본 2</span>안전하게 값 꺼내기 — get()</h4>
+<div class="code"><div class="code-h"><span>d2_dict_02.py</span><button class="copybtn">복사</button></div><pre><span class="c"># [목적] 없는 key에 접근할 때 오류를 피한다</span>
+<span class="c"># [설명] 대괄호는 오류, get()은 기본값을 반환합니다.</span>
+
+class_map = {<span class="n">1</span>: <span class="s">&quot;나뭇잎류&quot;</span>, <span class="n">2</span>: <span class="s">&quot;플라스틱류&quot;</span>, <span class="n">6</span>: <span class="s">&quot;파·고추&quot;</span>}
+
+<span class="f">print</span>(class_map.get(<span class="n">1</span>))
+<span class="f">print</span>(class_map.get(<span class="n">9</span>))                      <span class="c"># 없으면 None</span>
+<span class="f">print</span>(class_map.get(<span class="n">9</span>, <span class="s">&quot;미등록 클래스&quot;</span>))       <span class="c"># 기본값 지정</span>
+
+<span class="c"># 있는지 먼저 확인하는 방법</span>
+<span class="k">if</span> <span class="n">9</span> <span class="k">in</span> class_map:
+    <span class="f">print</span>(class_map[<span class="n">9</span>])
+<span class="k">else</span>:
+    <span class="f">print</span>(<span class="s">&quot;9번은 등록되어 있지 않습니다&quot;</span>)</pre></div>
+<div class="code out-block"><div class="code-h"><span>실행 결과</span></div><pre><span class="out">나뭇잎류
+None
+미등록 클래스
+9번은 등록되어 있지 않습니다</span></pre></div>
+<p class="exdesc">사용자 입력이나 외부 파일에서 온 값으로 딕셔너리를 조회할 때는 <b>반드시 <code>get()</code>이나 <code>in</code> 검사</b>를 거쳐야 합니다. 대괄호로 바로 접근하면 프로그램이 멈춰버립니다.</p>
+<h4 class="exh"><span class="exno basic">기본 3</span>딕셔너리 순회하기</h4>
+<div class="code"><div class="code-h"><span>d2_dict_03.py</span><button class="copybtn">복사</button></div><pre><span class="c"># [목적] key만, value만, 또는 둘 다 순회하는 방법</span>
+<span class="c"># [설명] items()가 가장 자주 쓰입니다.</span>
+
+scores = {<span class="s">&quot;국어&quot;</span>: <span class="n">88</span>, <span class="s">&quot;영어&quot;</span>: <span class="n">92</span>, <span class="s">&quot;수학&quot;</span>: <span class="n">76</span>}
+
+<span class="f">print</span>(<span class="s">&quot;--- key만 ---&quot;</span>)
+<span class="k">for</span> subject <span class="k">in</span> scores.keys():
+    <span class="f">print</span>(subject)
+
+<span class="f">print</span>(<span class="s">&quot;--- value만 ---&quot;</span>)
+<span class="k">for</span> score <span class="k">in</span> scores.values():
+    <span class="f">print</span>(score)
+
+<span class="f">print</span>(<span class="s">&quot;--- 둘 다 ---&quot;</span>)
+<span class="k">for</span> subject, score <span class="k">in</span> scores.items():
+    <span class="f">print</span>(<span class="s">f&quot;{subject}: {score}점&quot;</span>)
+
+<span class="f">print</span>(<span class="s">&quot;평균:&quot;</span>, <span class="f">sum</span>(scores.values()) / <span class="f">len</span>(scores))</pre></div>
+<div class="code out-block"><div class="code-h"><span>실행 결과</span></div><pre><span class="out">--- key만 ---
+국어
+영어
+수학
+--- value만 ---
+88
+92
+76
+--- 둘 다 ---
+국어: 88점
+영어: 92점
+수학: 76점
+평균: 85.33333333333333</span></pre></div>
+<p class="exdesc"><code>.values()</code>는 리스트처럼 <code>sum()</code>, <code>max()</code>에 바로 넣을 수 있습니다. 평균 계산 한 줄에 딕셔너리와 내장 함수가 자연스럽게 결합되어 있습니다.</p>
+<h4 class="exh"><span class="exno basic">기본 4</span>딕셔너리로 개수 세기</h4>
+<div class="code"><div class="code-h"><span>d2_dict_04.py</span><button class="copybtn">복사</button></div><pre><span class="c"># [목적] 어떤 값이 몇 번 나왔는지 집계한다</span>
+<span class="c"># [설명] 가장 자주 쓰이는 딕셔너리 활용 패턴입니다.</span>
+
+votes = [<span class="s">&quot;사과&quot;</span>, <span class="s">&quot;바나나&quot;</span>, <span class="s">&quot;사과&quot;</span>, <span class="s">&quot;딸기&quot;</span>, <span class="s">&quot;사과&quot;</span>, <span class="s">&quot;바나나&quot;</span>]
+
+counts = {}
+<span class="k">for</span> item <span class="k">in</span> votes:
+    counts[item] = counts.get(item, <span class="n">0</span>) + <span class="n">1</span>   <span class="c"># 없으면 0에서 시작</span>
+
+<span class="f">print</span>(counts)
+
+<span class="k">for</span> name, n <span class="k">in</span> counts.items():
+    <span class="f">print</span>(<span class="s">f&quot;{name}: {&#x27;★&#x27; * n} ({n}표)&quot;</span>)</pre></div>
+<div class="code out-block"><div class="code-h"><span>실행 결과</span></div><pre><span class="out">{&#x27;사과&#x27;: 3, &#x27;바나나&#x27;: 2, &#x27;딸기&#x27;: 1}
+사과: ★★★ (3표)
+바나나: ★★ (2표)
+딸기: ★ (1표)</span></pre></div>
+<p class="exdesc"><code>counts.get(item, 0) + 1</code>은 "기존 값이 있으면 +1, 없으면 0에서 시작해 1"이라는 뜻입니다. <code>if</code>문 없이 한 줄로 처리하는 이 표현은 집계 코드에서 거의 관용구처럼 쓰입니다.</p>
+<h4 class="exh"><span class="exno basic">기본 5</span>딕셔너리를 담은 리스트</h4>
+<div class="code"><div class="code-h"><span>d2_dict_05.py</span><button class="copybtn">복사</button></div><pre><span class="c"># [목적] 여러 개의 대상을 각각 딕셔너리로 표현해 리스트에 모은다</span>
+<span class="c"># [설명] 실무 데이터의 가장 일반적인 구조입니다.</span>
+
+students = [
+    {<span class="s">&quot;name&quot;</span>: <span class="s">&quot;김철수&quot;</span>, <span class="s">&quot;score&quot;</span>: <span class="n">88</span>},
+    {<span class="s">&quot;name&quot;</span>: <span class="s">&quot;이영희&quot;</span>, <span class="s">&quot;score&quot;</span>: <span class="n">95</span>},
+    {<span class="s">&quot;name&quot;</span>: <span class="s">&quot;박민수&quot;</span>, <span class="s">&quot;score&quot;</span>: <span class="n">72</span>},
+]
+
+<span class="k">for</span> s <span class="k">in</span> students:
+    <span class="f">print</span>(<span class="s">f&quot;{s[&#x27;name&#x27;]}: {s[&#x27;score&#x27;]}점&quot;</span>)
+
+<span class="c"># 전체 평균</span>
+total = <span class="f">sum</span>(s[<span class="s">&quot;score&quot;</span>] <span class="k">for</span> s <span class="k">in</span> students)
+<span class="f">print</span>(<span class="s">&quot;평균:&quot;</span>, <span class="f">round</span>(total / <span class="f">len</span>(students), <span class="n">1</span>))
+
+<span class="c"># 최고점 학생 찾기</span>
+best = <span class="f">max</span>(students, key=<span class="k">lambda</span> s: s[<span class="s">&quot;score&quot;</span>])
+<span class="f">print</span>(<span class="s">&quot;최고점:&quot;</span>, best[<span class="s">&quot;name&quot;</span>], best[<span class="s">&quot;score&quot;</span>])</pre></div>
+<div class="code out-block"><div class="code-h"><span>실행 결과</span></div><pre><span class="out">김철수: 88점
+이영희: 95점
+박민수: 72점
+평균: 85.0
+최고점: 이영희 95</span></pre></div>
+<p class="exdesc">이 구조는 CSV 파일 한 줄 = 딕셔너리 하나, 파일 전체 = 리스트에 대응합니다. 다음 교과에서 배울 Pandas의 <code>DataFrame</code>이 정확히 이 형태를 표로 다루는 도구입니다.</p>
+<h3 class="grp">실무 예제 <span class="grp-sub">프로젝트에서 바로 쓰이는 형태</span></h3>
+<h4 class="exh"><span class="exno applied">실무 1</span>클래스 매핑 테이블 활용</h4>
+<div class="code"><div class="code-h"><span>d2_dict_a1.py</span><button class="copybtn">복사</button></div><pre><span class="c"># [목적] 긴 elif 체인을 딕셔너리 하나로 대체한다</span>
+<span class="c"># [설명] 조건마다 값만 다를 때는 딕셔너리가 훨씬 간결합니다.</span>
+
+CLASS_MAP = {
+    <span class="n">1</span>: <span class="s">&quot;나뭇잎류&quot;</span>,
+    <span class="n">2</span>: <span class="s">&quot;플라스틱·돌·금속 등&quot;</span>,
+    <span class="n">3</span>: <span class="s">&quot;나뭇가지류&quot;</span>,
+    <span class="n">4</span>: <span class="s">&quot;고무장갑(미사용)&quot;</span>,
+    <span class="n">5</span>: <span class="s">&quot;병해·갈변&quot;</span>,
+    <span class="n">6</span>: <span class="s">&quot;파·고추&quot;</span>,
+}
+
+detected = [<span class="n">1</span>, <span class="n">6</span>, <span class="n">3</span>, <span class="n">9</span>, <span class="n">5</span>]
+
+<span class="k">for</span> cid <span class="k">in</span> detected:
+    name = CLASS_MAP.get(cid, <span class="s">&quot;등록되지 않은 클래스&quot;</span>)
+    <span class="f">print</span>(<span class="s">f&quot;클래스 {cid}: {name}&quot;</span>)
+
+<span class="f">print</span>(<span class="s">&quot;\n등록된 클래스 수:&quot;</span>, <span class="f">len</span>(CLASS_MAP))
+<span class="f">print</span>(<span class="s">&quot;사용 가능한 ID:&quot;</span>, [k <span class="k">for</span> k <span class="k">in</span> CLASS_MAP <span class="k">if</span> k != <span class="n">4</span>])</pre></div>
+<div class="code out-block"><div class="code-h"><span>실행 결과</span></div><pre><span class="out">클래스 1: 나뭇잎류
+클래스 6: 파·고추
+클래스 3: 나뭇가지류
+클래스 9: 등록되지 않은 클래스
+클래스 5: 병해·갈변
+
+등록된 클래스 수: 6
+사용 가능한 ID: [1, 2, 3, 5, 6]</span></pre></div>
+<p class="exdesc"><code>if/elif</code>를 6번 쓰던 코드가 딕셔너리 하나로 줄었습니다. 클래스가 추가되어도 <b>딕셔너리에 한 줄만 넣으면</b> 되므로 유지보수도 훨씬 쉽습니다.</p>
+<h4 class="exh"><span class="exno applied">실무 2</span>검출 결과를 딕셔너리로 구조화</h4>
+<div class="code"><div class="code-h"><span>d2_dict_a2.py</span><button class="copybtn">복사</button></div><pre><span class="c"># [목적] 검출 하나가 가진 여러 정보를 하나의 딕셔너리로 묶는다</span>
+<span class="c"># [설명] 모델 출력을 다루는 표준적인 형태입니다.</span>
+
+detections = [
+    {<span class="s">&quot;file&quot;</span>: <span class="s">&quot;img_001.jpg&quot;</span>, <span class="s">&quot;class_id&quot;</span>: <span class="n">1</span>, <span class="s">&quot;bbox&quot;</span>: [<span class="n">120</span>, <span class="n">85</span>, <span class="n">40</span>, <span class="n">30</span>], <span class="s">&quot;conf&quot;</span>: <span class="n">0.92</span>},
+    {<span class="s">&quot;file&quot;</span>: <span class="s">&quot;img_001.jpg&quot;</span>, <span class="s">&quot;class_id&quot;</span>: <span class="n">6</span>, <span class="s">&quot;bbox&quot;</span>: [<span class="n">300</span>, <span class="n">210</span>, <span class="n">55</span>, <span class="n">60</span>], <span class="s">&quot;conf&quot;</span>: <span class="n">0.55</span>},
+    {<span class="s">&quot;file&quot;</span>: <span class="s">&quot;img_002.jpg&quot;</span>, <span class="s">&quot;class_id&quot;</span>: <span class="n">2</span>, <span class="s">&quot;bbox&quot;</span>: [<span class="n">50</span>, <span class="n">40</span>, <span class="n">90</span>, <span class="n">70</span>], <span class="s">&quot;conf&quot;</span>: <span class="n">0.88</span>},
+]
+
+CLASS_MAP = {<span class="n">1</span>: <span class="s">&quot;나뭇잎류&quot;</span>, <span class="n">2</span>: <span class="s">&quot;플라스틱류&quot;</span>, <span class="n">6</span>: <span class="s">&quot;파·고추&quot;</span>}
+
+<span class="k">for</span> d <span class="k">in</span> detections:
+    name = CLASS_MAP.get(d[<span class="s">&quot;class_id&quot;</span>], <span class="s">&quot;?&quot;</span>)
+    w, h = d[<span class="s">&quot;bbox&quot;</span>][<span class="n">2</span>], d[<span class="s">&quot;bbox&quot;</span>][<span class="n">3</span>]
+    verdict = <span class="s">&quot;채택&quot;</span> <span class="k">if</span> d[<span class="s">&quot;conf&quot;</span>] &gt;= <span class="n">0.7</span> <span class="k">else</span> <span class="s">&quot;제외&quot;</span>
+    <span class="f">print</span>(<span class="s">f&quot;{d[&#x27;file&#x27;]} | {name:&lt;8} | 면적 {w*h:&gt;5} | {d[&#x27;conf&#x27;]:.0%} | {verdict}&quot;</span>)</pre></div>
+<div class="code out-block"><div class="code-h"><span>실행 결과</span></div><pre><span class="out">img_001.jpg | 나뭇잎류     | 면적  1200 | 92% | 채택
+img_001.jpg | 파·고추     | 면적  3300 | 55% | 제외
+img_002.jpg | 플라스틱류    | 면적  6300 | 88% | 채택</span></pre></div>
+<p class="exdesc">딕셔너리를 쓰면 <code>d["conf"]</code>처럼 <b>이름으로</b> 값을 꺼낼 수 있어, <code>d[3]</code> 같은 숫자보다 훨씬 명확합니다. 나중에 항목 순서가 바뀌어도 코드가 깨지지 않는 장점도 있습니다.</p>
+<h4 class="exh"><span class="exno applied">실무 3</span>파일별 검출 결과 그룹화</h4>
+<div class="code"><div class="code-h"><span>d2_dict_a3.py</span><button class="copybtn">복사</button></div><pre><span class="c"># [목적] 여러 검출 결과를 파일 단위로 묶어 정리한다</span>
+<span class="c"># [설명] 이미지 한 장에 여러 이물이 있을 때 필요한 처리입니다.</span>
+
+detections = [
+    {<span class="s">&quot;file&quot;</span>: <span class="s">&quot;img_001.jpg&quot;</span>, <span class="s">&quot;class_id&quot;</span>: <span class="n">1</span>, <span class="s">&quot;conf&quot;</span>: <span class="n">0.92</span>},
+    {<span class="s">&quot;file&quot;</span>: <span class="s">&quot;img_002.jpg&quot;</span>, <span class="s">&quot;class_id&quot;</span>: <span class="n">6</span>, <span class="s">&quot;conf&quot;</span>: <span class="n">0.55</span>},
+    {<span class="s">&quot;file&quot;</span>: <span class="s">&quot;img_001.jpg&quot;</span>, <span class="s">&quot;class_id&quot;</span>: <span class="n">3</span>, <span class="s">&quot;conf&quot;</span>: <span class="n">0.81</span>},
+    {<span class="s">&quot;file&quot;</span>: <span class="s">&quot;img_003.jpg&quot;</span>, <span class="s">&quot;class_id&quot;</span>: <span class="n">2</span>, <span class="s">&quot;conf&quot;</span>: <span class="n">0.88</span>},
+    {<span class="s">&quot;file&quot;</span>: <span class="s">&quot;img_001.jpg&quot;</span>, <span class="s">&quot;class_id&quot;</span>: <span class="n">6</span>, <span class="s">&quot;conf&quot;</span>: <span class="n">0.76</span>},
+]
+
+grouped = {}
+<span class="k">for</span> d <span class="k">in</span> detections:
+    fname = d[<span class="s">&quot;file&quot;</span>]
+    <span class="k">if</span> fname <span class="k">not</span> <span class="k">in</span> grouped:
+        grouped[fname] = []
+    grouped[fname].append(d)
+
+<span class="k">for</span> fname <span class="k">in</span> <span class="f">sorted</span>(grouped):
+    items = grouped[fname]
+    max_conf = <span class="f">max</span>(x[<span class="s">&quot;conf&quot;</span>] <span class="k">for</span> x <span class="k">in</span> items)
+    verdict = <span class="s">&quot;NG&quot;</span> <span class="k">if</span> max_conf &gt;= <span class="n">0.7</span> <span class="k">else</span> <span class="s">&quot;보류&quot;</span>
+    <span class="f">print</span>(<span class="s">f&quot;{fname}: 검출 {len(items)}건, 최고신뢰도 {max_conf:.0%} -&gt; {verdict}&quot;</span>)</pre></div>
+<div class="code out-block"><div class="code-h"><span>실행 결과</span></div><pre><span class="out">img_001.jpg: 검출 3건, 최고신뢰도 92% -&gt; NG
+img_002.jpg: 검출 1건, 최고신뢰도 55% -&gt; 보류
+img_003.jpg: 검출 1건, 최고신뢰도 88% -&gt; NG</span></pre></div>
+<p class="exdesc"><b>그룹화(group by)</b>는 데이터 분석의 핵심 작업입니다. "없으면 빈 리스트를 만들고, 있으면 거기에 추가"하는 이 패턴은 Pandas의 <code>groupby()</code>가 자동으로 해주는 일을 손으로 구현한 것입니다.</p>
+<h4 class="exh"><span class="exno applied">실무 4</span>클래스별 성능 리포트 만들기</h4>
+<div class="code"><div class="code-h"><span>d2_dict_a4.py</span><button class="copybtn">복사</button></div><pre><span class="c"># [목적] 클래스마다 검출 개수와 평균 신뢰도를 집계한다</span>
+<span class="c"># [설명] 어느 클래스가 잘 안 잡히는지 파악하는 데 쓰입니다.</span>
+
+detections = [
+    {<span class="s">&quot;class_id&quot;</span>: <span class="n">1</span>, <span class="s">&quot;conf&quot;</span>: <span class="n">0.92</span>}, {<span class="s">&quot;class_id&quot;</span>: <span class="n">1</span>, <span class="s">&quot;conf&quot;</span>: <span class="n">0.88</span>},
+    {<span class="s">&quot;class_id&quot;</span>: <span class="n">6</span>, <span class="s">&quot;conf&quot;</span>: <span class="n">0.55</span>}, {<span class="s">&quot;class_id&quot;</span>: <span class="n">1</span>, <span class="s">&quot;conf&quot;</span>: <span class="n">0.79</span>},
+    {<span class="s">&quot;class_id&quot;</span>: <span class="n">2</span>, <span class="s">&quot;conf&quot;</span>: <span class="n">0.91</span>}, {<span class="s">&quot;class_id&quot;</span>: <span class="n">6</span>, <span class="s">&quot;conf&quot;</span>: <span class="n">0.61</span>},
+    {<span class="s">&quot;class_id&quot;</span>: <span class="n">2</span>, <span class="s">&quot;conf&quot;</span>: <span class="n">0.85</span>}, {<span class="s">&quot;class_id&quot;</span>: <span class="n">6</span>, <span class="s">&quot;conf&quot;</span>: <span class="n">0.58</span>},
+]
+CLASS_MAP = {<span class="n">1</span>: <span class="s">&quot;나뭇잎류&quot;</span>, <span class="n">2</span>: <span class="s">&quot;플라스틱류&quot;</span>, <span class="n">6</span>: <span class="s">&quot;파·고추&quot;</span>}
+
+stats = {}
+<span class="k">for</span> d <span class="k">in</span> detections:
+    cid = d[<span class="s">&quot;class_id&quot;</span>]
+    <span class="k">if</span> cid <span class="k">not</span> <span class="k">in</span> stats:
+        stats[cid] = {<span class="s">&quot;count&quot;</span>: <span class="n">0</span>, <span class="s">&quot;conf_sum&quot;</span>: <span class="n">0.0</span>}
+    stats[cid][<span class="s">&quot;count&quot;</span>] += <span class="n">1</span>
+    stats[cid][<span class="s">&quot;conf_sum&quot;</span>] += d[<span class="s">&quot;conf&quot;</span>]
+
+<span class="f">print</span>(<span class="s">f&quot;{&#x27;클래스&#x27;:&lt;12}{&#x27;개수&#x27;:&gt;5}{&#x27;평균신뢰도&#x27;:&gt;11}  상태&quot;</span>)
+<span class="f">print</span>(<span class="s">&quot;-&quot;</span> * <span class="n">40</span>)
+<span class="k">for</span> cid <span class="k">in</span> <span class="f">sorted</span>(stats):
+    s = stats[cid]
+    avg = s[<span class="s">&quot;conf_sum&quot;</span>] / s[<span class="s">&quot;count&quot;</span>]
+    status = <span class="s">&quot;양호&quot;</span> <span class="k">if</span> avg &gt;= <span class="n">0.7</span> <span class="k">else</span> <span class="s">&quot;학습 보강 필요&quot;</span>
+    <span class="f">print</span>(<span class="s">f&quot;{CLASS_MAP[cid]:&lt;12}{s[&#x27;count&#x27;]:&gt;5}{avg:&gt;11.1%}  {status}&quot;</span>)</pre></div>
+<div class="code out-block"><div class="code-h"><span>실행 결과</span></div><pre><span class="out">클래스            개수      평균신뢰도  상태
+----------------------------------------
+나뭇잎류            3      86.3%  양호
+플라스틱류           2      88.0%  양호
+파·고추            3      58.0%  학습 보강 필요</span></pre></div>
+<p class="exdesc">딕셔너리 안에 딕셔너리를 넣어 클래스마다 여러 통계를 함께 관리합니다. "파·고추" 클래스의 평균 신뢰도가 낮은 것이 확인되면, 해당 클래스의 <b>학습 데이터를 늘려야 한다</b>는 실무 판단으로 이어집니다.</p>
+<h4 class="exh"><span class="exno applied">실무 5</span>학습 설정을 딕셔너리로 관리하기</h4>
+<div class="code"><div class="code-h"><span>d2_dict_a5.py</span><button class="copybtn">복사</button></div><pre><span class="c"># [목적] 하이퍼파라미터를 하나의 설정 딕셔너리로 묶는다</span>
+<span class="c"># [설명] 나중에 JSON 파일로 저장하면 그대로 설정 파일이 됩니다.</span>
+
+config = {
+    <span class="s">&quot;model&quot;</span>: <span class="s">&quot;yolov8n&quot;</span>,
+    <span class="s">&quot;img_size&quot;</span>: <span class="n">640</span>,
+    <span class="s">&quot;batch_size&quot;</span>: <span class="n">16</span>,
+    <span class="s">&quot;epochs&quot;</span>: <span class="n">100</span>,
+    <span class="s">&quot;lr&quot;</span>: <span class="n">0.001</span>,
+    <span class="s">&quot;classes&quot;</span>: [<span class="n">1</span>, <span class="n">2</span>, <span class="n">3</span>, <span class="n">5</span>, <span class="n">6</span>],
+}
+
+<span class="f">print</span>(<span class="s">&quot;=== 학습 설정 ===&quot;</span>)
+<span class="k">for</span> key, value <span class="k">in</span> config.items():
+    <span class="f">print</span>(<span class="s">f&quot;{key:&lt;12}: {value}&quot;</span>)
+
+<span class="f">print</span>(<span class="s">&quot;\n클래스 수:&quot;</span>, <span class="f">len</span>(config[<span class="s">&quot;classes&quot;</span>]))
+<span class="f">print</span>(<span class="s">&quot;총 학습 스텝:&quot;</span>, <span class="n">500</span> // config[<span class="s">&quot;batch_size&quot;</span>] * config[<span class="s">&quot;epochs&quot;</span>])
+
+<span class="c"># 설정 일부만 바꿔서 실험하기</span>
+config[<span class="s">&quot;batch_size&quot;</span>] = <span class="n">8</span>
+config[<span class="s">&quot;epochs&quot;</span>] = <span class="n">60</span>
+<span class="f">print</span>(<span class="s">&quot;\n변경 후 총 스텝:&quot;</span>, <span class="n">500</span> // config[<span class="s">&quot;batch_size&quot;</span>] * config[<span class="s">&quot;epochs&quot;</span>])</pre></div>
+<div class="code out-block"><div class="code-h"><span>실행 결과</span></div><pre><span class="out">=== 학습 설정 ===
+model       : yolov8n
+img_size    : 640
+batch_size  : 16
+epochs      : 100
+lr          : 0.001
+classes     : [1, 2, 3, 5, 6]
+
+클래스 수: 5
+총 학습 스텝: 3100
+
+변경 후 총 스텝: 3720</span></pre></div>
+<p class="exdesc">설정을 한곳에 모아두면 실험 조건을 바꾸기가 쉽고, 나중에 "어떤 설정으로 학습했는지" 기록으로 남기기도 좋습니다. Day 3에서 이 딕셔너리를 JSON 파일로 저장하는 방법을 배웁니다.</p>
+<div class="tryit"><div class="box-h">✍️ 직접 해보기</div><p><code>d2_dict_a4.py</code>에 "최고 신뢰도"와 "최저 신뢰도" 항목을 추가해 클래스별 통계를 더 자세히 만들어 보세요.</p></div>
+</section>
+<section>
+<h2 id="tuple-set">튜플과 집합</h2>
+
+<p>리스트·딕셔너리만큼 자주 쓰이진 않지만, 각자 뚜렷한 쓰임이 있는 두 자료구조입니다.</p>
+
+<table>
+<tr><th></th><th>튜플 <code>( )</code></th><th>집합 <code>set()</code></th></tr>
+<tr><td>순서</td><td>있음</td><td>없음</td></tr>
+<tr><td>중복</td><td>허용</td><td><b>허용 안 함</b></td></tr>
+<tr><td>값 변경</td><td><b>불가능</b></td><td>추가·삭제 가능</td></tr>
+<tr><td>주 용도</td><td>좌표처럼 묶여야 의미 있는 값</td><td>중복 제거, 집합 연산</td></tr>
+</table>
+
+<div class="box concept">
+<div class="box-h">📌 집합 연산자</div>
+<p><code>A - B</code> 차집합 (A에는 있고 B에는 없는 것) · <code>A &amp; B</code> 교집합 (둘 다 있는 것) ·
+<code>A | B</code> 합집합 (하나라도 있는 것)<br>
+"전체 목록 중 빠진 것 찾기", "두 폴더에 공통으로 있는 파일 찾기" 같은 작업을 반복문 없이 한 줄로 끝낼 수 있습니다.</p>
+</div>
+
+<h3 class="grp">기본 예제 <span class="grp-sub">문법 자체에 익숙해지기</span></h3>
+<h4 class="exh"><span class="exno basic">기본 1</span>튜플 만들고 사용하기</h4>
+<div class="code"><div class="code-h"><span>d2_ts_01.py</span><button class="copybtn">복사</button></div><pre><span class="c"># [목적] 튜플의 생성과 접근, 그리고 변경 불가 성질 확인</span>
+<span class="c"># [설명] 소괄호를 쓰며, 만든 뒤에는 값을 바꿀 수 없습니다.</span>
+
+point = (<span class="n">120</span>, <span class="n">85</span>)
+
+<span class="f">print</span>(point)
+<span class="f">print</span>(<span class="s">&quot;x:&quot;</span>, point[<span class="n">0</span>], <span class="s">&quot;/ y:&quot;</span>, point[<span class="n">1</span>])
+<span class="f">print</span>(<span class="s">&quot;길이:&quot;</span>, <span class="f">len</span>(point))
+
+<span class="c"># 언패킹 : 각 변수에 나눠 담기</span>
+x, y = point
+<span class="f">print</span>(<span class="s">f&quot;언패킹 결과 x={x}, y={y}&quot;</span>)
+
+<span class="c"># 값 변경 시도 -&gt; 오류 발생</span>
+<span class="k">try</span>:
+    point[<span class="n">0</span>] = <span class="n">999</span>
+<span class="k">except</span> TypeError <span class="k">as</span> e:
+    <span class="f">print</span>(<span class="s">&quot;변경 시도 결과:&quot;</span>, e)</pre></div>
+<div class="code out-block"><div class="code-h"><span>실행 결과</span></div><pre><span class="out">(120, 85)
+x: 120 / y: 85
+길이: 2
+언패킹 결과 x=120, y=85
+변경 시도 결과: &#x27;tuple&#x27; object does not support item assignment</span></pre></div>
+<p class="exdesc">"바꿀 수 없다"는 것이 단점처럼 보이지만, 오히려 <b>실수로 값이 바뀌는 사고를 막아주는 장점</b>입니다. 좌표나 RGB 값처럼 한 번 정해지면 바뀌면 안 되는 값에 적합합니다.</p>
+<h4 class="exh"><span class="exno basic">기본 2</span>집합으로 중복 제거하기</h4>
+<div class="code"><div class="code-h"><span>d2_ts_02.py</span><button class="copybtn">복사</button></div><pre><span class="c"># [목적] 리스트의 중복 값을 한 번에 제거한다</span>
+<span class="c"># [설명] set()으로 감싸면 중복이 자동으로 사라집니다.</span>
+
+ids = [<span class="n">1</span>, <span class="n">3</span>, <span class="n">1</span>, <span class="n">6</span>, <span class="n">3</span>, <span class="n">1</span>, <span class="n">2</span>, <span class="n">6</span>]
+
+unique = <span class="f">set</span>(ids)
+<span class="f">print</span>(<span class="s">&quot;원본:&quot;</span>, ids)
+<span class="f">print</span>(<span class="s">&quot;중복 제거:&quot;</span>, unique)
+<span class="f">print</span>(<span class="s">&quot;종류 수:&quot;</span>, <span class="f">len</span>(unique))
+
+<span class="c"># 다시 리스트로 되돌리고 정렬</span>
+unique_list = <span class="f">sorted</span>(<span class="f">set</span>(ids))
+<span class="f">print</span>(<span class="s">&quot;정렬된 리스트:&quot;</span>, unique_list)</pre></div>
+<div class="code out-block"><div class="code-h"><span>실행 결과</span></div><pre><span class="out">원본: [1, 3, 1, 6, 3, 1, 2, 6]
+중복 제거: {1, 2, 3, 6}
+종류 수: 4
+정렬된 리스트: [1, 2, 3, 6]</span></pre></div>
+<p class="exdesc"><code>sorted(set(리스트))</code>는 "중복 제거 + 정렬"을 한 줄로 처리하는 관용구입니다. 데이터에 어떤 값들이 들어있는지 빠르게 파악할 때 가장 먼저 써보는 방법입니다.</p>
+<h4 class="exh"><span class="exno basic">기본 3</span>집합 연산 — 차집합·교집합·합집합</h4>
+<div class="code"><div class="code-h"><span>d2_ts_03.py</span><button class="copybtn">복사</button></div><pre><span class="c"># [목적] 두 집합을 비교하는 세 가지 연산을 익힌다</span>
+<span class="c"># [설명] 반복문 없이 목록 비교를 끝낼 수 있습니다.</span>
+
+a = {<span class="n">1</span>, <span class="n">2</span>, <span class="n">3</span>, <span class="n">4</span>, <span class="n">5</span>}
+b = {<span class="n">4</span>, <span class="n">5</span>, <span class="n">6</span>, <span class="n">7</span>}
+
+<span class="f">print</span>(<span class="s">&quot;A:&quot;</span>, a)
+<span class="f">print</span>(<span class="s">&quot;B:&quot;</span>, b)
+<span class="f">print</span>(<span class="s">&quot;A - B (A에만 있음):&quot;</span>, a - b)
+<span class="f">print</span>(<span class="s">&quot;B - A (B에만 있음):&quot;</span>, b - a)
+<span class="f">print</span>(<span class="s">&quot;A &amp; B (공통):&quot;</span>, a &amp; b)
+<span class="f">print</span>(<span class="s">&quot;A | B (전체):&quot;</span>, a | b)</pre></div>
+<div class="code out-block"><div class="code-h"><span>실행 결과</span></div><pre><span class="out">A: {1, 2, 3, 4, 5}
+B: {4, 5, 6, 7}
+A - B (A에만 있음): {1, 2, 3}
+B - A (B에만 있음): {6, 7}
+A &amp; B (공통): {4, 5}
+A | B (전체): {1, 2, 3, 4, 5, 6, 7}</span></pre></div>
+<p class="exdesc">"이미지는 있는데 라벨이 없는 파일"을 찾는 것이 바로 차집합입니다. 반복문으로 하면 여러 줄이 필요한 일을 기호 하나로 처리할 수 있습니다.</p>
+<h4 class="exh"><span class="exno basic">기본 4</span>집합에 값 추가·삭제하기</h4>
+<div class="code"><div class="code-h"><span>d2_ts_04.py</span><button class="copybtn">복사</button></div><pre><span class="c"># [목적] 집합의 내용을 동적으로 바꾼다</span>
+<span class="c"># [설명] add로 추가, discard로 안전하게 삭제합니다.</span>
+
+seen = <span class="f">set</span>()
+
+seen.add(<span class="s">&quot;img_001.jpg&quot;</span>)
+seen.add(<span class="s">&quot;img_002.jpg&quot;</span>)
+seen.add(<span class="s">&quot;img_001.jpg&quot;</span>)      <span class="c"># 중복 -&gt; 무시됨</span>
+<span class="f">print</span>(<span class="s">&quot;현재:&quot;</span>, seen, <span class="s">&quot;개수:&quot;</span>, <span class="f">len</span>(seen))
+
+seen.discard(<span class="s">&quot;img_002.jpg&quot;</span>)  <span class="c"># 없어도 오류 안 남</span>
+seen.discard(<span class="s">&quot;없는파일.jpg&quot;</span>)
+<span class="f">print</span>(<span class="s">&quot;삭제 후:&quot;</span>, seen)
+
+<span class="f">print</span>(<span class="s">&quot;img_001.jpg 처리했나?&quot;</span>, <span class="s">&quot;img_001.jpg&quot;</span> <span class="k">in</span> seen)</pre></div>
+<div class="code out-block"><div class="code-h"><span>실행 결과</span></div><pre><span class="out">현재: {&#x27;img_001.jpg&#x27;, &#x27;img_002.jpg&#x27;} 개수: 2
+삭제 후: {&#x27;img_001.jpg&#x27;}
+img_001.jpg 처리했나? True</span></pre></div>
+<p class="exdesc">"이미 처리한 파일"을 집합에 담아두고 <code>in</code>으로 확인하는 패턴은 <b>중복 처리 방지</b>에 자주 쓰입니다. 리스트로 하는 것보다 검색 속도가 훨씬 빠릅니다.</p>
+<h4 class="exh"><span class="exno basic">기본 5</span>튜플을 리스트에 담아 활용하기</h4>
+<div class="code"><div class="code-h"><span>d2_ts_05.py</span><button class="copybtn">복사</button></div><pre><span class="c"># [목적] 좌표 쌍 여러 개를 튜플 리스트로 관리한다</span>
+<span class="c"># [설명] 값이 바뀌면 안 되는 데이터 묶음에 적합합니다.</span>
+
+keypoints = [
+    (<span class="s">&quot;코&quot;</span>, <span class="n">320</span>, <span class="n">180</span>),
+    (<span class="s">&quot;왼쪽어깨&quot;</span>, <span class="n">280</span>, <span class="n">260</span>),
+    (<span class="s">&quot;오른쪽어깨&quot;</span>, <span class="n">360</span>, <span class="n">260</span>),
+    (<span class="s">&quot;왼쪽손목&quot;</span>, <span class="n">240</span>, <span class="n">400</span>),
+]
+
+<span class="k">for</span> name, x, y <span class="k">in</span> keypoints:
+    <span class="f">print</span>(<span class="s">f&quot;{name:&lt;10} ({x:&gt;4}, {y:&gt;4})&quot;</span>)
+
+<span class="c"># 특정 관절 찾기</span>
+<span class="k">for</span> name, x, y <span class="k">in</span> keypoints:
+    <span class="k">if</span> name == <span class="s">&quot;왼쪽손목&quot;</span>:
+        <span class="f">print</span>(<span class="s">f&quot;\n왼쪽손목 높이: y={y}&quot;</span>)
+        <span class="f">print</span>(<span class="s">&quot;어깨보다 아래인가?&quot;</span>, y &gt; <span class="n">260</span>)</pre></div>
+<div class="code out-block"><div class="code-h"><span>실행 결과</span></div><pre><span class="out">코          ( 320,  180)
+왼쪽어깨       ( 280,  260)
+오른쪽어깨      ( 360,  260)
+왼쪽손목       ( 240,  400)
+
+왼쪽손목 높이: y=400
+어깨보다 아래인가? True</span></pre></div>
+<p class="exdesc">교과 12·15에서 다룰 <b>모션 캡처 keypoint 데이터</b>가 정확히 이런 구조입니다. 관절 이름과 좌표가 한 묶음이며, 한 번 측정된 값은 바뀌지 않으므로 튜플이 적합합니다.</p>
+<h3 class="grp">실무 예제 <span class="grp-sub">프로젝트에서 바로 쓰이는 형태</span></h3>
+<h4 class="exh"><span class="exno applied">실무 1</span>이미지-라벨 짝 검사 (집합 연산)</h4>
+<div class="code"><div class="code-h"><span>d2_ts_a1.py</span><button class="copybtn">복사</button></div><pre><span class="c"># [목적] 반복문 대신 집합 연산으로 데이터셋 무결성을 검사한다</span>
+<span class="c"># [설명] 앞서 반복문으로 하던 작업을 세 줄로 줄입니다.</span>
+
+images = {<span class="s">&quot;img_001&quot;</span>, <span class="s">&quot;img_002&quot;</span>, <span class="s">&quot;img_003&quot;</span>, <span class="s">&quot;img_004&quot;</span>, <span class="s">&quot;img_005&quot;</span>}
+labels = {<span class="s">&quot;img_001&quot;</span>, <span class="s">&quot;img_003&quot;</span>, <span class="s">&quot;img_004&quot;</span>, <span class="s">&quot;img_006&quot;</span>}
+
+no_label = images - labels      <span class="c"># 이미지만 있고 라벨 없음</span>
+no_image = labels - images      <span class="c"># 라벨만 있고 이미지 없음</span>
+matched = images &amp; labels       <span class="c"># 정상 짝</span>
+
+<span class="f">print</span>(<span class="s">f&quot;정상 짝     ({len(matched)}건): {sorted(matched)}&quot;</span>)
+<span class="f">print</span>(<span class="s">f&quot;라벨 누락   ({len(no_label)}건): {sorted(no_label)}&quot;</span>)
+<span class="f">print</span>(<span class="s">f&quot;이미지 누락 ({len(no_image)}건): {sorted(no_image)}&quot;</span>)
+
+<span class="k">if</span> <span class="k">not</span> no_label <span class="k">and</span> <span class="k">not</span> no_image:
+    <span class="f">print</span>(<span class="s">&quot;\n데이터셋 무결성 검사 통과&quot;</span>)
+<span class="k">else</span>:
+    <span class="f">print</span>(<span class="s">f&quot;\n총 {len(no_label) + len(no_image)}건의 불일치 발견&quot;</span>)</pre></div>
+<div class="code out-block"><div class="code-h"><span>실행 결과</span></div><pre><span class="out">정상 짝     (3건): [&#x27;img_001&#x27;, &#x27;img_003&#x27;, &#x27;img_004&#x27;]
+라벨 누락   (2건): [&#x27;img_002&#x27;, &#x27;img_005&#x27;]
+이미지 누락 (1건): [&#x27;img_006&#x27;]
+
+총 3건의 불일치 발견</span></pre></div>
+<p class="exdesc"><code>if not no_label</code>은 "<code>no_label</code>이 비어 있으면"이라는 뜻입니다. 파이썬에서는 빈 집합·빈 리스트가 거짓으로 취급되어 <code>len(x) == 0</code>보다 간결하게 쓸 수 있습니다.</p>
+<h4 class="exh"><span class="exno applied">실무 2</span>데이터셋에 등장한 클래스 점검</h4>
+<div class="code"><div class="code-h"><span>d2_ts_a2.py</span><button class="copybtn">복사</button></div><pre><span class="c"># [목적] 촬영 데이터에 모든 클래스가 포함되었는지 확인한다</span>
+<span class="c"># [설명] 교과 14 요건: 분류 5종 이상</span>
+
+REQUIRED = {<span class="n">1</span>, <span class="n">2</span>, <span class="n">3</span>, <span class="n">5</span>, <span class="n">6</span>}          <span class="c"># 사용해야 할 클래스 (4번 제외)</span>
+
+collected = [<span class="n">1</span>, <span class="n">1</span>, <span class="n">6</span>, <span class="n">3</span>, <span class="n">1</span>, <span class="n">6</span>, <span class="n">2</span>, <span class="n">1</span>, <span class="n">3</span>, <span class="n">6</span>, <span class="n">1</span>]
+present = <span class="f">set</span>(collected)
+
+missing = REQUIRED - present
+extra = present - REQUIRED
+
+<span class="f">print</span>(<span class="s">&quot;촬영된 클래스:&quot;</span>, <span class="f">sorted</span>(present), <span class="s">f&quot;({len(present)}종)&quot;</span>)
+<span class="f">print</span>(<span class="s">&quot;요구 클래스  :&quot;</span>, <span class="f">sorted</span>(REQUIRED), <span class="s">f&quot;({len(REQUIRED)}종)&quot;</span>)
+
+<span class="k">if</span> missing:
+    <span class="f">print</span>(<span class="s">f&quot;[미충족] 촬영이 필요한 클래스: {sorted(missing)}&quot;</span>)
+<span class="k">else</span>:
+    <span class="f">print</span>(<span class="s">&quot;[충족] 모든 클래스가 포함되었습니다&quot;</span>)
+
+<span class="k">if</span> extra:
+    <span class="f">print</span>(<span class="s">f&quot;[확인필요] 정의되지 않은 클래스 발견: {sorted(extra)}&quot;</span>)
+
+<span class="f">print</span>(<span class="s">f&quot;요건(5종 이상) 달성: {len(present &amp; REQUIRED) &gt;= 5}&quot;</span>)</pre></div>
+<div class="code out-block"><div class="code-h"><span>실행 결과</span></div><pre><span class="out">촬영된 클래스: [1, 2, 3, 6] (4종)
+요구 클래스  : [1, 2, 3, 5, 6] (5종)
+[미충족] 촬영이 필요한 클래스: [5]
+요건(5종 이상) 달성: False</span></pre></div>
+<p class="exdesc">"부족한 것"과 "예상 밖의 것"을 동시에 잡아내는 구조입니다. 촬영 중간중간 이 검사를 돌리면 <b>모든 촬영이 끝난 뒤에야 클래스가 빠진 걸 발견하는 사고</b>를 막을 수 있습니다.</p>
+<h4 class="exh"><span class="exno applied">실무 3</span>중복 파일 찾아내기</h4>
+<div class="code"><div class="code-h"><span>d2_ts_a3.py</span><button class="copybtn">복사</button></div><pre><span class="c"># [목적] 파일 목록에서 중복 등록된 항목을 찾는다</span>
+<span class="c"># [설명] 여러 조가 촬영한 데이터를 합칠 때 필요합니다.</span>
+
+team_a = [<span class="s">&quot;img_001.jpg&quot;</span>, <span class="s">&quot;img_002.jpg&quot;</span>, <span class="s">&quot;img_003.jpg&quot;</span>]
+team_b = [<span class="s">&quot;img_003.jpg&quot;</span>, <span class="s">&quot;img_004.jpg&quot;</span>, <span class="s">&quot;img_001.jpg&quot;</span>, <span class="s">&quot;img_005.jpg&quot;</span>]
+
+set_a, set_b = <span class="f">set</span>(team_a), <span class="f">set</span>(team_b)
+
+duplicated = set_a &amp; set_b
+all_files = set_a | set_b
+
+<span class="f">print</span>(<span class="s">f&quot;A조: {len(team_a)}장 / B조: {len(team_b)}장&quot;</span>)
+<span class="f">print</span>(<span class="s">f&quot;단순 합계: {len(team_a) + len(team_b)}장&quot;</span>)
+<span class="f">print</span>(<span class="s">f&quot;실제 고유 파일: {len(all_files)}장&quot;</span>)
+<span class="f">print</span>(<span class="s">f&quot;중복된 파일 {len(duplicated)}건: {sorted(duplicated)}&quot;</span>)
+<span class="f">print</span>(<span class="s">f&quot;\n중복 제거로 절약: {len(team_a) + len(team_b) - len(all_files)}장&quot;</span>)</pre></div>
+<div class="code out-block"><div class="code-h"><span>실행 결과</span></div><pre><span class="out">A조: 3장 / B조: 4장
+단순 합계: 7장
+실제 고유 파일: 5장
+중복된 파일 2건: [&#x27;img_001.jpg&#x27;, &#x27;img_003.jpg&#x27;]
+
+중복 제거로 절약: 2장</span></pre></div>
+<p class="exdesc">합계와 고유 개수의 차이가 곧 중복 건수입니다. 조별로 나눠 촬영한 데이터를 합칠 때 파일명이 겹치면 <b>덮어쓰기로 데이터가 사라질 수 있으므로</b> 병합 전 반드시 확인해야 합니다.</p>
+<h4 class="exh"><span class="exno applied">실무 4</span>관절 좌표(keypoint) 데이터 다루기</h4>
+<div class="code"><div class="code-h"><span>d2_ts_a4.py</span><button class="copybtn">복사</button></div><pre><span class="c"># [목적] COCO 표준 관절 데이터를 튜플로 관리하고 분석한다</span>
+<span class="c"># [설명] 교과 15 동작인식 프로젝트의 입력 데이터 형태입니다.</span>
+
+<span class="c"># (관절명, x, y, 신뢰도)</span>
+pose = [
+    (<span class="s">&quot;nose&quot;</span>, <span class="n">320</span>, <span class="n">120</span>, <span class="n">0.95</span>),
+    (<span class="s">&quot;left_shoulder&quot;</span>, <span class="n">280</span>, <span class="n">200</span>, <span class="n">0.91</span>),
+    (<span class="s">&quot;right_shoulder&quot;</span>, <span class="n">360</span>, <span class="n">200</span>, <span class="n">0.93</span>),
+    (<span class="s">&quot;left_wrist&quot;</span>, <span class="n">250</span>, <span class="n">150</span>, <span class="n">0.72</span>),
+    (<span class="s">&quot;right_wrist&quot;</span>, <span class="n">390</span>, <span class="n">380</span>, <span class="n">0.88</span>),
+]
+
+<span class="f">print</span>(<span class="s">f&quot;{&#x27;관절&#x27;:&lt;16}{&#x27;X&#x27;:&gt;6}{&#x27;Y&#x27;:&gt;6}{&#x27;신뢰도&#x27;:&gt;8}&quot;</span>)
+<span class="f">print</span>(<span class="s">&quot;-&quot;</span> * <span class="n">36</span>)
+<span class="k">for</span> name, x, y, conf <span class="k">in</span> pose:
+    <span class="f">print</span>(<span class="s">f&quot;{name:&lt;16}{x:&gt;6}{y:&gt;6}{conf:&gt;8.2f}&quot;</span>)
+
+<span class="c"># 수신호 판정: 손목이 어깨보다 위에 있는가? (y가 작을수록 위)</span>
+shoulder_y = <span class="n">200</span>
+left_up = <span class="f">any</span>(y &lt; shoulder_y <span class="k">for</span> n, x, y, c <span class="k">in</span> pose <span class="k">if</span> n == <span class="s">&quot;left_wrist&quot;</span>)
+right_up = <span class="f">any</span>(y &lt; shoulder_y <span class="k">for</span> n, x, y, c <span class="k">in</span> pose <span class="k">if</span> n == <span class="s">&quot;right_wrist&quot;</span>)
+
+<span class="f">print</span>(<span class="s">f&quot;\n왼손 들어올림 : {left_up}&quot;</span>)
+<span class="f">print</span>(<span class="s">f&quot;오른손 들어올림: {right_up}&quot;</span>)
+<span class="f">print</span>(<span class="s">f&quot;동작 판정: {&#x27;한손 신호&#x27; if left_up != right_up else (&#x27;양손 신호&#x27; if left_up else &#x27;대기&#x27;)}&quot;</span>)</pre></div>
+<div class="code out-block"><div class="code-h"><span>실행 결과</span></div><pre><span class="out">관절                   X     Y     신뢰도
+------------------------------------
+nose               320   120    0.95
+left_shoulder      280   200    0.91
+right_shoulder     360   200    0.93
+left_wrist         250   150    0.72
+right_wrist        390   380    0.88
+
+왼손 들어올림 : True
+오른손 들어올림: False
+동작 판정: 한손 신호</span></pre></div>
+<p class="exdesc">화면 좌표는 <b>위로 갈수록 y가 작아진다</b>는 점이 중요합니다. "손을 들었다"를 <code>y &lt; 어깨y</code>로 판정하는 이런 규칙 기반 로직이 동작인식의 출발점이 됩니다.</p>
+<h4 class="exh"><span class="exno applied">실무 5</span>처리 완료 파일 추적하기</h4>
+<div class="code"><div class="code-h"><span>d2_ts_a5.py</span><button class="copybtn">복사</button></div><pre><span class="c"># [목적] 이미 처리한 파일을 집합에 기록해 중복 작업을 막는다</span>
+<span class="c"># [설명] 대용량 데이터를 나눠서 처리할 때 필수적인 패턴입니다.</span>
+
+all_files = [<span class="s">&quot;img_001.jpg&quot;</span>, <span class="s">&quot;img_002.jpg&quot;</span>, <span class="s">&quot;img_003.jpg&quot;</span>,
+             <span class="s">&quot;img_004.jpg&quot;</span>, <span class="s">&quot;img_005.jpg&quot;</span>]
+
+processed = {<span class="s">&quot;img_001.jpg&quot;</span>, <span class="s">&quot;img_003.jpg&quot;</span>}    <span class="c"># 이전 실행에서 완료</span>
+
+remaining = [f <span class="k">for</span> f <span class="k">in</span> all_files <span class="k">if</span> f <span class="k">not</span> <span class="k">in</span> processed]
+
+<span class="f">print</span>(<span class="s">f&quot;전체 {len(all_files)}건 / 완료 {len(processed)}건 / 남음 {len(remaining)}건&quot;</span>)
+<span class="f">print</span>(<span class="s">f&quot;진행률: {len(processed)/len(all_files):.0%}&quot;</span>)
+<span class="f">print</span>(<span class="s">&quot;\n=== 이어서 처리 ===&quot;</span>)
+
+<span class="k">for</span> f <span class="k">in</span> remaining:
+    <span class="f">print</span>(<span class="s">f&quot;처리 중: {f}&quot;</span>)
+    processed.add(f)
+
+<span class="f">print</span>(<span class="s">f&quot;\n최종 완료: {len(processed)}건 / 진행률 100%&quot;</span>)</pre></div>
+<div class="code out-block"><div class="code-h"><span>실행 결과</span></div><pre><span class="out">전체 5건 / 완료 2건 / 남음 3건
+진행률: 40%
+
+=== 이어서 처리 ===
+처리 중: img_002.jpg
+처리 중: img_004.jpg
+처리 중: img_005.jpg
+
+최종 완료: 5건 / 진행률 100%</span></pre></div>
+<p class="exdesc">작업이 중간에 멈춰도 처리 목록만 저장해두면 <b>이어서 실행</b>할 수 있습니다. 수천 장을 다루는 실습에서 시간을 크게 절약해주는 실용적인 기법입니다.</p>
+<div class="tryit"><div class="box-h">✍️ 직접 해보기</div><p>두 폴더의 파일 목록을 집합으로 만들어 ① 양쪽 모두에 있는 파일 ② 한쪽에만 있는 파일 ③ 전체 고유 파일 수를 각각 구해 출력해 보세요.</p></div>
+</section>
+<section>
+<h2 id="comprehension">리스트 컴프리헨션 — 한 줄로 리스트 만들기</h2>
+
+<p>"반복문으로 새 리스트를 만드는 코드"를 한 줄로 압축한 문법입니다.
+처음엔 낯설지만 실무 코드에 매우 자주 등장하므로, <b>먼저 읽을 줄 아는 것</b>부터 시작하면 됩니다.</p>
+
+<div class="code"><div class="code-h"><span>구조</span></div><pre>[<span class="s">결과값</span> <span class="k">for</span> 항목 <span class="k">in</span> 목록 <span class="k">if</span> 조건]
+  ↑ 무엇을 담을지     ↑ 어디서 꺼낼지      ↑ 어떤 것만 (생략 가능)</pre></div>
+
+<p>읽는 순서는 <b>가운데 → 오른쪽 → 왼쪽</b>입니다.
+"목록에서 항목을 하나씩 꺼내(for), 조건에 맞는 것만(if), 결과값 형태로 담는다"고 소리 내어 읽어보면 이해가 빠릅니다.</p>
+
+<div class="box tip">
+<div class="box-h">💡 딕셔너리·집합도 같은 방식으로</div>
+<p><code>{k: v for ...}</code> → 딕셔너리 컴프리헨션 · <code>{x for ...}</code> → 집합 컴프리헨션<br>
+대괄호를 중괄호로 바꾸기만 하면 됩니다.</p>
+</div>
+
+<div class="box warn">
+<div class="box-h">⚠️ 한 줄에 다 넣으려 하지 마세요</div>
+<p>조건이 두 개 이상 겹치거나 처리가 복잡해지면 컴프리헨션이 오히려 읽기 어려워집니다.
+그럴 때는 <b>평범한 반복문으로 여러 줄에 나눠 쓰는 것이 더 좋은 코드</b>입니다.</p>
+</div>
+
+<h3 class="grp">기본 예제 <span class="grp-sub">문법 자체에 익숙해지기</span></h3>
+<h4 class="exh"><span class="exno basic">기본 1</span>반복문과 컴프리헨션 비교</h4>
+<div class="code"><div class="code-h"><span>d2_comp_01.py</span><button class="copybtn">복사</button></div><pre><span class="c"># [목적] 같은 결과를 두 가지 방법으로 만들어 비교한다</span>
+<span class="c"># [설명] 컴프리헨션은 반복문을 압축한 것입니다.</span>
+
+numbers = [<span class="n">1</span>, <span class="n">2</span>, <span class="n">3</span>, <span class="n">4</span>, <span class="n">5</span>]
+
+<span class="c"># 방법 1 : 일반 반복문</span>
+squares_1 = []
+<span class="k">for</span> n <span class="k">in</span> numbers:
+    squares_1.append(n ** <span class="n">2</span>)
+
+<span class="c"># 방법 2 : 리스트 컴프리헨션</span>
+squares_2 = [n ** <span class="n">2</span> <span class="k">for</span> n <span class="k">in</span> numbers]
+
+<span class="f">print</span>(<span class="s">&quot;반복문   :&quot;</span>, squares_1)
+<span class="f">print</span>(<span class="s">&quot;컴프리헨션:&quot;</span>, squares_2)
+<span class="f">print</span>(<span class="s">&quot;결과 동일:&quot;</span>, squares_1 == squares_2)</pre></div>
+<div class="code out-block"><div class="code-h"><span>실행 결과</span></div><pre><span class="out">반복문   : [1, 4, 9, 16, 25]
+컴프리헨션: [1, 4, 9, 16, 25]
+결과 동일: True</span></pre></div>
+<p class="exdesc">4줄이 1줄로 줄었습니다. 빈 리스트를 만들고 <code>append</code>하는 과정을 파이썬이 대신 해준다고 생각하면 됩니다.</p>
+<h4 class="exh"><span class="exno basic">기본 2</span>if로 걸러내기</h4>
+<div class="code"><div class="code-h"><span>d2_comp_02.py</span><button class="copybtn">복사</button></div><pre><span class="c"># [목적] 조건에 맞는 항목만 골라 새 리스트를 만든다</span>
+<span class="c"># [설명] for 뒤에 if를 붙이면 필터 역할을 합니다.</span>
+
+numbers = <span class="f">list</span>(<span class="f">range</span>(<span class="n">1</span>, <span class="n">11</span>))
+
+evens = [n <span class="k">for</span> n <span class="k">in</span> numbers <span class="k">if</span> n % <span class="n">2</span> == <span class="n">0</span>]
+big = [n <span class="k">for</span> n <span class="k">in</span> numbers <span class="k">if</span> n &gt; <span class="n">6</span>]
+both = [n <span class="k">for</span> n <span class="k">in</span> numbers <span class="k">if</span> n % <span class="n">2</span> == <span class="n">0</span> <span class="k">and</span> n &gt; <span class="n">6</span>]
+
+<span class="f">print</span>(<span class="s">&quot;전체  :&quot;</span>, numbers)
+<span class="f">print</span>(<span class="s">&quot;짝수  :&quot;</span>, evens)
+<span class="f">print</span>(<span class="s">&quot;6 초과:&quot;</span>, big)
+<span class="f">print</span>(<span class="s">&quot;둘 다 :&quot;</span>, both)</pre></div>
+<div class="code out-block"><div class="code-h"><span>실행 결과</span></div><pre><span class="out">전체  : [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
+짝수  : [2, 4, 6, 8, 10]
+6 초과: [7, 8, 9, 10]
+둘 다 : [8, 10]</span></pre></div>
+<p class="exdesc">조건을 <code>and</code>로 이어 붙이면 여러 필터를 동시에 적용할 수 있습니다. 다만 조건이 세 개를 넘으면 반복문으로 풀어 쓰는 편이 읽기 좋습니다.</p>
+<h4 class="exh"><span class="exno basic">기본 3</span>값을 변형하면서 담기</h4>
+<div class="code"><div class="code-h"><span>d2_comp_03.py</span><button class="copybtn">복사</button></div><pre><span class="c"># [목적] 꺼낸 값을 가공해서 새 리스트에 담는다</span>
+<span class="c"># [설명] for 앞의 자리가 &quot;무엇을 담을지&quot;를 결정합니다.</span>
+
+words = [<span class="s">&quot;apple&quot;</span>, <span class="s">&quot;Banana&quot;</span>, <span class="s">&quot;CHERRY&quot;</span>]
+
+lower = [w.lower() <span class="k">for</span> w <span class="k">in</span> words]
+lengths = [<span class="f">len</span>(w) <span class="k">for</span> w <span class="k">in</span> words]
+labeled = [<span class="s">f&quot;과일: {w.capitalize()}&quot;</span> <span class="k">for</span> w <span class="k">in</span> words]
+
+<span class="f">print</span>(<span class="s">&quot;소문자:&quot;</span>, lower)
+<span class="f">print</span>(<span class="s">&quot;길이  :&quot;</span>, lengths)
+<span class="f">print</span>(<span class="s">&quot;가공  :&quot;</span>, labeled)</pre></div>
+<div class="code out-block"><div class="code-h"><span>실행 결과</span></div><pre><span class="out">소문자: [&#x27;apple&#x27;, &#x27;banana&#x27;, &#x27;cherry&#x27;]
+길이  : [5, 6, 6]
+가공  : [&#x27;과일: Apple&#x27;, &#x27;과일: Banana&#x27;, &#x27;과일: Cherry&#x27;]</span></pre></div>
+<p class="exdesc"><code>for</code> 앞자리에 함수 호출이나 f-string을 넣을 수 있다는 점이 컴프리헨션을 유연하게 만듭니다. 데이터를 일괄 변환할 때 매우 편리합니다.</p>
+<h4 class="exh"><span class="exno basic">기본 4</span>조건에 따라 다른 값 담기</h4>
+<div class="code"><div class="code-h"><span>d2_comp_04.py</span><button class="copybtn">복사</button></div><pre><span class="c"># [목적] if-else를 앞자리에 넣어 값을 골라 담는다</span>
+<span class="c"># [설명] 필터용 if는 뒤에, 값 선택용 if-else는 앞에 옵니다.</span>
+
+scores = [<span class="n">88</span>, <span class="n">45</span>, <span class="n">72</span>, <span class="n">91</span>, <span class="n">58</span>]
+
+<span class="c"># 필터: 뒤쪽 if -&gt; 조건에 맞는 것만 남김</span>
+passed = [s <span class="k">for</span> s <span class="k">in</span> scores <span class="k">if</span> s &gt;= <span class="n">60</span>]
+
+<span class="c"># 선택: 앞쪽 if-else -&gt; 모든 항목을 변환</span>
+grades = [<span class="s">&quot;합격&quot;</span> <span class="k">if</span> s &gt;= <span class="n">60</span> <span class="k">else</span> <span class="s">&quot;불합격&quot;</span> <span class="k">for</span> s <span class="k">in</span> scores]
+
+<span class="f">print</span>(<span class="s">&quot;점수  :&quot;</span>, scores)
+<span class="f">print</span>(<span class="s">&quot;합격만:&quot;</span>, passed)
+<span class="f">print</span>(<span class="s">&quot;판정  :&quot;</span>, grades)</pre></div>
+<div class="code out-block"><div class="code-h"><span>실행 결과</span></div><pre><span class="out">점수  : [88, 45, 72, 91, 58]
+합격만: [88, 72, 91]
+판정  : [&#x27;합격&#x27;, &#x27;불합격&#x27;, &#x27;합격&#x27;, &#x27;합격&#x27;, &#x27;불합격&#x27;]</span></pre></div>
+<p class="exdesc"><b>if의 위치가 다르면 의미가 완전히 다릅니다.</b> 뒤에 있으면 "골라내기"(개수가 줄어듦), 앞에 있으면 "값 바꾸기"(개수 유지)입니다. 헷갈리기 쉬우니 꼭 구분해 두세요.</p>
+<h4 class="exh"><span class="exno basic">기본 5</span>딕셔너리·집합 컴프리헨션</h4>
+<div class="code"><div class="code-h"><span>d2_comp_05.py</span><button class="copybtn">복사</button></div><pre><span class="c"># [목적] 대괄호 대신 중괄호로 딕셔너리와 집합을 만든다</span>
+<span class="c"># [설명] 형태만 다를 뿐 원리는 같습니다.</span>
+
+names = [<span class="s">&quot;사과&quot;</span>, <span class="s">&quot;바나나&quot;</span>, <span class="s">&quot;딸기&quot;</span>]
+prices = [<span class="n">1200</span>, <span class="n">3000</span>, <span class="n">8000</span>]
+
+<span class="c"># 딕셔너리 컴프리헨션</span>
+price_map = {n: p <span class="k">for</span> n, p <span class="k">in</span> <span class="f">zip</span>(names, prices)}
+<span class="f">print</span>(price_map)
+
+<span class="c"># 조건 추가</span>
+cheap = {n: p <span class="k">for</span> n, p <span class="k">in</span> price_map.items() <span class="k">if</span> p &lt; <span class="n">5000</span>}
+<span class="f">print</span>(<span class="s">&quot;5000원 미만:&quot;</span>, cheap)
+
+<span class="c"># 집합 컴프리헨션 (중복 자동 제거)</span>
+ids = [<span class="n">1</span>, <span class="n">3</span>, <span class="n">1</span>, <span class="n">6</span>, <span class="n">3</span>]
+unique = {i <span class="k">for</span> i <span class="k">in</span> ids}
+<span class="f">print</span>(<span class="s">&quot;고유 ID:&quot;</span>, unique)</pre></div>
+<div class="code out-block"><div class="code-h"><span>실행 결과</span></div><pre><span class="out">{&#x27;사과&#x27;: 1200, &#x27;바나나&#x27;: 3000, &#x27;딸기&#x27;: 8000}
+5000원 미만: {&#x27;사과&#x27;: 1200, &#x27;바나나&#x27;: 3000}
+고유 ID: {1, 3, 6}</span></pre></div>
+<p class="exdesc"><code>zip</code>과 딕셔너리 컴프리헨션을 결합하면 두 리스트를 한 줄로 딕셔너리로 합칠 수 있습니다. 데이터를 다른 형태로 재구성할 때 자주 쓰는 조합입니다.</p>
+<h3 class="grp">실무 예제 <span class="grp-sub">프로젝트에서 바로 쓰이는 형태</span></h3>
+<h4 class="exh"><span class="exno applied">실무 1</span>파일 목록에서 특정 확장자만 걸러내기</h4>
+<div class="code"><div class="code-h"><span>d2_comp_a1.py</span><button class="copybtn">복사</button></div><pre><span class="c"># [목적] 폴더 내 파일 중 이미지와 라벨을 분리한다</span>
+<span class="c"># [설명] 데이터셋 정리의 첫 단계입니다.</span>
+
+files = [<span class="s">&quot;img_001.jpg&quot;</span>, <span class="s">&quot;img_001.txt&quot;</span>, <span class="s">&quot;img_002.jpg&quot;</span>, <span class="s">&quot;img_002.txt&quot;</span>,
+         <span class="s">&quot;README.md&quot;</span>, <span class="s">&quot;img_003.JPG&quot;</span>, <span class="s">&quot;config.yaml&quot;</span>]
+
+images = [f <span class="k">for</span> f <span class="k">in</span> files <span class="k">if</span> f.lower().endswith((<span class="s">&quot;.jpg&quot;</span>, <span class="s">&quot;.png&quot;</span>))]
+labels = [f <span class="k">for</span> f <span class="k">in</span> files <span class="k">if</span> f.endswith(<span class="s">&quot;.txt&quot;</span>)]
+others = [f <span class="k">for</span> f <span class="k">in</span> files <span class="k">if</span> f <span class="k">not</span> <span class="k">in</span> images <span class="k">and</span> f <span class="k">not</span> <span class="k">in</span> labels]
+
+<span class="f">print</span>(<span class="s">f&quot;이미지 {len(images)}건: {images}&quot;</span>)
+<span class="f">print</span>(<span class="s">f&quot;라벨   {len(labels)}건: {labels}&quot;</span>)
+<span class="f">print</span>(<span class="s">f&quot;기타   {len(others)}건: {others}&quot;</span>)</pre></div>
+<div class="code out-block"><div class="code-h"><span>실행 결과</span></div><pre><span class="out">이미지 3건: [&#x27;img_001.jpg&#x27;, &#x27;img_002.jpg&#x27;, &#x27;img_003.JPG&#x27;]
+라벨   2건: [&#x27;img_001.txt&#x27;, &#x27;img_002.txt&#x27;]
+기타   2건: [&#x27;README.md&#x27;, &#x27;config.yaml&#x27;]</span></pre></div>
+<p class="exdesc"><code>.endswith()</code>에 <b>튜플</b>을 넣으면 여러 확장자를 한 번에 검사합니다. <code>.lower()</code>를 먼저 붙여 <code>.JPG</code>도 놓치지 않게 한 점이 실무적인 처리입니다.</p>
+<h4 class="exh"><span class="exno applied">실무 2</span>라벨 파일 경로 일괄 생성</h4>
+<div class="code"><div class="code-h"><span>d2_comp_a2.py</span><button class="copybtn">복사</button></div><pre><span class="c"># [목적] 이미지 경로 목록에서 대응하는 라벨 경로를 한 번에 만든다</span>
+<span class="c"># [설명] 반복문 여러 줄이 한 줄로 줄어듭니다.</span>
+
+img_paths = [
+    <span class="s">&quot;dataset/train/images/img_001.jpg&quot;</span>,
+    <span class="s">&quot;dataset/train/images/img_002.jpg&quot;</span>,
+    <span class="s">&quot;dataset/train/images/img_003.jpg&quot;</span>,
+]
+
+label_paths = [p.replace(<span class="s">&quot;/images/&quot;</span>, <span class="s">&quot;/labels/&quot;</span>).replace(<span class="s">&quot;.jpg&quot;</span>, <span class="s">&quot;.txt&quot;</span>)
+               <span class="k">for</span> p <span class="k">in</span> img_paths]
+
+<span class="k">for</span> img, lbl <span class="k">in</span> <span class="f">zip</span>(img_paths, label_paths):
+    <span class="f">print</span>(<span class="s">f&quot;{img.split(&#x27;/&#x27;)[-1]:&lt;16} -&gt; {lbl.split(&#x27;/&#x27;)[-1]}&quot;</span>)
+
+<span class="c"># 파일명만 뽑기</span>
+names = [p.split(<span class="s">&quot;/&quot;</span>)[-<span class="n">1</span>].split(<span class="s">&quot;.&quot;</span>)[<span class="n">0</span>] <span class="k">for</span> p <span class="k">in</span> img_paths]
+<span class="f">print</span>(<span class="s">&quot;\n파일명(확장자 제외):&quot;</span>, names)</pre></div>
+<div class="code out-block"><div class="code-h"><span>실행 결과</span></div><pre><span class="out">img_001.jpg      -&gt; img_001.txt
+img_002.jpg      -&gt; img_002.txt
+img_003.jpg      -&gt; img_003.txt
+
+파일명(확장자 제외): [&#x27;img_001&#x27;, &#x27;img_002&#x27;, &#x27;img_003&#x27;]</span></pre></div>
+<p class="exdesc">한 줄이 너무 길어지면 <b>줄바꿈해도 됩니다</b>. 대괄호가 닫히지 않은 상태에서는 여러 줄에 걸쳐 써도 파이썬이 하나의 표현식으로 인식합니다.</p>
+<h4 class="exh"><span class="exno applied">실무 3</span>검출 결과 필터링과 변환</h4>
+<div class="code"><div class="code-h"><span>d2_comp_a3.py</span><button class="copybtn">복사</button></div><pre><span class="c"># [목적] 신뢰도 기준을 넘는 검출만 골라 필요한 형태로 변환한다</span>
+<span class="c"># [설명] 모델 후처리를 컴프리헨션으로 간결하게 표현합니다.</span>
+
+detections = [
+    {<span class="s">&quot;class_id&quot;</span>: <span class="n">1</span>, <span class="s">&quot;conf&quot;</span>: <span class="n">0.92</span>, <span class="s">&quot;bbox&quot;</span>: [<span class="n">120</span>, <span class="n">85</span>, <span class="n">40</span>, <span class="n">30</span>]},
+    {<span class="s">&quot;class_id&quot;</span>: <span class="n">6</span>, <span class="s">&quot;conf&quot;</span>: <span class="n">0.55</span>, <span class="s">&quot;bbox&quot;</span>: [<span class="n">300</span>, <span class="n">210</span>, <span class="n">55</span>, <span class="n">60</span>]},
+    {<span class="s">&quot;class_id&quot;</span>: <span class="n">2</span>, <span class="s">&quot;conf&quot;</span>: <span class="n">0.88</span>, <span class="s">&quot;bbox&quot;</span>: [<span class="n">50</span>, <span class="n">40</span>, <span class="n">90</span>, <span class="n">70</span>]},
+    {<span class="s">&quot;class_id&quot;</span>: <span class="n">3</span>, <span class="s">&quot;conf&quot;</span>: <span class="n">0.41</span>, <span class="s">&quot;bbox&quot;</span>: [<span class="n">10</span>, <span class="n">10</span>, <span class="n">20</span>, <span class="n">15</span>]},
+]
+CLASS_MAP = {<span class="n">1</span>: <span class="s">&quot;나뭇잎류&quot;</span>, <span class="n">2</span>: <span class="s">&quot;플라스틱류&quot;</span>, <span class="n">3</span>: <span class="s">&quot;나뭇가지류&quot;</span>, <span class="n">6</span>: <span class="s">&quot;파·고추&quot;</span>}
+
+<span class="c"># 1) 신뢰도 0.7 이상만 남기기</span>
+accepted = [d <span class="k">for</span> d <span class="k">in</span> detections <span class="k">if</span> d[<span class="s">&quot;conf&quot;</span>] &gt;= <span class="n">0.7</span>]
+
+<span class="c"># 2) 표시용 문자열로 변환</span>
+lines = [<span class="s">f&quot;{CLASS_MAP[d[&#x27;class_id&#x27;]]} ({d[&#x27;conf&#x27;]:.0%})&quot;</span> <span class="k">for</span> d <span class="k">in</span> accepted]
+
+<span class="c"># 3) 면적만 뽑기</span>
+areas = [d[<span class="s">&quot;bbox&quot;</span>][<span class="n">2</span>] * d[<span class="s">&quot;bbox&quot;</span>][<span class="n">3</span>] <span class="k">for</span> d <span class="k">in</span> accepted]
+
+<span class="f">print</span>(<span class="s">f&quot;전체 {len(detections)}건 -&gt; 채택 {len(accepted)}건&quot;</span>)
+<span class="k">for</span> line <span class="k">in</span> lines:
+    <span class="f">print</span>(<span class="s">&quot; -&quot;</span>, line)
+<span class="f">print</span>(<span class="s">&quot;면적 목록:&quot;</span>, areas, <span class="s">&quot;/ 합계:&quot;</span>, <span class="f">sum</span>(areas))</pre></div>
+<div class="code out-block"><div class="code-h"><span>실행 결과</span></div><pre><span class="out">전체 4건 -&gt; 채택 2건
+ - 나뭇잎류 (92%)
+ - 플라스틱류 (88%)
+면적 목록: [1200, 6300] / 합계: 7500</span></pre></div>
+<p class="exdesc">필터링 → 변환 → 집계를 <b>세 단계로 나눠</b> 각각 한 줄씩 처리했습니다. 한 줄에 전부 몰아넣는 것보다 이렇게 단계를 나누는 편이 읽기도 좋고 중간 결과 확인도 쉽습니다.</p>
+<h4 class="exh"><span class="exno applied">실무 4</span>YOLO 라벨 일괄 파싱</h4>
+<div class="code"><div class="code-h"><span>d2_comp_a4.py</span><button class="copybtn">복사</button></div><pre><span class="c"># [목적] 라벨 파일의 여러 줄을 한 번에 구조화된 데이터로 바꾼다</span>
+<span class="c"># [설명] 파일 읽기와 결합하면 그대로 실무 코드가 됩니다.</span>
+
+lines = [
+    <span class="s">&quot;1 0.4231 0.3547 0.1024 0.0813&quot;</span>,
+    <span class="s">&quot;6 0.7102 0.6033 0.1500 0.1200&quot;</span>,
+    <span class="s">&quot;2 0.2210 0.8100 0.0800 0.0650&quot;</span>,
+]
+
+<span class="c"># 각 줄을 딕셔너리로 변환</span>
+labels = [
+    {
+        <span class="s">&quot;class_id&quot;</span>: <span class="f">int</span>(parts[<span class="n">0</span>]),
+        <span class="s">&quot;cx&quot;</span>: <span class="f">float</span>(parts[<span class="n">1</span>]),
+        <span class="s">&quot;cy&quot;</span>: <span class="f">float</span>(parts[<span class="n">2</span>]),
+        <span class="s">&quot;w&quot;</span>: <span class="f">float</span>(parts[<span class="n">3</span>]),
+        <span class="s">&quot;h&quot;</span>: <span class="f">float</span>(parts[<span class="n">4</span>]),
+    }
+    <span class="k">for</span> parts <span class="k">in</span> (line.split() <span class="k">for</span> line <span class="k">in</span> lines)
+]
+
+<span class="k">for</span> lb <span class="k">in</span> labels:
+    area = lb[<span class="s">&quot;w&quot;</span>] * lb[<span class="s">&quot;h&quot;</span>]
+    <span class="f">print</span>(<span class="s">f&quot;클래스 {lb[&#x27;class_id&#x27;]} | 중심({lb[&#x27;cx&#x27;]:.2f}, {lb[&#x27;cy&#x27;]:.2f}) | 면적비 {area:.2%}&quot;</span>)
+
+<span class="c"># 클래스 ID만 모으기</span>
+ids = [lb[<span class="s">&quot;class_id&quot;</span>] <span class="k">for</span> lb <span class="k">in</span> labels]
+<span class="f">print</span>(<span class="s">&quot;\n등장 클래스:&quot;</span>, <span class="f">sorted</span>(<span class="f">set</span>(ids)))</pre></div>
+<div class="code out-block"><div class="code-h"><span>실행 결과</span></div><pre><span class="out">클래스 1 | 중심(0.42, 0.35) | 면적비 0.83%
+클래스 6 | 중심(0.71, 0.60) | 면적비 1.80%
+클래스 2 | 중심(0.22, 0.81) | 면적비 0.52%
+
+등장 클래스: [1, 2, 6]</span></pre></div>
+<p class="exdesc"><code>for parts in (line.split() for line in lines)</code>는 "각 줄을 쪼갠 결과를 parts로 받는다"는 뜻입니다. 중간 변수를 만들지 않고 두 단계를 이어붙인 형태로, 익숙해지면 매우 편리합니다.</p>
+<h4 class="exh"><span class="exno applied">실무 5</span>클래스별 개수 집계를 한 줄로</h4>
+<div class="code"><div class="code-h"><span>d2_comp_a5.py</span><button class="copybtn">복사</button></div><pre><span class="c"># [목적] 앞서 반복문으로 하던 집계를 컴프리헨션으로 처리한다</span>
+<span class="c"># [설명] 딕셔너리 컴프리헨션과 count()의 조합입니다.</span>
+
+detected = [<span class="n">1</span>, <span class="n">6</span>, <span class="n">1</span>, <span class="n">3</span>, <span class="n">1</span>, <span class="n">6</span>, <span class="n">2</span>, <span class="n">1</span>, <span class="n">3</span>, <span class="n">6</span>, <span class="n">1</span>, <span class="n">5</span>]
+CLASS_MAP = {<span class="n">1</span>: <span class="s">&quot;나뭇잎류&quot;</span>, <span class="n">2</span>: <span class="s">&quot;플라스틱류&quot;</span>, <span class="n">3</span>: <span class="s">&quot;나뭇가지류&quot;</span>,
+             <span class="n">5</span>: <span class="s">&quot;병해·갈변&quot;</span>, <span class="n">6</span>: <span class="s">&quot;파·고추&quot;</span>}
+
+<span class="c"># 집합으로 고유 클래스를 뽑고, count로 개수를 센다</span>
+counts = {cid: detected.count(cid) <span class="k">for</span> cid <span class="k">in</span> <span class="f">sorted</span>(<span class="f">set</span>(detected))}
+<span class="f">print</span>(<span class="s">&quot;집계:&quot;</span>, counts)
+
+total = <span class="f">len</span>(detected)
+report = [<span class="s">f&quot;{CLASS_MAP[cid]}: {n}건 ({n/total:.0%})&quot;</span>
+          <span class="k">for</span> cid, n <span class="k">in</span> counts.items()]
+
+<span class="f">print</span>(<span class="s">&quot;\n=== 클래스 분포 ===&quot;</span>)
+<span class="k">for</span> line <span class="k">in</span> report:
+    <span class="f">print</span>(<span class="s">&quot; -&quot;</span>, line)
+
+<span class="c"># 부족한 클래스 찾기 (전체의 10% 미만)</span>
+rare = [CLASS_MAP[cid] <span class="k">for</span> cid, n <span class="k">in</span> counts.items() <span class="k">if</span> n / total &lt; <span class="n">0.10</span>]
+<span class="f">print</span>(<span class="s">&quot;\n추가 촬영 권장:&quot;</span>, rare)</pre></div>
+<div class="code out-block"><div class="code-h"><span>실행 결과</span></div><pre><span class="out">집계: {1: 5, 2: 1, 3: 2, 5: 1, 6: 3}
+
+=== 클래스 분포 ===
+ - 나뭇잎류: 5건 (42%)
+ - 플라스틱류: 1건 (8%)
+ - 나뭇가지류: 2건 (17%)
+ - 병해·갈변: 1건 (8%)
+ - 파·고추: 3건 (25%)
+
+추가 촬영 권장: [&#x27;플라스틱류&#x27;, &#x27;병해·갈변&#x27;]</span></pre></div>
+<p class="exdesc">집계 → 리포트 문자열 생성 → 부족 클래스 추출까지 각 단계가 한 줄입니다. 다만 <code>.count()</code>는 매번 리스트를 처음부터 훑으므로, 데이터가 매우 클 때는 반복문 방식이 더 빠릅니다.</p>
+<div class="tryit"><div class="box-h">✍️ 직접 해보기</div><p><code>d2_comp_a3.py</code>의 <code>detections</code>에서 <b>면적이 1000 이상이면서 신뢰도가 0.7 이상</b>인 검출만 골라내는 컴프리헨션을 작성해 보세요.</p></div>
+</section>
+
+<section>
+<h2 id="check2">2일차 확인해보기</h2>
+<ul class="checklist">
+<li>if / elif / else로 여러 경우를 순서대로 판정할 수 있다</li>
+<li>and, or, not, in으로 여러 조건을 결합할 수 있다</li>
+<li>for와 while의 차이를 알고 상황에 맞게 고를 수 있다</li>
+<li><code>range()</code>, <code>enumerate()</code>, <code>zip()</code>을 반복문에서 활용할 수 있다</li>
+<li><code>break</code>와 <code>continue</code>로 반복 흐름을 제어할 수 있다</li>
+<li>리스트에 값을 추가·삭제·정렬하고 통계 함수를 적용할 수 있다</li>
+<li>딕셔너리로 key-value 데이터를 저장하고 <code>.items()</code>로 순회할 수 있다</li>
+<li>딕셔너리를 담은 리스트 구조로 실제 데이터를 표현할 수 있다</li>
+<li>집합 연산(<code>-</code>, <code>&amp;</code>, <code>|</code>)으로 목록을 비교할 수 있다</li>
+<li>리스트 컴프리헨션을 읽고 간단한 형태는 직접 쓸 수 있다</li>
+</ul>
+
+<div class="box concept">
+<div class="box-h">📌 내일 배울 것</div>
+<p>내일은 지금까지 배운 것을 <b>재사용 가능한 형태로 묶는</b> 방법을 배웁니다.
+반복되는 코드를 함수로 만들고, 결과를 파일로 저장하고,
+오류 상황에 대비하고, 데이터와 동작을 클래스로 묶습니다.
+마지막에는 3일 동안 배운 모든 것을 조합해 <b>실제로 쓸 수 있는 검증 도구</b>를 완성합니다.</p>
+</div>
+</section>
+
+    <nav class="pager"><a href="01.html"><span class="k">← 이전</span><span class="v">1일차 · 개발환경과 기본 문법</span></a><a class="next" href="03.html"><span class="k">다음 →</span><span class="v">3일차 · 함수 · 파일 · 예외처리 · 클래스</span></a></nav>
+  </main>
+</div>
+<script>
+document.querySelectorAll('.code').forEach(function(b){
+  var btn=b.querySelector('.copybtn'); if(!btn) return;
+  btn.addEventListener('click',function(){
+    navigator.clipboard.writeText(b.querySelector('pre').innerText).then(function(){
+      btn.textContent='복사됨'; btn.classList.add('copied');
+      setTimeout(function(){btn.textContent='복사'; btn.classList.remove('copied');},1400);
+    });
+  });
+});
+</script>
+</body></html>
