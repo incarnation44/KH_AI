@@ -13,11 +13,9 @@
 ## 2. 3대 기기(DESKTOP, LAPTOP, ACADEMY) 동기화 원칙
 - **식별**: 각 기기는 `.local/machine.json`에 정의된 `machine_id` (`DESKTOP`, `LAPTOP`, `ACADEMY`)를 갖습니다.
 - **Git 리포지토리**: `github.com/incarnation44/KH_AI` (Obsidian-vault와 별도 관리)
-- **동기화(/업데이트) 철칙**:
-  1. **덮어쓰기 금지 (No Auto-Overwrite)**: 단순 시간순 덮어쓰기를 절대 수행하지 않습니다.
-  2. **3-Way Merge**: GitHub 원격을 중앙 기준으로 삼아 3-way 병합을 수행합니다.
-  3. **충돌 보호 (Conflict Protection)**: 로컬과 원격이 동시에 수정되어 충돌(Conflict)이 발생할 경우, 절대 임의로 삭제/병합하지 않고 작업을 중지(STOP)한 후 사용자 확인을 받습니다.
-  4. **커밋 메시지 명시**: `[DESKTOP] ...`, `[ACADEMY] ...` 와 같이 작성 주체(Machine ID)를 커밋 메시지에 명시하여 이력을 추적합니다.
+- **동기화(`/업데이트`) 철칙**:
+  1. 명시적인 `/업데이트` 호출 시 AI는 임의로 `git pull/push/commit/reset` 등 Git 명령어를 조합하여 타이핑하지 않고, **오직 `scripts\sync_safe_update.ps1` 스크립트를 실행**하여 안전하게 동기화하고 그 결과를 보고합니다.
+  2. 스크립트 내부에서 덮어쓰기 금지(No Auto-Overwrite), 충돌 보호(Conflict Protection), 기기명 자동 삽입(`[DESKTOP] ...`)을 완벽히 수행하며, 충돌 시엔 작업을 중지(STOP)합니다.
 
 ## 3. 형상 관리 (Git) 및 제외 대상 (.gitignore)
 - `dataset/`, `models/`, `weights/`, `*.pt`, `*.pth` 등 대용량 파일은 원격에 푸시하지 않습니다.
