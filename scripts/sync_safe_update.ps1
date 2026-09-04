@@ -45,20 +45,22 @@ try {
     Write-Host "  - Unpushed Local Commits    : $hasUnpushedCommits"
     
     # 6. Conflict Protection Logic
-    if ($hasLocalChanges -and $hasRemoteChanges) {
-        Write-Host ""
-        Write-Host "⚠️  SYNC CONFLICT DANGER ⚠️" -ForegroundColor Red
-        Write-Host "Both local changes AND remote commits exist." -ForegroundColor Yellow
-        Write-Host "Auto-merge is disabled to protect your files." -ForegroundColor Yellow
-        Write-Host "ACTION REQUIRED: Please commit your changes manually, then pull and resolve conflicts." -ForegroundColor Yellow
-        Write-Host "ABORTING SYNC." -ForegroundColor Red
-        exit 1
+    if ($hasRemoteChanges) {
+        if ($hasLocalChanges -or $hasUnpushedCommits) {
+            Write-Host ""
+            Write-Host "⚠️  SYNC CONFLICT DANGER (DIVERGED) ⚠️" -ForegroundColor Red
+            Write-Host "Both local/unpushed changes AND remote commits exist." -ForegroundColor Yellow
+            Write-Host "Auto-merge is strictly disabled to protect your files." -ForegroundColor Yellow
+            Write-Host "ACTION REQUIRED: Please inspect manually and resolve conflicts before syncing." -ForegroundColor Yellow
+            Write-Host "ABORTING SYNC." -ForegroundColor Red
+            exit 1
+        }
     }
     
     # 7. Safe Pull
     if ($hasRemoteChanges) {
-        Write-Host "[3/4] Safe Pulling from remote..."
-        git pull origin master --no-rebase
+        Write-Host "[3/4] Safe Pulling from remote (Fast-forward only)..."
+        git pull origin master --ff-only
     } else {
         Write-Host "[3/4] No remote changes to pull. Up to date."
     }
