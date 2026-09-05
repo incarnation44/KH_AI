@@ -1,4 +1,4 @@
-﻿# PROJECT STATUS (KH_AI)
+# PROJECT STATUS (KH_AI)
 
 > **프로젝트 작업 연속성 상태판 (3-PC 공통 기준점)**  
 > 노트북 ↔ 본체 ↔ 학원 PC 간 작업 인계 시 이 문서를 최우선 참조합니다.  
@@ -30,16 +30,24 @@
 
 ---
 
-## 4. In Progress
-* [ ] 3-PC 통합 작업환경 연동 및 Git 동기화 검증
+## 4. In Progress (3-PC Cross-Validation Status)
+* [x] **Phase 1 (Laptop 단독 검증)**: 머신 자동 감지(`laptop`), `unknown` 안전 fallback, `.gitignore` 보안 차단, `PROJECT_STATUS.md` 수립: **PASS**
+* [ ] **Phase 2 (Desktop 본체 검증)**: `MACHINE_ID=desktop` 설정, `git pull`, Obsidian/RAG 허용, **Ollama(RX 6600 VRAM) 실동작 확인**: ⏳ **PENDING (주말 본체 대기)**
+* [ ] **Phase 3 (Laptop ↔ Desktop 교차 왕복)**: Laptop push ➔ Desktop pull ➔ Desktop 과제 작업 후 push ➔ Laptop pull: ⏳ **PENDING (1차 교차 왕복 대기)**
+* [ ] **Phase 4 (Academy 학원PC 검증)**: `MACHINE_ID=academy` 설정, `git pull`, **개인환경(Obsidian/RAG/DB) 완전 차단 확인**: ⏳ **PENDING (학원 대기)**
+* [ ] **Phase 5 (Academy ↔ 메인기기 최종 왕복)**: 학원 push ➔ 본체/노트북 pull 무결점 프로젝트 연속성: ⏳ **PENDING (최종 통합 왕복 대기)**
 * [ ] `day1` 파이썬 기초 실습 (`d1_str_01.py` ~ `d1_str_05.py`, `d1_io_01.py` ~ `d1_io_05.py`) 코드 분석
 
 ---
 
 ## 5. Next Steps
-1. 노트북에서 작업한 변경사항을 GitHub `main`에 push
-2. 본체(Desktop)에서 `git pull origin main` 수신 후 `PROJECT_STATUS.md` 확인하여 작업 연속성 검증
-3. 학원 PC(Academy)에서 `git pull origin main` 수신 후 개인 정보 격리 상태에서 파이썬 실습 수행
+1. **주말 본체(Desktop) 부팅 시**:
+   - `MACHINE_ID=desktop` 설정 및 `detect_machine.ps1` 검증
+   - `git pull origin main` 수신 후 `ollama list` 및 `ollama ps` 실동작 확인 (Phase 2)
+   - 본체에서 과제 작업 후 push (Phase 3 진입)
+2. **학원 PC(Academy) 출석 시**:
+   - `MACHINE_ID=academy` 설정 및 `detect_machine.ps1` 검증 (개인환경 차단 확인, Phase 4)
+   - `git pull origin main` 수신 후 파이썬 실습 진행 및 push (Phase 5 진입)
 
 ---
 
@@ -51,5 +59,8 @@
 
 ## 7. Test Results
 * **2026-09-05 환경 검증**:
+  * Laptop 머신 자동 감지 및 안전 fallback (`unknown` 전환): **PASS**
   * Conda `pytest` 환경 인터프리터 (`C:\Users\ildoc\miniconda3\envs\pytest\python.exe`) 동작 확인: **PASS**
   * OpenCV, Torch, NumPy, Pandas, PyTest 5개 핵심 라이브러리 로드: **ALL PASS**
+  * 3-PC 통합 판정: **Laptop 단독 검증 PASS / 3-PC 교차 검증 PENDING (대기)**
+
