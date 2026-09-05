@@ -14,3 +14,27 @@ __pycache__/
 Thumbs.db
 *_backup*/
 local_backup*/
+
+# 1. Credentials, API Keys & Secrets
+.env
+.env.*
+*.token
+credentials.json
+secrets/
+private/
+*.key
+*.pem
+
+# 2. Local Machine State & Personal Knowledge Isolation
+.local/
+machine.json
+*.private.md
+*개인*
+*비공개*
+
+# 3. Local IDE & Cache
+.vscode/*.log
+.idea/
+*.tmp
+*.bak
+
